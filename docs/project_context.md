@@ -44,9 +44,9 @@ creators is a future vision, not V1.
 - One theme, **Soft Romantic**: warm/pastel palette, gentle reveal, soft glow on the current
   word, no shake/glitch. Exact look is decided in `/spec`, not here.
 - Emphasis words marked by hand by the owner in `lyrics.txt`
-- Output: `.mov` with alpha channel, 1080×1920, song length, starts at t=0
-- Fallback output: solid-green-background mp4 for CapCut Chroma Key (if alpha import fails,
-  or for mobile CapCut)
+- Two primary outputs, both 1080×1920, song length, starting at t=0 (H-003):
+  `.mov` with alpha channel for CapCut desktop, and a solid-green-background mp4 for CapCut
+  mobile (Chroma Key)
 - Auto-wrap / max words per line so text fits 9:16
 - Font fallback for characters the theme font lacks (the blueprint's "Tofu" problem)
 
@@ -56,7 +56,6 @@ creators is a future vision, not V1.
 - AI stylist / LLM auto-tagging; the custom tag markup (`<glow>`, `<shake>`, `<glitch>`, ...)
 - Themes other than Soft Romantic (Phonk, Lofi/Vaporwave, Pop Karaoke, Minimalist Cinematic)
 - Finished video export (background + audio + text in one file)
-- Mobile CapCut as the primary target
 - SaaS, multi-user, web UI, YouTube-channel marketing
 - Fast preview mode (nice-to-have only; owner accepts up to ~10 min render per song)
 
@@ -71,8 +70,9 @@ creators is a future vision, not V1.
 - **Language:** romanized Hindi is the hardest case for word-level alignment. Automatic
   results will need occasional hand correction; the correction path above is a requirement,
   not a nice-to-have.
-- **Editor:** CapCut desktop (assumed, owner to confirm). It does not import `.ass`; it does
-  import `.mov` with alpha; `.webm` alpha is unreliable there.
+- **Editor:** CapCut, both desktop and mobile (H-003). Neither imports styled `.ass`. Desktop
+  is expected to honour alpha in `.mov` (unverified until step 01); mobile does not reliably,
+  hence the green-screen mp4. `.webm` alpha is unreliable in both.
 - **Money:** no LLM cost in V1. Alignment API cost per song is small. Owner already has an
   ElevenLabs account (used by the MANIM project; assumed).
 - **Skills:** owner works in Python (several existing projects).
@@ -111,5 +111,4 @@ is the eventual signal, not a V1 gate.
 
 ## Open items
 
-- Confirm CapCut desktop (not mobile) is the editor.
 - Confirm the ElevenLabs account is active, or name the alignment provider you prefer.

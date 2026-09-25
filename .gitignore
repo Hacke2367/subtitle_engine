@@ -9,3 +9,6 @@ songs/*
 !songs/example/
 songs/example/*
 !songs/example/lyrics.txt
+
+# Rendered test clips and renders (spec 01 hard rule)
+out/

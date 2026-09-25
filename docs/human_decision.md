@@ -32,15 +32,16 @@ through `words.json`), C (two separate tools).
 **Decided:** 2026-09-26
 
 ### H-003 — CapCut desktop or mobile?
-**Status:** pending
+**Status:** decided
 **Raised:** 2026-09-26
 **Needed-before:** step 01 (alpha overlay proof)
 **Context:** Desktop CapCut imports `.mov` with alpha; mobile CapCut does not, and would need the
 green-screen mp4 + Chroma Key path as the main output instead of the fallback.
 **Options:** desktop / mobile / both
 **Recommendation:** desktop (assumed during kickoff)
-**Decision:**
-**Decided:**
+**Decision:** "both". Alpha `.mov` (desktop) and green-screen mp4 (mobile, Chroma Key) are both
+primary outputs; neither is a fallback.
+**Decided:** 2026-09-26
 
 ### H-004 — Alignment provider
 **Status:** pending

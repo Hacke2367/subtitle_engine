@@ -7,7 +7,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 
 | #  | Step                                   | Branch                          | Status      |
 |----|----------------------------------------|---------------------------------|-------------|
-| 01 | Alpha overlay proof in CapCut          | `feature/alpha-overlay-proof`   | Not started |
+| 01 | Alpha overlay proof in CapCut          | `feature/alpha-overlay-proof`   | Owner test  |
 | 02 | Word alignment → `words.json`          | `feature/word-alignment`        | Not started |
 | 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Not started |
 | 04 | Line anchors (`.lrc`) for alignment    | `feature/lrc-anchors`           | Not started |
@@ -16,9 +16,10 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 
 **Delivers:** a 5-second, 1080×1920 test overlay with a transparent background (a few words of
 static and moving text), plus the same clip on a solid green background as an mp4.
-**Needs:** H-003 answered (CapCut desktop or mobile). ffmpeg (8.0.1 already on PATH).
-**Done when:** the owner imports the alpha `.mov` into CapCut and the background shows through
-the transparent areas; the green mp4 keys out cleanly with CapCut Chroma Key.
+**Needs:** H-003 (decided: both desktop and mobile). ffmpeg (8.0.1 already on PATH).
+**Done when:** the owner imports the alpha `.mov` into CapCut desktop and the background shows
+through the transparent areas, and the green mp4 keys out cleanly with Chroma Key in CapCut
+mobile. Both outputs are primary (H-003).
 **Why first:** if CapCut does not honour the alpha channel, the output plan changes before any
 animation work is sunk into it.
 
