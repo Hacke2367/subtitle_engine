@@ -1,0 +1,11 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Per-song audio, lyrics and renders: large and copyrighted (D-002)
+songs/*
+!songs/example/
+songs/example/*
+!songs/example/lyrics.txt

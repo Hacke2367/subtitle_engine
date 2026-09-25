@@ -1,0 +1,7 @@
+{
+  "tier": "standard",
+  "redLines": [
+    "Never guess a timing: a word that could not be aligned is flagged and reported, never given an estimated timestamp.",
+    "Never alter the lyrics text: on-screen text matches lyrics.txt exactly (spelling, casing, line breaks)."
+  ]
+}
