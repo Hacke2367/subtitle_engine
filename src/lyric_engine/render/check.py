@@ -12,8 +12,7 @@ from PIL import Image, ImageStat
 from .. import layout
 from ..theme import Theme
 from .encode import _drain, _tail_text
-from .frames import scale_sprite, swell_step
-from .timeline import LinePlan, _ceil_frame, _timed, swell
+from .timeline import LinePlan, _ceil_frame, _timed
 
 if TYPE_CHECKING:
     from . import RenderResult
@@ -68,28 +67,20 @@ def _sync_samples(lines: list[LinePlan], theme: Theme) -> list[_Sample]:
     rev = _ceil_frame(theme.reveal_s, theme.fps)
     samples = []
     for lp in lines:
-        fonts = layout.font_set(theme, lp.layout.font_size)
         for wp in lp.words:
             if wp.reveal is None:
                 continue
+            fonts = layout.word_fonts(theme, lp.layout.font_size, wp.box.emphasis)
             mask = layout.word_mask(wp.text, fonts)
             top = (mask.getextrema() or (0, 0))[1]   # 255 for any real glyph; a 0-px mask → None
             if top == 0:
                 continue
             # Solid from reveal + rev until the line starts fading (never earlier, D-013).
             b, on = wp.box, min(wp.reveal + rev, lp.fade_start - 1, lp.stop - 1)
-            box, ink = (b.x, b.y, b.x + b.w, b.y + b.h), mask.point(
-                lambda v, top=top: 255 if v >= top else 0)
-            if step := swell_step(swell(wp, on, theme)):   # measured where it is drawn (spec 06)
-                pad = 3 * theme.glow_radius   # the sprite's pad, so the scaling matches frames.py
-                big = layout.word_mask(wp.text, fonts, pad).point(
-                    lambda v, top=top: 255 if v >= top else 0)
-                ink = scale_sprite(big, step).point(lambda v: 255 if v >= 250 else 0)
-                x = b.x - pad - (ink.width - big.width) // 2
-                y = b.y - pad - (ink.height - big.height) // 2
-                box = (x, y, x + ink.width, y + ink.height)
             samples.append(_Sample(f'word {b.index} "{wp.text}" (line {lp.layout.line + 1})',
-                                   box, ink, on, wp.reveal - 1 if wp.reveal > 0 else None,
+                                   (b.x, b.y, b.x + b.w, b.y + b.h),
+                                   mask.point(lambda v, top=top: 255 if v >= top else 0), on,
+                                   wp.reveal - 1 if wp.reveal > 0 else None,
                                    on < wp.reveal + rev))
     return samples
 

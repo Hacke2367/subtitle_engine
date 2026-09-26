@@ -232,5 +232,60 @@ class LayoutLineTest(unittest.TestCase):
             layout_line([(0, "chaand"), (1, "dil" + NO_FONT)], 2, THEME)
 
 
+class EmphasisLayoutTest(unittest.TestCase):
+    """H-013: a *marked* word is 1.5x-2x its line's other words, and the layout makes room."""
+
+    def test_rule_is_enforced_by_the_theme(self):
+        for scale in (1.5, 1.75, 2.0):
+            replace(THEME, emphasis_scale=scale)
+        for scale in (1.06, 1.49, 2.01, 3.0):
+            with self.subTest(scale), self.assertRaisesRegex(ValueError, "H-013"):
+                replace(THEME, emphasis_scale=scale)
+
+    def test_marked_word_is_scale_times_the_line_size_even_when_shrunk(self):
+        for scale in (1.5, 2.0):
+            theme = replace(THEME, emphasis_scale=scale)
+            for line in ("Jis roz se dekha hai usko", LONG_LINE):
+                words = indexed(line)
+                lay = layout_line(words, 0, theme, emphasis=frozenset({3}))
+                big = font_set(theme, round(lay.font_size * scale))
+                box = next(b for b in lay.words if b.index == 3)
+                self.assertTrue(box.emphasis)
+                self.assertEqual((box.w, box.h), word_mask(box.text, big).size)
+                plain = [b for b in lay.words if b.index != 3]
+                self.assertFalse(any(b.emphasis for b in plain))
+                fonts = font_set(theme, lay.font_size)
+                self.assertTrue(all(b.h == fonts.ascent + fonts.descent for b in plain))
+
+    def test_rows_share_a_baseline_and_nothing_overlaps(self):
+        for scale in (1.5, 2.0):
+            theme = replace(THEME, emphasis_scale=scale)
+            for line in [*KHIDKI, LONG_LINE]:
+                words = indexed(line)
+                marked = frozenset({0, len(words) // 2})
+                lay = layout_line(words, 0, theme, emphasis=marked)
+                small = font_set(theme, lay.font_size)
+                big = font_set(theme, round(lay.font_size * scale))
+                base = {b.index: b.y + (big if b.emphasis else small).ascent for b in lay.words}
+                rows: dict[int, list[WordBox]] = {}
+                for b in lay.words:
+                    rows.setdefault(base[b.index], []).append(b)
+                self.assertLessEqual(len(rows), theme.max_rows)
+                for row in rows.values():
+                    row.sort(key=lambda b: b.x)
+                    for a, b in zip(row, row[1:]):
+                        self.assertLessEqual(a.x + a.w, b.x, (line, a.text, b.text))
+                for a, b in combinations(lay.words, 2):
+                    if base[a.index] != base[b.index]:
+                        self.assertTrue(a.y + a.h <= b.y or b.y + b.h <= a.y, (line, a, b))
+                self.assertTrue(all(0 <= b.x and b.x + b.w <= theme.width for b in lay.words))
+
+    def test_no_marks_lays_out_exactly_as_before(self):
+        for line in [*KHIDKI, LONG_LINE]:
+            words = indexed(line)
+            self.assertEqual(layout_line(words, 0, THEME, emphasis=frozenset()),
+                             layout_line(words, 0, THEME))
+
+
 if __name__ == "__main__":
     unittest.main()

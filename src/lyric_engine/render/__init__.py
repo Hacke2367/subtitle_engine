@@ -17,9 +17,8 @@ from ..theme import SOFT_ROMANTIC, Theme
 from . import encode
 from .check import REPORT, check_outputs, write_report
 from .encode import ALPHA_CODECS, OUTPUTS, RenderError, _encode, _ffmpeg_cmd, _remove
-from .frames import FadeCache, _frame_parts, build_sprites, compose_frame, scale_sprite, swell_step
-from .timeline import (LinePlan, WordPlan, _ceil_frame, line_opacity, plan_timeline, swell,
-                       word_state)
+from .frames import FadeCache, _frame_parts, build_sprites, compose_frame
+from .timeline import LinePlan, WordPlan, _ceil_frame, line_opacity, plan_timeline, word_state
 
 
 @dataclass

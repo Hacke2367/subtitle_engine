@@ -3,6 +3,23 @@
 **Branch:** `feature/emphasis-markers` · **Decisions:** H-009, D-016
 **Work split:** one developer, in the build order of §11 (small change, no agents).
 
+> **Revision 1.1 (H-013, spec v1.1.0).** The owner found the 1.06x swell too subtle and set a
+> rule: a marked word is 1.5x-2x its line's other words, permanently. That supersedes every swell
+> part of this plan (§2.4-2.7, §2.9, `swell()`, `SWELL_STEP`, the scaled sprite cache, the scaled
+> sync geometry, `swell` / `swell_out_s`). What was built instead:
+> - `theme.py`: `emphasis_scale = 1.5`; `Theme.__post_init__` refuses a value outside
+>   `EMPHASIS_MIN`-`EMPHASIS_MAX` (1.5-2.0).
+> - `layout.py`: `WordBox.emphasis` (defaulted field); `word_fonts(theme, size, emphasis)` gives
+>   `font_set(theme, round(size * emphasis_scale))` for a marked word; `layout_line(...,
+>   emphasis=)` measures marked words at that size for the wrap; `_place` gives each row the
+>   height of its tallest word and one shared baseline, with the plain row gap between rows, so a
+>   line without marks is placed exactly as before.
+> - `render/timeline.py`: `plan_timeline(..., emphasis=)` passes the set to `layout_fn`.
+>   `render/frames.py` and `render/check.py` take each word's fonts from `word_fonts`, so the
+>   drawn mask, the layout box and the sync check agree. No animation change.
+> - Tests: `tests.test_layout -k Emphasis` (rule, ratio after shrink, baseline, no overlap,
+>   unmarked identical) and `tests.test_render -k Emphasis` (end to end, report, malformed marker).
+
 ## 1. Files
 
 | Action | File | Reason |

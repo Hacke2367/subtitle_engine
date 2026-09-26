@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import dataclasses
 import hashlib
-import math
 import shutil
 import tempfile
 import unittest
@@ -15,7 +14,7 @@ import wave
 from pathlib import Path
 from unittest import mock
 
-from PIL import Image, ImageChops
+from PIL import Image
 
 from lyric_engine import render, timing
 from lyric_engine.layout import LineLayout, WordBox
@@ -25,7 +24,7 @@ from lyric_engine.theme import SOFT_ROMANTIC as THEME
 W, H = THEME.width, THEME.height   # fps 30, lead 0.05 s, reveal 6 frames, fade 8 frames
 
 
-def fake_layout(words, line, theme):
+def fake_layout(words, line, theme, emphasis=frozenset()):
     """One row of 100x80 boxes, 120 px apart: layout geometry without fonts."""
     return LineLayout(line, theme.font_size, tuple(
         WordBox(i, text, 100 + 120 * k, 1000, 100, 80) for k, (i, text) in enumerate(words)))
@@ -139,7 +138,7 @@ class PlanTimelineTest(unittest.TestCase):
             self.assertLessEqual(sum(render.line_opacity(lp, n) > 0 for lp in lines), 1)
 
     def test_layout_must_keep_the_words_json_text(self):  # red line 2
-        def lowercasing(words, line, theme):
+        def lowercasing(words, line, theme, emphasis=frozenset()):
             lay = fake_layout(words, line, theme)
             return dataclasses.replace(lay, words=tuple(dataclasses.replace(b, text=b.text.lower())
                                                         for b in lay.words))
@@ -404,81 +403,9 @@ class RenderSmokeTest(unittest.TestCase):
             self.assertEqual(list((song / "render").iterdir()), [])
 
 
-class SwellEmphasisTest(unittest.TestCase):
-    """Spec 06: a *marked* word swells on its own time, and nothing else on screen changes."""
-
-    WORDS = [word(0, "Mere", 0, 1.0, 1.5), word(1, "saamne,", 0, 1.6, 2.0),
-             word(2, "waali", 0, 2.1, 2.5), word(3, "khidki", 0, 2.6, 3.0)]
-
-    def setUp(self):
-        def word_mask(text, fonts, pad=0):   # 100x80 boxes, solid ink at (10, 10)-(90, 70)
-            mask = Image.new("L", (100 + 2 * pad, 80 + 2 * pad), 0)
-            mask.paste(255, (pad + 10, pad + 10, pad + 90, pad + 70))
-            return mask
-        for p in (mock.patch.object(render.layout, "font_set", create=True, return_value=object()),
-                  mock.patch.object(render.layout, "word_mask", word_mask, create=True)):
-            p.start()
-            self.addCleanup(p.stop)
-
-    def frames(self, emphasis):
-        lines, _ = render.plan_timeline({"words": self.WORDS}, THEME, 150, layout_fn=fake_layout,
-                                        emphasis=emphasis)
-        sprites, cache = render.build_sprites(lines, THEME), render.FadeCache()
-        return lines, [Image.frombytes("RGBA", (W, H),
-                                       render.compose_frame(n, lines, sprites, THEME, cache))
-                       for n in range(150)]
-
-    def test_only_the_marked_word_changes_and_only_on_its_time(self):  # AC5
-        _, plain = self.frames(frozenset())
-        lines, marked = self.frames(frozenset({1}))
-        wp, pad = lines[0].words[1], 3 * THEME.glow_radius
-        step = render.swell_step(THEME.swell)
-        size = render.scale_sprite(Image.new("L", (100 + 2 * pad, 80 + 2 * pad)), step).size
-        x0 = wp.box.x - pad - (size[0] - 100 - 2 * pad) // 2
-        y0 = wp.box.y - pad - (size[1] - 80 - 2 * pad) // 2
-        rect = (x0, y0, x0 + size[0], y0 + size[1] + THEME.rise_px)   # + the reveal's rise
-        settle = wp.end + math.ceil(THEME.swell_out_s * THEME.fps)
-        changed = []
-        for n, (a, b) in enumerate(zip(plain, marked)):
-            box = ImageChops.difference(a, b).getbbox()
-            if box is None:
-                continue
-            changed.append(n)
-            self.assertTrue(rect[0] <= box[0] and rect[1] <= box[1] and box[2] <= rect[2]
-                            and box[3] <= rect[3], (n, box, rect))
-            for nb in (lines[0].words[0].box, lines[0].words[2].box):   # neighbours' solid ink
-                ink = (nb.x + 10, nb.y + 10, nb.x + 90, nb.y + 70)
-                pa, pb = a.crop(ink).tobytes(), b.crop(ink).tobytes()
-                for k in range(3, len(pa), 4):
-                    if pa[k] == 255:
-                        self.assertEqual(pa[k - 3:k + 1], pb[k - 3:k + 1], n)
-        self.assertTrue(changed)
-        self.assertGreaterEqual(min(changed), wp.reveal)
-        self.assertLessEqual(max(changed), settle)
-
-    def test_swell_shape_and_flagged_word(self):  # AC8
-        box = WordBox(0, "dil", 100, 200, 10, 10)
-        wp = WordPlan(box, 30, 45, "dil", emphasis=True)
-        self.assertEqual(render.swell(wp, 29, THEME), 1.0)
-        self.assertAlmostEqual(render.swell(wp, 40, THEME), THEME.swell)     # held while sung
-        self.assertEqual(render.swell(wp, 45 + math.ceil(THEME.swell_out_s * THEME.fps), THEME),
-                         1.0)
-        self.assertEqual(render.swell(dataclasses.replace(wp, emphasis=False), 40, THEME), 1.0)
-        brief = dataclasses.replace(wp, end=32)                            # sung for 2 frames
-        self.assertLess(render.swell(brief, 32, THEME), THEME.swell)
-        untimed = WordPlan(box, None, None, "dil", emphasis=True)          # --allow-flagged
-        self.assertEqual({render.swell(untimed, n, THEME) for n in range(200)}, {1.0})
-
-    def test_swell_stays_on_canvas(self):
-        pad = 3 * THEME.glow_radius
-        left = (THEME.width - THEME.max_width) // 2 - pad   # leftmost sprite x of a full row
-        shift = math.ceil((THEME.max_width + 2 * pad) * (THEME.swell - 1) / 2)
-        self.assertGreaterEqual(left - shift, 0)
-
-
 class EmphasisRenderTest(unittest.TestCase):
-    """End to end: a marker added after alignment renders with no re-align, and passes the sync
-    check measured on the swelled word (spec 06 AC4, AC5)."""
+    """End to end: a marker added after alignment renders with no re-align, bigger, and passes
+    the sync check measured on the bigger word (spec 06, H-013)."""
 
     def test_marker_added_after_align(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -499,31 +426,6 @@ class EmphasisRenderTest(unittest.TestCase):
             (song / "lyrics.txt").write_text("*Mere\nsaamne\n", encoding="utf-8")
             with self.assertRaisesRegex(RenderError, r"(?s)line 1: .*\*tere\* \*bina\*"):
                 render.load_for_render(song, allow_flagged=False)
-
-
-class SwellRealFontEmphasisTest(unittest.TestCase):
-    """Real fonts: a swelled word's glyphs never reach its neighbours' glyphs (spec 06 AC5)."""
-
-    def test_no_overlap_with_neighbours(self):
-        from lyric_engine import layout
-        pad = 3 * THEME.glow_radius
-        for size in (THEME.font_size, THEME.min_font_size):
-            theme = dataclasses.replace(THEME, font_size=size)
-            words = list(enumerate("Jis roz se dekha hai usko jalaana khidki, bhool".split()))
-            lay = layout.layout_line(words, 0, theme)
-            fonts = layout.font_set(theme, lay.font_size)
-            ink = {}
-            for b in lay.words:
-                x0, y0, x1, y1 = layout.word_mask(b.text, fonts, pad).getbbox()
-                ink[b.index] = (b.x - pad + x0, b.y - pad + y0, b.x - pad + x1, b.y - pad + y1, b)
-            for i, (x0, y0, x1, y1, b) in ink.items():
-                cx, cy, f = b.x + b.w / 2, b.y + b.h / 2, THEME.swell
-                big = (cx + (x0 - cx) * f, cy + (y0 - cy) * f,
-                       cx + (x1 - cx) * f, cy + (y1 - cy) * f)
-                for j in (i - 1, i + 1):
-                    if j in ink and ink[j][4].y == b.y:   # same row
-                        o = ink[j]
-                        self.assertFalse(big[0] < o[2] and o[0] < big[2], (size, b.text, o[4].text))
 
 
 if __name__ == "__main__":

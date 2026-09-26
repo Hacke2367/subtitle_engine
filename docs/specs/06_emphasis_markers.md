@@ -1,6 +1,6 @@
 # Spec: Emphasis Words (`*word*`)
-**Version:** 1.0.1 | **Component:** lyrics reader and `words.json` contract (`timing.py`), aligner input, `clip`, Soft Romantic renderer
-**Status:** Approved by owner 2026-09-26 (v1.0.1 clarifies the brief-word row: see plan §2.6)
+**Version:** 1.1.0 | **Component:** lyrics reader and `words.json` contract (`timing.py`), aligner input, `clip`, Soft Romantic renderer
+**Status:** Approved by owner 2026-09-26. v1.1.0 (H-013, owner): the swell is replaced by a permanent size, 1.5x-2x the line's other words.
 **Plan step:** 06 (`docs/development_plan.md`) · **Branch:** `feature/emphasis-markers` · **Decisions:** H-009, D-016
 
 ## 1. Problem Statement
@@ -15,8 +15,8 @@ touches red line 2. H-009 settled the marker: `*word*`, never drawn.
 ## 2. Objective
 
 The owner wraps a word in asterisks in `lyrics.txt`, re-renders, and that word, and only that
-word, swells gently as it is sung; the asterisks never reach the screen, the aligner or the
-timings.
+word, is drawn clearly bigger than the rest of its line (1.5x-2x, H-013); the asterisks never
+reach the screen, the aligner or the timings.
 
 ## 3. Scope & Constraints
 
@@ -28,22 +28,21 @@ timings.
 - Make `lyrics.txt` the only place emphasis lives. Adding, removing or moving markers after
   alignment does not make `words.json` stale, does not need a re-align, and keeps the owner's
   hand-edited timings.
-- Soft Romantic gets **one** emphasis move, the swell: the marked word grows slightly around its
-  own centre while it is sung (about 1.06×, eased in with the reveal), holds for its sung
-  duration, and settles back to normal size after it ends. Size and timings live in `theme.py`
-  for the owner to tune from `preview.mp4`.
+- **Size rule (H-013):** a marked word is drawn at `emphasis_scale` times its line's font size,
+  for as long as the line is on screen. `emphasis_scale` lives in `theme.py` (default 1.5) and a
+  theme outside 1.5-2.0 is refused. The ratio is to the line's own size, so it still holds when
+  a long line shrinks to fit. The layout makes room: the bigger word takes its real width in the
+  wrap, and its row grows so all words of a row share one baseline.
 - `clip` keeps the source's markers on the lines it copies.
 - The render summary lists the emphasised words, so the owner can confirm what was picked up.
-- Unit tests for the marker rules, aligner input, staleness and the swell's frame region.
+- Unit tests for the marker rules, aligner input, staleness, the size rule and the layout.
   Offline, with synthetic fixtures (`songs/` is not in git).
 
 **Will NOT Do:**
-- A second emphasis move (glow, colour, tracking) or a per-word choice of move: one move per
-  theme (research §2, §12). Pop Karaoke's own move comes in step 07.
+- Extra motion on a marked word (a swell or pop), a second treatment (glow, colour, tracking) or a
+  per-word choice: size is the one emphasis (H-013). Pop Karaoke's own treatment comes in step 07.
 - A cap or warning on how many words are marked. Restraint is the owner's call.
 - Emphasis on a span of words as one unit. Each word is marked on its own: `*tere* *bina*`.
-- Changing where words sit: wrapping and word positions are computed at normal size, and
-  neighbours never move.
 - Any emphasis field in `words.json`, or a new tag syntax (the blueprint's `<glow>` etc. stay out
   of scope).
 
@@ -51,8 +50,8 @@ timings.
 - **Red line 2, with its one exception (H-009):** on-screen text equals `lyrics.txt` with the
   marker asterisks removed. Nothing else changes: spelling, casing, punctuation, line breaks.
   An asterisk inside a word (`f**k`) is lyric text, drawn as written.
-- **Red line 1:** the swell is timed by the word's own aligned start and end. An unaligned word
-  shown with `--allow-flagged` gets no swell, since it has no sung time.
+- **Red line 1:** emphasis adds no timing. A marked word reveals, glows and fades on its own
+  aligned time exactly like any other word; only its size differs.
 - Lyrics are never auto-fixed. A malformed marker stops `align`, `clip` and `render` with a
   message that names the line and shows the correct form.
 
@@ -71,7 +70,8 @@ timings.
    markers, or when the audio changed, as today. A markers-only edit is not stale. Existing
    `words.json` files (made before this step, no markers) stay valid without re-aligning.
 5. **Render.** The renderer reads the current `lyrics.txt`, pairs its words 1:1 with
-   `words.json` by position, and gives the marked ones Soft Romantic's swell. The drawn string
+   `words.json` by position, and lays the marked ones out at `emphasis_scale` times the line's
+   font size. The drawn string
    is checked against `words.json`'s `text`, as it is today.
 6. **`clip`** writes the new song's `lyrics.txt` from the source `lyrics.txt` lines, markers
    included, not from the marker-free copy in `words.json`.
@@ -87,10 +87,11 @@ timings.
 | `f**k` | literal word `f**k`, not emphasised |
 | Markers added or moved after `align` | `validate` passes; `render` runs with no re-align; `words.json` unchanged |
 | A word's letters changed after `align` | stale, as today: re-align needed |
-| Marked word is flagged (unaligned), `--allow-flagged` | drawn static, no swell |
-| Marked word sung very briefly (shorter than the swell's ease) | swell peaks lower, in proportion to the word's own duration; it settles after the word's own end (like the glow fade) and never reads another word's time |
+| Marked word is flagged (unaligned), `--allow-flagged` | drawn static with its line, at the bigger size |
+| Line too long once the marked word is bigger | the whole line shrinks (marked word included, ratio kept) or wraps, as any long line |
+| `emphasis_scale` outside 1.5-2.0 in a theme | the theme is refused when built (`ValueError` naming H-013) |
 | Old `words.json`, no markers anywhere | renders pixel-identically to before this step |
-| Every word on a line marked | allowed; each swells on its own time |
+| Every word on a line marked | allowed; all are bigger, which reads as a bigger line |
 
 ## 6. Acceptance Criteria
 
@@ -104,16 +105,17 @@ timings.
 4. **Markers-only edit is free:** after adding 2-3 markers to `khidki_s2/lyrics.txt`,
    `validate` passes, `render` succeeds without `align`, and `words.json` is byte-for-byte
    unchanged. Changing a word's letters instead still reports stale.
-5. **Swell on exactly the marked words:** rendering the same `words.json` with and without
-   markers, frames differ only inside the marked words' swell boxes, and only between each
-   marked word's reveal and the end of its settle. No swell box overlaps a neighbouring word's
-   ink at default settings.
+5. **Size rule:** a marked word's box is exactly its text measured at `emphasis_scale` times the
+   line's size, also on a line that had to shrink; unmarked words keep the line size; a theme
+   with a scale outside 1.5-2.0 is refused. In every test line, at 1.5 and 2.0, words in a row
+   share a baseline and no two word boxes overlap. The sync check passes on the bigger words.
 6. **Text:** the drawn text of every word equals its `words.json` `text`, which equals the
    `lyrics.txt` token minus the marker asterisks (existing red-line assertion, still enforced).
 7. **Clip:** clipping a marked song gives a `lyrics.txt` with the same markers on the copied
    lines.
-8. **Flagged:** a flagged marked word rendered with `--allow-flagged` shows no swell (unit test).
+8. **Flagged:** a flagged marked word keeps no timing of its own; it is shown static, like any
+   flagged word (existing refusal rules unchanged).
 9. **Speed:** rendering `khidki_s2` with 3 marked words takes at most 10% longer than without.
-10. **Look:** the owner approves the swell in `khidki_s2`'s `preview.mp4` (tune `theme.py`
-    until they do).
+10. **Look:** the owner approves the size in `songs/khidki_s2_em/render/preview.mp4` (1.5x) or
+    `songs/khidki_s2_em_2x/render/preview.mp4` (2x), and `emphasis_scale` is set to the choice.
 11. The gate passes (unit tests + alpha proof).
