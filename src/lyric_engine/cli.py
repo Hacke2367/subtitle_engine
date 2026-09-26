@@ -16,7 +16,7 @@ import sys
 from pathlib import Path
 
 from . import align, timing
-from .theme import THEMES
+from .theme import DEFAULT_THEME, THEMES
 
 
 def _validate(path: Path, song: Path | None) -> int:
@@ -103,8 +103,8 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--song", type=Path)
     r = sub.add_parser("render", help="words.json → overlay.mov + overlay_green.mp4 + preview.mp4")
     r.add_argument("song_dir", type=Path)
-    r.add_argument("--theme", choices=list(THEMES), default="soft-romantic",
-                   help="look of the overlay; outputs go to render/<theme>/ (default: soft-romantic)")
+    r.add_argument("--theme", choices=list(THEMES), default=DEFAULT_THEME,
+                   help=f"look of the overlay; outputs go to render/<theme>/ (default: {DEFAULT_THEME})")
     r.add_argument("--codec", choices=["prores", "png", "qtrle"],
                    help="alpha codec for overlay.mov (default: theme's, provisional until CapCut test)")
     r.add_argument("--allow-flagged", action="store_true",
@@ -116,7 +116,7 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("--out", type=Path, help="new song folder (default: <song>_<from>-<to>)")
     m = sub.add_parser("make", help="align (if not done yet) and render a song folder")
     m.add_argument("song_dir", type=Path)
-    m.add_argument("--theme", choices=list(THEMES), default="soft-romantic")
+    m.add_argument("--theme", choices=list(THEMES), default=DEFAULT_THEME)
     m.add_argument("--codec", choices=["prores", "png", "qtrle"])
     m.add_argument("--allow-flagged", action="store_true")
     args = parser.parse_args(argv)

@@ -56,8 +56,8 @@ def visible(lines, n):
 
 
 class ThemeTest(unittest.TestCase):
-    def test_both_themes_are_offered(self):
-        self.assertEqual(list(THEMES), ["soft-romantic", "pop-karaoke"])
+    def test_every_theme_is_offered(self):
+        self.assertEqual(list(THEMES), ["soft-romantic", "soft-romantic-v2", "pop-karaoke"])
         self.assertTrue(Path(THEME.font).is_file(), "Poppins must be bundled in fonts/")
 
     def test_key_green_colours_are_refused(self):  # AC8
@@ -299,7 +299,7 @@ class CliThemeTest(unittest.TestCase):  # AC1
                 self.assertEqual(cli.main(["make", str(song), "--theme", "pop-karaoke",
                                            "--codec", "qtrle"]), 0)
             self.assertIn("using the existing alignment", out.getvalue())
-            for name in ("soft-romantic", "pop-karaoke"):
+            for name in ("soft-romantic-v2", "pop-karaoke"):   # plain render: the default theme
                 self.assertTrue((song / "render" / name / "overlay.mov").is_file(), name)
 
 

@@ -32,6 +32,8 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-015 | Stacked PRs merged top-down (#4→#3→#2→dev)          | Active |
 | D-016 | Emphasis (06) before Pop Karaoke (07), own branches | Active |
 | D-017 | Order of styling steps 08–14                        | Active |
+| D-018 | Theme outputs in `render/<theme>/`; Poppins bundled | Active |
+| D-019 | v2 hand-over rule and sync readability (step 08)    | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -248,4 +250,18 @@ with its `OFL.txt` and is found relative to `theme.py`.
 **Why:** Eight themes are planned (H-012); side-by-side folders make comparing them free. A
 bundled font renders identically on any machine and keeps the tests offline; OFL allows
 redistribution with the licence.
+**Supersedes:** —
+
+### D-019 — v2 hand-over rule and sync readability (step 08)
+**Date:** 2026-09-27
+**Context:** Spec 08 §4.2 says a line clears if the next line does not start within `hold` of
+its last word. Built literally, a line fading out of the current slot can meet the next line's
+first word there. The v2 sync check also skipped every line's first word when it tested a wide
+margin around the word's whole box.
+**Decision:** A line hands over when the move would start before a clear could finish
+(`next first − lead ≤ last end + hold + exit fade`, Pop Karaoke's rule), so it can stay up to
+0.5 s past `hold`. The v2 sync check reads a word only where no other line's moved block covers
+the word's ink rectangle; any word it cannot read is a report note.
+**Why:** Two lines never overlap in the current slot. On `khidki_s2` and `khidki_s2_em`, every
+timed word is now read by the check (no notes), instead of the first words being skipped.
 **Supersedes:** —

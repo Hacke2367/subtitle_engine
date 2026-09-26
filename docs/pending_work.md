@@ -1,28 +1,28 @@
 # Pending Work
 
-Last updated: 2026-09-27 (step 07 merged, PR #6)
+Last updated: 2026-09-27 (step 08 shipped for review)
 
 ## WIP
 
-None. Step 07 (Pop Karaoke theme) merged into `dev` via
-[PR #6](https://github.com/Hacke2367/subtitle_engine/pull/6).
+Step 08 (Soft Romantic v2) on `feature/soft-romantic-v2`, base `dev @ a01aff5`. Stage: review
+(PR open, gate green, every spec 08 AC passes).
 
 ## Current focus
 
-V1.1 styling. Two themes ship: Soft Romantic and Pop Karaoke (`--theme`, outputs in
-`render/<theme>/`, D-018). Next: step 08, Soft Romantic v2, then steps 09-13 (H-012, D-017).
+V1.1 styling. Three themes: Soft Romantic v2 (default, H-015), Soft Romantic v1 and Pop Karaoke
+(`--theme`, outputs in `render/<theme>/`, D-018). Next: step 09, Lofi Minimal (H-012, D-017).
 
 ## Next up
 
-1. **Resume point:** `/start_work` step 08 (Soft Romantic v2, branch `feature/soft-romantic-v2`)
-   off the updated `dev`, then `/spec`. No pending `H-` item blocks it. The spec must decide
-   whether v2 replaces v1 or sits beside it, and must ask the owner to re-approve any waiting
-   next line (H-010 kept "no ghosting"). It should also bring Soft Romantic inside the safe zone
-   (x 60-960; today x 90-990) and reuse step 07's dim/scale primitives in `render/karaoke.py`.
-2. Steps 09–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
+1. **Resume point:** step 08 is in review (PR on `feature/soft-romantic-v2`). The owner preferred
+   v2 (H-015), so `render`/`make` now default to `soft-romantic-v2`; v1 is `--theme soft-romantic`.
+   Merge only on the owner's word (`/merge_pr`), then `/start_work` step 09 (Lofi Minimal).
+2. Optional cleanup: `render/check.py` (≈330 lines) and `render/karaoke.py` (≈310) are past the
+   ~300-line split guideline; split only if the owner wants it (e.g. a `chore/` branch).
+3. Steps 09–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
    shaping) only when a song needs it.
-3. Owner: try a different song end to end (spec 05 AC4), now with either theme.
-4. Step 04 (`.lrc` anchors) only if a real song drifts.
+4. Owner: try a different song end to end (spec 05 AC4), now with any theme.
+5. Step 04 (`.lrc` anchors) only if a real song drifts.
 
 ## Waiting on the owner
 

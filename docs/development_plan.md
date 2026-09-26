@@ -14,7 +14,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 05 | Workflow: `clip` + `make` commands     | `feature/workflow-clip-make`    | Done ([PR #4](https://github.com/Hacke2367/subtitle_engine/pull/4), via #3 → #2) |
 | 06 | Emphasis words (`*word*`)              | `feature/emphasis-markers`      | Done ([PR #5](https://github.com/Hacke2367/subtitle_engine/pull/5)) |
 | 07 | Pop Karaoke theme (V1.1)               | `feature/pop-karaoke-theme`     | Done ([PR #6](https://github.com/Hacke2367/subtitle_engine/pull/6)) |
-| 08 | Soft Romantic v2                       | `feature/soft-romantic-v2`      | Not started |
+| 08 | Soft Romantic v2                       | `feature/soft-romantic-v2`      | Review      |
 | 09 | Lofi Minimal theme                     | `feature/lofi-minimal-theme`    | Not started |
 | 10 | Cinematic theme                        | `feature/cinematic-theme`       | Not started |
 | 11 | Beat detection                         | `feature/beat-detection`        | Not started |

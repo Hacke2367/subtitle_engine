@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .. import align, layout, timing
 from ..theme import SOFT_ROMANTIC, Theme
-from . import encode, karaoke
+from . import encode, focus, karaoke
 from .check import REPORT, check_outputs, write_report
 from .encode import ALPHA_CODECS, OUTPUTS, RenderError, _encode, _ffmpeg_cmd, _remove
 from .frames import FadeCache, _frame_parts, build_sprites, compose_frame
@@ -95,6 +95,9 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
         lines, skipped = karaoke.plan_karaoke(doc, theme, n, emphasis=emphasis)
         sprites, cache, parts = (karaoke.build_sprites(lines, theme), karaoke.LineCache(),
                                  karaoke.frame_parts)
+    elif theme.motion == "focus":
+        lines, skipped = focus.plan_focus(doc, theme, n, emphasis=emphasis)
+        sprites, cache, parts = build_sprites(lines, theme), focus.FocusCache(), focus.frame_parts
     else:
         lines, skipped = plan_timeline(doc, theme, n, emphasis=emphasis)
         sprites, cache, parts = build_sprites(lines, theme), FadeCache(), _frame_parts
