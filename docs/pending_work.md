@@ -1,11 +1,10 @@
 # Pending Work
 
-Last updated: 2026-09-27 (step 08 in review, PR #7; session handed off)
+Last updated: 2026-09-27 (step 08 merged, PR #7)
 
 ## WIP
 
-Step 08 (Soft Romantic v2) on `feature/soft-romantic-v2`, base `dev @ a01aff5`. Stage: review
-([PR #7](https://github.com/Hacke2367/subtitle_engine/pull/7), gate green, every spec 08 AC passes).
+None. Step 08 (Soft Romantic v2) merged into `dev` ([PR #7](https://github.com/Hacke2367/subtitle_engine/pull/7)).
 
 ## Current focus
 
@@ -14,9 +13,8 @@ V1.1 styling. Three themes: Soft Romantic v2 (default, H-015), Soft Romantic v1 
 
 ## Next up
 
-1. **Resume point:** step 08 is in review ([PR #7](https://github.com/Hacke2367/subtitle_engine/pull/7)). The owner preferred
-   v2 (H-015), so `render`/`make` now default to `soft-romantic-v2`; v1 is `--theme soft-romantic`.
-   Merge only on the owner's word (`/merge_pr`), then `/start_work` step 09 (Lofi Minimal).
+1. **Resume point:** `/start_work` step 09 (Lofi Minimal, `feature/lofi-minimal-theme`), then
+   `/spec`. Needs nothing new from the owner (H-012, D-017 cover it).
 2. Optional cleanup: `render/check.py` (≈330 lines) and `render/karaoke.py` (≈310) are past the
    ~300-line split guideline; split only if the owner wants it (e.g. a `chore/` branch).
 3. Steps 09–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
@@ -31,7 +29,6 @@ V1.1 styling. Three themes: Soft Romantic v2 (default, H-015), Soft Romantic v1 
 - FYI: emphasis ships at 1.5x; set `emphasis_scale` (up to 2.0) in `theme.py` any time. The 2x
   preview is in `songs/khidki_s2_em_2x`.
 - Try a different song: `align` → `clip` → `make` (spec 05 AC4).
-- Rotate the ElevenLabs API key (it was pasted in chat).
 - FYI (D-010): the local model's weights are non-commercial (CC-BY-NC). Fine for V1, but it
   matters if this ever becomes a SaaS.
 
