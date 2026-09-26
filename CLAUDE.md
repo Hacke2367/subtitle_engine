@@ -38,7 +38,8 @@ Split a module into a subpackage only when it passes ~300 lines.
 1. Never guess a timing. An unaligned word is flagged and reported, never given an
    estimated timestamp.
 2. Never alter the lyrics text. On-screen text matches `lyrics.txt` exactly: spelling,
-   casing, line breaks.
+   casing, line breaks. One exception (H-009): `*word*` marks emphasis; the asterisks are
+   never drawn.
 
 ## Environment
 

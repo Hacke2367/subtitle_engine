@@ -43,7 +43,9 @@ creators is a future vision, not V1.
 - Human-editable timing file, and re-render from it without re-aligning
 - One theme, **Soft Romantic**: warm/pastel palette, gentle reveal, soft glow on the current
   word, no shake/glitch. Exact look is decided in `/spec`, not here.
-- Emphasis words marked by hand by the owner in `lyrics.txt`
+- Emphasis words marked by hand by the owner in `lyrics.txt` as `*word*` (H-009)
+- **V1.1 (H-011, scope change):** a second theme, **Pop Karaoke**: left-to-right fill on the
+  sung word, bold sans, white plus one accent. Look details in its `/spec`.
 - Two primary outputs, both 1080×1920, song length, starting at t=0 (H-003):
   `.mov` with alpha channel for CapCut desktop, and a solid-green-background mp4 for CapCut
   mobile (Chroma Key)
@@ -54,7 +56,8 @@ creators is a future vision, not V1.
 - Transcription (audio without lyrics); spoken / voiceover content
 - `.ass` or any subtitle-file output (CapCut cannot read styled subtitles)
 - AI stylist / LLM auto-tagging; the custom tag markup (`<glow>`, `<shake>`, `<glitch>`, ...)
-- Themes other than Soft Romantic (Phonk, Lofi/Vaporwave, Pop Karaoke, Minimalist Cinematic)
+- Themes other than Soft Romantic and Pop Karaoke (Phonk, Lofi/Vaporwave, Minimalist Cinematic)
+  until the owner picks the next one
 - Finished video export (background + audio + text in one file)
 - SaaS, multi-user, web UI, YouTube-channel marketing
 - Fast preview mode (nice-to-have only; owner accepts up to ~10 min render per song)
@@ -107,7 +110,8 @@ is the eventual signal, not a V1 gate.
    that is the whole point of the project.
 2. **Never alter the lyrics text.** What the owner wrote in `lyrics.txt` appears on screen
    exactly: spelling, casing, line breaks. If the aligner does not recognise a word, the text
-   stays and only its timing is flagged.
+   stays and only its timing is flagged. One exception (H-009): asterisks around a word
+   (`*word*`) mark emphasis and are never drawn.
 
 ## Open items
 

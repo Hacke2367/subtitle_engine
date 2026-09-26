@@ -30,6 +30,7 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-013 | Fade waits for the last word; render subpackage     | Active |
 | D-014 | Step 05 (workflow) before 04; stacked on step 03    | Active |
 | D-015 | Stacked PRs merged top-down (#4→#3→#2→dev)          | Active |
+| D-016 | Emphasis (06) before Pop Karaoke (07), own branches | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -211,4 +212,14 @@ steps 02+03+05. The per-step history stays in PRs #2/#3/#4 and in these docs. Th
 on the top branch, so it flows down into `dev`.
 **Why:** It is the safest path for a stacked squash workflow. For later stacks, prefer merging each
 PR before the next branch starts.
+**Supersedes:** —
+
+### D-016 — Emphasis (step 06) before Pop Karaoke (step 07), separate branches
+**Date:** 2026-09-26
+**Context:** H-009 chose `*word*` emphasis and H-011 chose Pop Karaoke as the first new theme.
+Emphasis is V1 scope that step 03 shipped without; the new theme is a V1.1 scope change.
+**Decision:** Step 06 adds `*word*` parsing and one emphasis move to Soft Romantic. Step 07 adds
+Pop Karaoke and theme selection. Each gets its own branch off `dev`, merged before the next starts.
+**Why:** Emphasis touches the lyrics reader and a red line, so it is reviewed on its own; Pop
+Karaoke then reuses it. Separate, sequential branches avoid another stacked merge (D-015).
 **Supersedes:** —

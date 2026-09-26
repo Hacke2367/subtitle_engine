@@ -111,7 +111,7 @@ criteria is allowed).
 **Decided:** 2026-09-26
 
 ### H-009 — How should emphasis words be marked?
-**Status:** pending
+**Status:** decided
 **Raised:** 2026-09-26
 **Needed-before:** emphasis styling in the renderer (step 03 ships without it)
 **Context:** project_context puts "emphasis words marked by hand in `lyrics.txt`" in V1 scope. Red
@@ -123,8 +123,10 @@ exception to red line 2; alignment ignores them. (b) `"emphasis": true` per word
 set by hand; lyrics stay pure, but a re-alignment needs the flag carried over. (c) No emphasis in V1.
 **Recommendation:** (a). It is set once per song, survives re-alignment, and is obvious in a
 text editor.
-**Decision:**
-**Decided:**
+**Decision:** (a) `*word*` in `lyrics.txt`. The asterisks mark emphasis and are never drawn; this
+is the one documented exception to red line 2 (project_context.md, CLAUDE.md, devsystem.json).
+Alignment ignores them. Built in plan step 06.
+**Decided:** 2026-09-26
 
 ### H-010 — Owner validated the first overlay
 **Status:** decided
@@ -137,4 +139,26 @@ all OK. L-vocals is confirmed as the default aligner (D-009), and ProRes 4444 `o
 confirmed as the default alpha codec (D-011). The look is kept as rendered, with no change such as
 ghosting upcoming words. The ElevenLabs E-variants become optional: re-run them only if a song
 aligns badly locally.
+**Decided:** 2026-09-26
+
+### H-011 — Which styles come first in V1.1?
+**Status:** decided
+**Raised:** 2026-09-26
+**Needed-before:** plan step 06 (styling) and its `/spec`
+**Context:** `docs/research/lyric_aesthetics.md` (2026-09-26) surveyed short-form lyric styles,
+Hinglish conventions, fonts, palettes, CapCut's native limits and what the CPU/PIL pipeline can
+animate. Findings that shape the choice: the "high-effort" look comes from per-word timing,
+restraint and finish, not from more motion; six candidate themes all fit the current renderer;
+Phonk / Beat Pop / Neon need a beat-onset list that `words.json` does not carry; Devanagari
+lyrics would need a shaper (libass or harfbuzz), Latin Hinglish does not.
+**Options:** (a) Soft Romantic v2 (blur-focus line stack, duration-following glow, one emphasis
+move) → Karaoke Fill (pop) → Minimal Lowercase (lofi / sad status); no new inputs. (b) Start
+with a beat-driven theme (Phonk or Beat Pop); needs a beat-detection step first. (c) Cinematic
+Ivory (ghazal serif) as the second theme instead of Karaoke Fill.
+**Recommendation:** (a). Three themes from the same alignment, the first one upgrades what the
+owner already validated (H-010), and beat data becomes its own later step.
+**Decision:** Pop Karaoke (the research's Karaoke Fill) is the first new theme; it becomes plan
+step 07, after emphasis (step 06). The owner chose it from Pop karaoke / Phonk / Lofi / Minimal.
+That question did not list Soft Romantic v2, so its place, and the order of later themes, is
+still open; ask after step 07.
 **Decided:** 2026-09-26

@@ -12,6 +12,8 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Done ([PR #3](https://github.com/Hacke2367/subtitle_engine/pull/3), via #2) |
 | 04 | Line anchors (`.lrc`) for alignment    | `feature/lrc-anchors`           | Deferred (optional, D-014) |
 | 05 | Workflow: `clip` + `make` commands     | `feature/workflow-clip-make`    | Done ([PR #4](https://github.com/Hacke2367/subtitle_engine/pull/4), via #3 → #2) |
+| 06 | Emphasis words (`*word*`)              | `feature/emphasis-markers`      | Spec        |
+| 07 | Pop Karaoke theme (V1.1)               | `feature/pop-karaoke-theme`     | Not started |
 
 ## 01 — Alpha overlay proof in CapCut
 
@@ -57,7 +59,7 @@ alignment to within each line.
 - Alpha codec inside `.mov` that CapCut accepts (step 01 tests this).
 - Alignment provider (step 02; ElevenLabs forced alignment is the default candidate).
 - Rendering approach (step 03; the blueprint suggests MoviePy, not locked).
-- Emphasis marker syntax in `lyrics.txt` (step 03).
+- ~~Emphasis marker syntax in `lyrics.txt`~~: `*word*` (H-009), built in step 06.
 
 ## 05 — Workflow: `clip` + `make` commands
 
@@ -67,3 +69,22 @@ if needed and renders it in one command.
 **Needs:** steps 02 and 03 (stacked branch, D-014).
 **Done when:** a short goes from full song + time range to overlay with two commands, tested on a
 second portion of the test song. A different song is pending the owner.
+
+## 06 — Emphasis words (`*word*`)
+
+**Delivers:** the owner marks hook words as `*word*` in `lyrics.txt`. The reader strips the
+asterisks, alignment never sees them, and Soft Romantic gives marked words one emphasis move.
+`lyrics.txt` is the only place emphasis lives, so moving markers needs no re-align. The asterisks
+are never drawn (H-009). Spec: `docs/specs/06_emphasis_markers.md`.
+**Needs:** H-009 (decided). Research notes: `docs/research/lyric_aesthetics.md` (sections 2, 3).
+**Done when:** a marked song renders with the move on exactly the marked words, the on-screen
+text equals `lyrics.txt` minus the asterisks, and an existing unmarked song renders unchanged.
+
+## 07 — Pop Karaoke theme (V1.1)
+
+**Delivers:** a second theme, Pop Karaoke: left-to-right fill on the sung word, active line
+scales in slightly, past line dims; bold sans, white plus one accent. A way to pick the theme per
+render. Emphasis words from step 06 get this theme's own move.
+**Needs:** step 06 merged; H-011 (decided). Research notes: sections 3, 4, 6, 7.
+**Done when:** the test song renders in both themes from the same `words.json`, every render
+check passes, and the owner approves the Pop Karaoke look.
