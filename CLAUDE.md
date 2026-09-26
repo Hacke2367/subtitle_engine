@@ -25,8 +25,9 @@ Package installed with `pip install -e .`; always use `venv/Scripts/python`.
 ```
 python -m lyric_engine.cli align songs/<song> [--variant NAME] [--fresh] [--overwrite]
 python -m lyric_engine.cli clip songs/<full-song> --from 0:27 --to 0:57 [--out songs/<clip>]
-python -m lyric_engine.cli make songs/<song>          # align if needed, then render
-python -m lyric_engine.cli render songs/<song> [--codec prores|png|qtrle] [--allow-flagged]
+python -m lyric_engine.cli make songs/<song> [--theme NAME]   # align if needed, then render
+python -m lyric_engine.cli render songs/<song> [--theme soft-romantic|pop-karaoke]
+                               [--codec prores|png|qtrle] [--allow-flagged]
 python -m lyric_engine.cli validate songs/<song>/words.json --song songs/<song>
 python -m lyric_engine.cli bakeoff songs/<song> [--fresh]   # compare aligner variants
 ```
@@ -37,11 +38,11 @@ python -m lyric_engine.cli bakeoff songs/<song> [--fresh]   # compare aligner va
 - Gate (`/gate`, from `.claude/devsystem.json`): the unit tests, then
   `venv/Scripts/python scripts/alpha_proof.py`. No linter is configured.
 - Tests are offline and need no song files, but layout/render tests use the real fonts in
-  `C:/Windows/Fonts` and a short real ffmpeg encode.
+  `C:/Windows/Fonts` and `fonts/` (bundled Poppins, OFL) and a short real ffmpeg encode.
 
-A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`, `render/`
-(outputs + `report.md`), `bakeoff/<variant>/` (`raw.json` aligner cache) and, for a clip,
-`clip.json`.
+A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`,
+`render/<theme>/` (outputs + `report.md`, one folder per theme: D-018), `bakeoff/<variant>/`
+(`raw.json` aligner cache) and, for a clip, `clip.json`.
 
 ## Architecture rule
 
@@ -53,9 +54,10 @@ A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`
   (review only, not product output). Never renders the overlay.
 - `timing.py`: owns the `words.json` format, lyrics reader (incl. `*word*` emphasis markers),
   flag rules, validator. The only thing align and render share.
-- `theme.py` (all look numbers), `layout.py` (fonts with cmap fallback, balanced wrap),
-  `render/` (`timeline` → `frames` → one-pass `encode` → `check`): `words.json` →
-  `render/overlay.mov` (alpha) + `overlay_green.mp4` + `preview.mp4` (with audio, review).
+- `theme.py` (all look numbers; `THEMES`, and `motion` picks the renderer), `layout.py`
+  (fonts with cmap fallback, balanced wrap), `render/` (`timeline` → `frames`, or `karaoke`
+  for Pop Karaoke → one-pass `encode` → `check`): `words.json` → `render/<theme>/overlay.mov`
+  (alpha) + `overlay_green.mp4` + `preview.mp4` (with audio, review).
   Never calls the alignment API, so hand-edit + re-render stays free.
 - `workflow.py`: `clip` (cut an aligned song at whole-line boundaries into a new song folder,
   lyrics copied verbatim) and `make` (keeps a valid `words.json`, since it may hold hand

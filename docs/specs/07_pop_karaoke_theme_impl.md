@@ -3,6 +3,19 @@
 **Branch:** `feature/pop-karaoke-theme` · **Decisions:** H-011, H-013, H-009, D-018 (new, §2.9)
 **Work split:** one developer, in the build order of §11 (no agents).
 
+> **As built (2026-09-27), where it differs from the text below:**
+> - `KSprites` holds `(under, base glyph, hot glyph, pad)`: shadow + stroke are a separate
+>   `under` layer, and a line image draws every word's `under` before any glyph, so a
+>   neighbour's shadow never darkens a glyph (same idea as SR's "every glow under every text").
+> - The entrance fades in with `smoothstep`, not `ease_out_cubic`: at hand-over the new line
+>   stays faint while the old line is still moving out of its way (seen on `khidki_s2` frame 210).
+> - `line_state` starts the hand-over on the frame after `handover`, so the line is exactly at
+>   rest on the hand-over frame itself (what the fill check's `at_rest` assumes).
+> - `_layer` caches the transformed, faded line image, so a held past line costs no work.
+> - AC6 re-runs `tests.test_layout -k Emphasis` over both themes. Pop Karaoke's wide font cannot
+>   fit the 71-character stress line in 3 rows with a 2x word (a `LayoutError`, as for any
+>   too-long line), so its shrink case uses a 58-character line.
+
 ## 1. Files
 
 | Action | File | Reason |
