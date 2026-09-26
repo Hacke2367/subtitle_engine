@@ -5,7 +5,7 @@ Last updated: 2026-09-26 (step 06 shipped for review)
 ## WIP
 
 - Step 06, emphasis words (`*word*`), on `feature/emphasis-markers` (base `dev @ 72dee83`).
-  Status: Review, PR open (see the plan's status board). Gate green; every spec 06 AC passes.
+  Status: Review, [PR #5](https://github.com/Hacke2367/subtitle_engine/pull/5). Gate green; every spec 06 AC passes.
   Also carries the styling research and session (6)'s roadmap (steps 08-14, H-012, D-017).
 
 ## Current focus
@@ -15,7 +15,7 @@ Step 06 (emphasis) comes first, then step 07 (Pop Karaoke) on its own branch (D-
 
 ## Next up
 
-1. **Resume point:** the owner merges step 06's PR (`/merge_pr`), then `/start_work` step 07
+1. **Resume point:** the owner merges PR #5 (`/merge_pr 5`), then `/start_work` step 07
    (Pop Karaoke) off the updated `dev`.
 2. Step 07: `/start_work` for Pop Karaoke once step 06 is merged.
 3. Steps 08–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
