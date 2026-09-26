@@ -2,6 +2,7 @@
 **Version:** 1.0.1 | **Component:** themes (`theme.py`), layout (tracking), renderer (`render/`), render checks
 **Status:** Approved by owner 2026-09-27 ("yes"), including the §7 choices. v1.0.1: §4.3 wording
 made exact (a short word's fade into current shrinks to fit its own span), no change in scope.
+AC11: the owner approved by saying "merge" on PR #8 (2026-09-27).
 **Plan step:** 09 (`docs/development_plan.md`) · **Branch:** `feature/lofi-minimal-theme` · **Decisions:** H-016, H-012, H-013, H-009, D-017, D-018
 
 ## 1. Problem Statement

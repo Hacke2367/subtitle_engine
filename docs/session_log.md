@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-27 (15): step 09 merged (PR #8)
+**Did:** owner said "mrge karo" → AC11 (look) taken as approved; merge recorded, [PR #8](https://github.com/Hacke2367/subtitle_engine/pull/8) squash-merged into `dev`.
+**Decisions:** none new.
+**Open:** nothing on step 09. No CHANGELOG in this repo (as before).
+**Next:** `/start_work` step 10 Cinematic → `/spec`.
+
 ## 2026-09-27 (14): step 09 Lofi Minimal + Lofi Typewriter built
 **Did:** `/start_work` step 09 → spec (owner: line shows ahead, typewriter as its own theme = H-016; "yes") → plan → build: `layout` tracking (units), `render/lofi.py` (one line, upcoming/current/sung colour states, typewriter bands), `render/lofi_check.py` (colour-state and typing sync), Poppins Light bundled, test song `khidki_s2_lofi` (lowercase copy, aligned locally: timings identical). Gate green (232 tests, alpha proof). Other themes byte-identical to `dev` (every 10th frame). All checks pass with no notes on `khidki_s2`, `khidki_s2_em`, `khidki_s2_lofi`, full `khidki_full` (357 s / 240 s).
 **Decisions:** H-016, D-020; spec 09 v1.0.1 (short word's fade-in fits its span).
