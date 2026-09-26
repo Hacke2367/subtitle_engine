@@ -1,22 +1,21 @@
 # Pending Work
 
-Last updated: 2026-09-26 (step 06 merged, PR #5)
+Last updated: 2026-09-26 (step 07 started)
 
 ## WIP
 
-None. Step 06 (emphasis words) merged into `dev` via [PR #5](https://github.com/Hacke2367/subtitle_engine/pull/5).
+Step 07, Pop Karaoke theme, on `feature/pop-karaoke-theme` (base `dev` @ 0ba2a4f). Status: Spec.
 
 ## Current focus
 
 V1.1 styling. Emphasis is done: `*word*` in `lyrics.txt`, drawn 1.5x its line (H-009, H-013).
-Next: step 07, Pop Karaoke, the first new theme (H-011), then steps 08-13 (H-012, D-017).
+Now: step 07, Pop Karaoke, the first new theme (H-011), then steps 08-13 (H-012, D-017).
 
 ## Next up
 
-1. **Resume point:** `/start_work` step 07 (Pop Karaoke theme, branch `feature/pop-karaoke-theme`)
-   off the updated `dev`, then `/spec`. No pending `H-` item blocks it (H-011 decided). The spec
-   must cover a way to pick the theme per render, and the styling rules in
-   `development_plan.md`; marked words keep the H-013 size rule.
+1. **Resume point:** owner reviews `docs/specs/07_pop_karaoke_theme.md` (§7 lists the choices
+   made for them: two lines on screen, hot pink accent, `render/<theme>/` folders, Poppins in
+   the repo). On their yes, run `/plan`. Nothing gets built before that.
 2. Steps 08–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
    shaping) only when a song needs it.
 3. Owner: try a different song end to end (spec 05 AC4).
