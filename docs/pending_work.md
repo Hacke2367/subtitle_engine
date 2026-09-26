@@ -2,19 +2,22 @@
 
 ## WIP
 
-`feature/alpha-overlay-proof` (from `dev` @ b08e6b1): step 01, status Review, [PR #1](https://github.com/Hacke2367/subtitle_engine/pull/1) into `dev`. Automated checks
-pass (AC1–5, AC9). The CapCut import test (AC6–8) is deferred by H-006.
+None. Step 01 merged into `dev` via [PR #1](https://github.com/Hacke2367/subtitle_engine/pull/1).
 
 ## Current focus
 
-Ship step 01 → PR into `dev`, then start step 02 (word alignment).
+Step 02 of `docs/development_plan.md`: word alignment → `words.json`.
 
 ## Next up
 
-1. Owner merges the step 01 PR into `dev`.
-2. Owner answers H-004 (alignment provider) and provides one real Hinglish test song
-   (audio + lyrics) in `songs/<name>/`.
-3. `/start_work` → step 02 → `/spec`.
+1. `/start_work` → step 02, branch `feature/word-alignment` → `/spec`. H-004 answered by the
+   owner (option c: try ElevenLabs API and a local pipeline on one song); record it at start.
+2. Owner provides the test song "Mere Samne Wali Khidki Mein": audio + exact lyrics in
+   `songs/<name>/`, and an ElevenLabs API key in `.env`.
+
+## Done
+
+- Step 01, alpha overlay proof: automated checks pass. The CapCut import test is deferred (H-006).
 
 ## Owner to-dos
 
