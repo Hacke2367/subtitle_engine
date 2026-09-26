@@ -5,7 +5,7 @@ Last updated: 2026-09-27 (step 08 shipped for review)
 ## WIP
 
 Step 08 (Soft Romantic v2) on `feature/soft-romantic-v2`, base `dev @ a01aff5`. Stage: review
-(PR open, gate green, every spec 08 AC passes).
+([PR #7](https://github.com/Hacke2367/subtitle_engine/pull/7), gate green, every spec 08 AC passes).
 
 ## Current focus
 
@@ -14,7 +14,7 @@ V1.1 styling. Three themes: Soft Romantic v2 (default, H-015), Soft Romantic v1 
 
 ## Next up
 
-1. **Resume point:** step 08 is in review (PR on `feature/soft-romantic-v2`). The owner preferred
+1. **Resume point:** step 08 is in review ([PR #7](https://github.com/Hacke2367/subtitle_engine/pull/7)). The owner preferred
    v2 (H-015), so `render`/`make` now default to `soft-romantic-v2`; v1 is `--theme soft-romantic`.
    Merge only on the owner's word (`/merge_pr`), then `/start_work` step 09 (Lofi Minimal).
 2. Optional cleanup: `render/check.py` (≈330 lines) and `render/karaoke.py` (≈310) are past the
