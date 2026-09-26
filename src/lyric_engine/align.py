@@ -32,7 +32,7 @@ VARIANTS = (
     Variant("E-vocals", "eleven", "vocals", None),
     Variant("L-vocals", "local", "vocals", None),
 )
-DEFAULT_VARIANT: str | None = "L-vocals"   # provisional (D-009); owner confirms via previews (AC10)
+DEFAULT_VARIANT: str | None = "L-vocals"   # owner-confirmed (D-009, H-010)
 SETTINGS_VERSION = 2                 # bump when an engine changes enough to invalidate caches
 AUDIO_EXTS = {".mp3", ".wav", ".m4a", ".flac", ".ogg", ".aac", ".mp4", ".mov", ".mkv", ".webm"}
 

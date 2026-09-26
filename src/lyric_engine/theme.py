@@ -48,7 +48,7 @@ class Theme:
     hold_s: float = 0.60          # line stays after its last word ends
     fade_out_s: float = 0.25
     # Outputs
-    alpha_codec: str = "prores"   # provisional until the owner's CapCut test (H-006, D-011)
+    alpha_codec: str = "prores"   # owner-confirmed in CapCut (H-010)
     key_green_hex: str = "0x00FF00"
     preview_bg_hex: str = "0x120E16"
     preview_size: tuple[int, int] = (540, 960)

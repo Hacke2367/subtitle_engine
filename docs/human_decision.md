@@ -125,3 +125,16 @@ set by hand; lyrics stay pure, but a re-alignment needs the flag carried over. (
 text editor.
 **Decision:**
 **Decided:**
+
+### H-010 — Owner validated the first overlay
+**Status:** decided
+**Raised:** 2026-09-26
+**Needed-before:** calling V1's base done; merging PRs #2 and #3
+**Context:** H-008 left three checks to the owner: the aligner choice (D-009, provisional), the
+Soft Romantic look, and the CapCut import (H-006, which fixes the default codec, D-011).
+**Decision:** "maine check kar liya hai sab kuch shi hai". Sync by ear, look, and CapCut import are
+all OK. L-vocals is confirmed as the default aligner (D-009), and ProRes 4444 `overlay.mov` is
+confirmed as the default alpha codec (D-011). The look is kept as rendered, with no change such as
+ghosting upcoming words. The ElevenLabs E-variants become optional: re-run them only if a song
+aligns badly locally.
+**Decided:** 2026-09-26
