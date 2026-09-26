@@ -3,6 +3,7 @@
     python -m lyric_engine.cli bakeoff songs/<song> [--fresh]
     python -m lyric_engine.cli align songs/<song> [--variant NAME] [--fresh] [--overwrite]
     python -m lyric_engine.cli validate songs/<song>/words.json [--song songs/<song>]
+    python -m lyric_engine.cli render songs/<song> [--codec prores|png|qtrle] [--allow-flagged]
 """
 from __future__ import annotations
 
@@ -28,6 +29,25 @@ def _validate(path: Path, song: Path | None) -> int:
     return 0 if not errors else 1
 
 
+def _render(song: Path, codec: str | None, allow_flagged: bool) -> int:
+    from . import layout, render   # lazy: fonts/Pillow only when rendering
+    try:
+        result = render.render(song, codec=codec, allow_flagged=allow_flagged)
+    except (render.RenderError, layout.LayoutError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    for name, path in result.outputs.items():
+        print(f"{name}: {path}")
+    print(f"frames: {result.frames}  wall: {result.wall_s:.1f} s")
+    if result.skipped_lines:
+        print("not shown (no timed word): lines " + ", ".join(str(n + 1) for n in result.skipped_lines))
+    for note in result.notes:
+        print(f"note: {note}")
+    print("checks: pass" if not result.checks
+          else "checks: FAIL\n  " + "\n  ".join(result.checks))
+    return 0 if not result.checks else 1
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="lyric_engine")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -42,6 +62,12 @@ def main(argv: list[str] | None = None) -> int:
     v = sub.add_parser("validate", help="check a words.json (and staleness against its song)")
     v.add_argument("words_json", type=Path)
     v.add_argument("--song", type=Path)
+    r = sub.add_parser("render", help="words.json → overlay.mov + overlay_green.mp4 + preview.mp4")
+    r.add_argument("song_dir", type=Path)
+    r.add_argument("--codec", choices=["prores", "png", "qtrle"],
+                   help="alpha codec for overlay.mov (default: theme's, provisional until CapCut test)")
+    r.add_argument("--allow-flagged", action="store_true",
+                   help="render despite flagged words; untimed ones are shown static, never animated")
     args = parser.parse_args(argv)
 
     try:
@@ -50,6 +76,8 @@ def main(argv: list[str] | None = None) -> int:
         if args.cmd == "align":
             return align.align_song(args.song_dir, variant=args.variant, fresh=args.fresh,
                                     overwrite=args.overwrite)
+        if args.cmd == "render":
+            return _render(args.song_dir, args.codec, args.allow_flagged)
         return _validate(args.words_json, args.song)
     except (timing.LyricsError, FileNotFoundError) as exc:
         print(f"error: {exc}", file=sys.stderr)

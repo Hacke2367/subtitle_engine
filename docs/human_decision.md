@@ -109,3 +109,19 @@ merging PRs (needs an explicit instruction), the CapCut import test (H-006), and
 confirmation of the bake-off winner by watching the previews (a provisional pick by objective
 criteria is allowed).
 **Decided:** 2026-09-26
+
+### H-009 — How should emphasis words be marked?
+**Status:** pending
+**Raised:** 2026-09-26
+**Needed-before:** emphasis styling in the renderer (step 03 ships without it)
+**Context:** project_context puts "emphasis words marked by hand in `lyrics.txt`" in V1 scope. Red
+line 2 says on-screen text matches `lyrics.txt` exactly, and the lyrics reader rejects brackets. A
+marker inside `lyrics.txt` would be text that never appears on screen, so any option here touches
+a red line. That makes it the owner's call.
+**Options:** (a) `*word*` in `lyrics.txt`: asterisks mean emphasis and are never drawn, a documented
+exception to red line 2; alignment ignores them. (b) `"emphasis": true` per word in `words.json`,
+set by hand; lyrics stay pure, but a re-alignment needs the flag carried over. (c) No emphasis in V1.
+**Recommendation:** (a). It is set once per song, survives re-alignment, and is obvious in a
+text editor.
+**Decision:**
+**Decided:**

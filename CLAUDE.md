@@ -24,9 +24,11 @@ word-synced, transparent 9:16 lyric overlay for CapCut.
   (review only, not product output). Never renders the overlay.
 - `timing.py`: owns the `words.json` format, lyrics reader, flag rules, validator. The only thing
   align and render share.
-- `theme.py`, `layout.py`, `render.py`: `words.json` → alpha `.mov` + green-screen mp4.
-  `render.py` never calls the alignment API, so hand-edit + re-render stays free.
-- `cli.py`: `python -m lyric_engine.cli bakeoff|align|validate songs/<song>` (package installed
+- `theme.py` (all look numbers), `layout.py` (fonts with cmap fallback, balanced wrap),
+  `render/` (`timeline` → `frames` → one-pass `encode` → `check`): `words.json` →
+  `render/overlay.mov` (alpha) + `overlay_green.mp4` + `preview.mp4` (with audio, review).
+  Never calls the alignment API, so hand-edit + re-render stays free.
+- `cli.py`: `python -m lyric_engine.cli bakeoff|align|validate|render songs/<song>` (package installed
   with `pip install -e .`). Tests: `venv/Scripts/python -m unittest discover -s tests -t .`
 
 Split a module into a subpackage only when it passes ~300 lines.

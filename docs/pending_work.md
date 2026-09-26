@@ -2,21 +2,25 @@
 
 ## WIP
 
-`feature/word-alignment` (from `dev` @ 52e87d6): step 02, status Review,
-[PR #2](https://github.com/Hacke2367/subtitle_engine/pull/2) into `dev` (merge waits for the owner). Bake-off on the 30 s clip `songs/khidki` (27.0–57.0 s, lines 1–8): L-vocals
-valid (0/44 flagged), E-variants blocked by the key permission. Provisional default L-vocals
-(D-009).
+- `feature/soft-romantic-render` (stacked on `feature/word-alignment`, D-011): step 03, status
+  Review, PR into `feature/word-alignment` (retarget to `dev` once PR #2 merges). The first real
+  overlay is at `songs/khidki/render/`: 900 frames, 33.7 s render, all checks pass, one note
+  (word 10 "hai" sung back to back).
+- `feature/word-alignment`: step 02, Review,
+  [PR #2](https://github.com/Hacke2367/subtitle_engine/pull/2).
 
 ## Current focus
 
-Step 03 (Soft Romantic renderer), stacked on the step 02 branch until the owner merges (H-008).
+V1 steps 01–03 are built. What's left needs the owner (see "Waiting on the owner"). Step 04
+(`.lrc` line anchors) is optional per the plan; the khidki clip aligned with 0 flags without it.
 
 ## Next up
 
-1. `/start_work` step 03 from `feature/word-alignment` → spec → plan → build (codec left
-   configurable until the CapCut test, H-006).
-2. When the owner is back: merge step 02, enable the ElevenLabs permission and re-run the
-   bake-off, and watch the L-vocals preview.
+1. Owner: watch `songs/khidki/render/preview.mp4` (look + sync) and import
+   `render/overlay.mov` / `overlay_green.mp4` into CapCut desktop / mobile (H-006) → fix the
+   default codec.
+2. Owner: merge PR #2, then PR #3 (retargeted to `dev`).
+3. Step 04 only if real songs drift without line anchors.
 
 ## Done
 
@@ -25,12 +29,17 @@ Step 03 (Soft Romantic renderer), stacked on the step 02 branch until the owner 
 
 ## Waiting on the owner (H-008: work continues around these)
 
+- Watch `songs/khidki/render/preview.mp4`: approve or tune the Soft Romantic look
+  (theme.py). Open question: show upcoming words faintly ("ghost") so a line
+  looks centred while it reveals?
 - Merge PRs (explicit instruction needed).
 - **ElevenLabs key lacks the `forced_alignment` permission** (bake-off got HTTP 401, no charge).
   Enable it in the ElevenLabs dashboard (or make a key with it), then run
   `venv/Scripts/python -m lyric_engine.cli bakeoff songs/khidki` to add E-raw/E-vocals.
 - Confirm the aligner by watching `songs/khidki/bakeoff/L-vocals/preview.mp4` (D-009 picked
   L-vocals provisionally). Listen closely to chorus lines 2–4, which have the lowest scores.
+- H-009: how to mark emphasis words (recommendation: `*word*` in lyrics.txt). The renderer
+  ships without emphasis until this is answered.
 - FYI (D-010): the local model's weights are non-commercial (CC-BY-NC). Fine for V1, but it
   matters if this ever becomes a SaaS.
 - Rotate the ElevenLabs API key (it was pasted in chat).

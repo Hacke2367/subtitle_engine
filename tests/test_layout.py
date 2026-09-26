@@ -1,0 +1,236 @@
+"""Tests for lyric_engine.layout: font fallback, word masks, wrapping, font shrink and refusals.
+
+Offline and song-free (the khidki lines are copied in below); uses the Windows fonts the theme
+names. Run: venv/Scripts/python -m unittest tests.test_layout -v
+"""
+from __future__ import annotations
+
+import math
+import unittest
+from dataclasses import replace
+from itertools import combinations
+from pathlib import Path
+
+from PIL import ImageFont
+
+from lyric_engine.layout import (
+    FontSet, LayoutError, LineLayout, WordBox, font_set, layout_line, word_mask,
+)
+from lyric_engine.theme import FONTS, SOFT_ROMANTIC as THEME
+
+# songs/khidki/lyrics.txt is gitignored; its 8 lines, verbatim
+KHIDKI = [
+    "Mere saamne waali khidki mein",
+    "Ek chaand ka tukda rehta hai",
+    "Mere saamne waali khidki mein",
+    "Ek chaand ka tukda rehta hai",
+    "Afsos ye hai ke vo hamse",
+    "Kuchh ukhda ukhda rehta hai",
+    "Mere saamne waali khidki mein",
+    "Ek chaand ka tukda rehta hai",
+]
+LONG_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai afsos ye hai"
+FALLBACK_LINE = "dil😊 kuchh🥰 ❤\ufe0f कुछ दिल Öl saaf"
+NO_FONT = "\ufdd0"  # a noncharacter: never assigned, in none of the theme's five fonts
+MISSING = Path("C:/no/such/font.ttf")
+SIZES = [*range(THEME.font_size, THEME.min_font_size - 1, -THEME.font_step)]
+
+
+def indexed(line: str, first: int = 0) -> list[tuple[int, str]]:
+    """(words.json "i", text) pairs, the way render groups a line's words."""
+    return [(first + n, token) for n, token in enumerate(line.split())]
+
+
+def rows_of(layout: LineLayout) -> list[list[WordBox]]:
+    by_y: dict[int, list[WordBox]] = {}
+    for box in layout.words:
+        by_y.setdefault(box.y, []).append(box)
+    return [by_y[y] for y in sorted(by_y)]
+
+
+def runs_by_file(fonts: FontSet, text: str) -> list[tuple[str, str]]:
+    return [(run, Path(font.path).name) for run, font in fonts.runs(text)]
+
+
+class FontSetTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.fonts = font_set(THEME, THEME.font_size)
+
+    def test_metrics_and_space_come_from_the_primary_font(self):
+        primary = ImageFont.truetype(str(THEME.font), THEME.font_size)
+        self.assertEqual((self.fonts.ascent, self.fonts.descent), primary.getmetrics())
+        self.assertEqual(self.fonts.space, primary.getlength(" "))
+        self.assertIs(font_set(THEME, THEME.font_size), self.fonts)
+
+    def test_plain_hinglish_is_one_primary_run_at_every_size(self):
+        words = {w for line in [*KHIDKI, LONG_LINE] for w in line.split()}
+        for size in SIZES:
+            fonts = font_set(THEME, size)
+            for word in words:
+                with self.subTest(size=size, word=word):
+                    [(run, font)] = fonts.runs(word)
+                    self.assertEqual((run, Path(font.path).name, font.size),
+                                     (word, "Candarab.ttf", size))
+
+    def test_each_character_goes_to_the_first_font_that_has_it(self):
+        cases = {
+            # Segoe UI Symbol precedes Segoe UI Emoji in the theme and has the older emoji
+            "dil😊": [("dil", "Candarab.ttf"), ("😊", "seguisym.ttf")],
+            "dil🥰": [("dil", "Candarab.ttf"), ("🥰", "seguiemj.ttf")],
+            "क": [("क", "Nirmala.ttc")],
+            "dilक": [("dil", "Candarab.ttf"), ("क", "Nirmala.ttc")],
+            "ghaṭ": [("gha", "Candarab.ttf"), ("ṭ", "seguisb.ttf")],
+        }
+        for text, expected in cases.items():
+            with self.subTest(text=text):
+                self.assertEqual(runs_by_file(self.fonts, text), expected)
+
+    def test_invisible_characters_are_not_drawn(self):
+        # Phones type the heart as U+2764 U+FE0F; Segoe UI Emoji's VS16 glyph is a 115 px blank.
+        self.assertEqual(runs_by_file(self.fonts, "❤\ufe0f"), [("❤", "seguisym.ttf")])
+        self.assertEqual(self.fonts.advance("❤\ufe0f"), self.fonts.advance("❤"))
+        self.assertEqual(runs_by_file(self.fonts, "dil\u200dse"), [("dilse", "Candarab.ttf")])
+
+    def test_character_no_font_has_raises_naming_it_and_the_word(self):
+        calls = {"runs": self.fonts.runs, "advance": self.fonts.advance,
+                 "word_mask": lambda text: word_mask(text, self.fonts)}
+        for name, call in calls.items():
+            with self.subTest(call=name):
+                with self.assertRaises(LayoutError) as ctx:
+                    call("dil" + NO_FONT)
+                self.assertIn("U+FDD0", str(ctx.exception))
+                self.assertIn(repr("dil" + NO_FONT), str(ctx.exception))
+
+    def test_missing_primary_raises_and_missing_fallback_is_skipped(self):
+        with self.assertRaisesRegex(LayoutError, "font not found"):
+            FontSet(replace(THEME, font=MISSING), THEME.font_size)
+        theme = replace(THEME, fallback_fonts=(MISSING, FONTS / "seguiemj.ttf"))
+        fonts = FontSet(theme, THEME.font_size)
+        self.assertEqual(runs_by_file(fonts, "🥰"), [("🥰", "seguiemj.ttf")])
+        with self.assertRaisesRegex(LayoutError, r"U\+0915"):  # Nirmala UI is not in this set
+            fonts.runs("क")
+
+
+class WordMaskTest(unittest.TestCase):
+    TEXTS = ["Mere", "saaf", "dil😊", "🥰", "❤\ufe0f", "कुछ", "दिल", "हूँ", "Öl", "|"]
+
+    def setUp(self) -> None:
+        self.fonts = font_set(THEME, THEME.font_size)
+
+    def test_size_is_ceil_advance_by_box_height_plus_pad(self):
+        f = self.fonts
+        for text in self.TEXTS:
+            for pad in (0, 7, 48):
+                with self.subTest(text=text, pad=pad):
+                    mask = word_mask(text, f, pad)
+                    self.assertEqual(mask.mode, "L")
+                    self.assertEqual(mask.size, (math.ceil(f.advance(text)) + 2 * pad,
+                                                 f.ascent + f.descent + 2 * pad))
+
+    def test_padding_only_moves_the_word(self):
+        # The mask that measures a word (pad=0) is the mask that draws it (plan decision 4).
+        for text in self.TEXTS:
+            with self.subTest(text=text):
+                bare, padded = word_mask(text, self.fonts), word_mask(text, self.fonts, pad=48)
+                inner = padded.crop((48, 48, 48 + bare.width, 48 + bare.height))
+                self.assertEqual(inner.tobytes(), bare.tobytes())
+
+    def test_ink_never_leaves_the_box_vertically(self):
+        # Emoji, Devanagari matras and accented capitals rise above Candara's ascent at full
+        # size; their runs are drawn smaller instead, so nothing is cut off at any pad.
+        f, pad = self.fonts, 40
+        for text in self.TEXTS:
+            with self.subTest(text=text):
+                mask = word_mask(text, f, pad)
+                _, top, _, bottom = mask.getbbox()
+                self.assertGreaterEqual(top, pad)
+                self.assertLessEqual(bottom, pad + f.ascent + f.descent)
+                self.assertEqual(mask.getextrema()[1], 255)
+        [(_, emoji)] = f.runs("😊")
+        self.assertLess(emoji.size, THEME.font_size)
+
+
+class LayoutLineTest(unittest.TestCase):
+    def test_balanced_rows_no_lone_last_word(self):
+        # greedy put "hai" alone on row 2 of this line; balanced wrap splits it evenly
+        for line in KHIDKI:
+            rows = rows_of(layout_line(indexed(line), 0, THEME))
+            if len(rows) > 1:
+                self.assertGreater(len(rows[-1]), 1, f"lone last word in {line!r}")
+        rows = rows_of(layout_line(indexed("Ek chaand ka tukda rehta hai"), 0, THEME))
+        widths = [row[-1].x + row[-1].w - row[0].x for row in rows]
+        self.assertLess(max(widths) - min(widths), THEME.max_width // 3)
+
+    def assert_well_placed(self, layout: LineLayout, words: list[tuple[int, str]]) -> None:
+        """Text and order kept, rows within limits, boxes = masks, inside the canvas, apart."""
+        fonts = font_set(THEME, layout.font_size)
+        self.assertEqual([(b.index, b.text) for b in layout.words], words)
+        rows = rows_of(layout)
+        self.assertLessEqual(len(rows), THEME.max_rows)
+        for row in rows:
+            self.assertLessEqual(row[-1].x + row[-1].w - row[0].x, THEME.max_width)
+        for b in layout.words:
+            self.assertEqual((b.w, b.h), word_mask(b.text, fonts).size)
+            self.assertTrue(0 <= b.x and b.x + b.w <= THEME.width
+                            and 0 <= b.y and b.y + b.h <= THEME.height, b)
+        for a, b in combinations(layout.words, 2):
+            apart = (a.x + a.w <= b.x or b.x + b.w <= a.x
+                     or a.y + a.h <= b.y or b.y + b.h <= a.y)
+            self.assertTrue(apart, f"{a} overlaps {b}")
+
+    def test_khidki_lines_fit_at_full_size(self):
+        first = 0
+        for n, line in enumerate(KHIDKI):
+            with self.subTest(line=n + 1):
+                words = indexed(line, first)
+                first += len(words)
+                layout = layout_line(words, n, THEME)
+                self.assertEqual((layout.line, layout.font_size), (n, THEME.font_size))
+                self.assert_well_placed(layout, words)
+
+    def test_fallback_words_keep_the_box_contract(self):
+        words = indexed(FALLBACK_LINE)
+        self.assert_well_placed(layout_line(words, 0, THEME), words)
+
+    def test_long_line_shrinks_the_font(self):
+        words = indexed(LONG_LINE)
+        self.assertEqual(len(words), 14)
+        layout = layout_line(words, 0, THEME)
+        self.assertIn(layout.font_size, SIZES[1:])
+        self.assert_well_placed(layout, words)
+        with self.assertRaisesRegex(LayoutError, "rows"):  # full size alone does not fit
+            layout_line(words, 0, replace(THEME, min_font_size=THEME.font_size))
+
+    def test_rows_and_block_are_centred(self):
+        for line in [*KHIDKI[:2], KHIDKI[4], LONG_LINE, FALLBACK_LINE]:
+            with self.subTest(line=line):
+                layout = layout_line(indexed(line), 0, THEME)
+                fonts = font_set(THEME, layout.font_size)
+                rows = rows_of(layout)
+                for row in rows:
+                    left, right = row[0].x, THEME.width - (row[-1].x + row[-1].w)
+                    self.assertLessEqual(abs(left - right), 1)
+                h = fonts.ascent + fonts.descent
+                pitch = round(h * THEME.row_spacing)
+                self.assertEqual([r[0].y - rows[0][0].y for r in rows],
+                                 [k * pitch for k in range(len(rows))])
+                centre = (rows[0][0].y + rows[-1][0].y + h) / 2
+                self.assertLessEqual(abs(centre - THEME.anchor_y * THEME.height), 1)
+
+    def test_absurdly_long_word_raises_with_the_line_number(self):
+        word = "khidki" * 30
+        with self.assertRaisesRegex(LayoutError, r"^line 5 does not fit") as ctx:
+            layout_line([(40, "Ek"), (41, word)], 4, THEME)
+        self.assertIn(word, str(ctx.exception))
+
+    def test_too_many_rows_raises_with_the_line_number(self):
+        with self.assertRaisesRegex(LayoutError, r"^line 1 does not fit .* rows"):
+            layout_line(indexed(" ".join(["khidki"] * 60)), 0, THEME)
+
+    def test_missing_glyph_names_the_line(self):
+        with self.assertRaisesRegex(LayoutError, r"^line 3: no font has .*U\+FDD0"):
+            layout_line([(0, "chaand"), (1, "dil" + NO_FONT)], 2, THEME)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -9,7 +9,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 |----|----------------------------------------|---------------------------------|-------------|
 | 01 | Alpha overlay proof in CapCut          | `feature/alpha-overlay-proof`   | Done ([PR #1](https://github.com/Hacke2367/subtitle_engine/pull/1)) |
 | 02 | Word alignment → `words.json`          | `feature/word-alignment`        | Review ([PR #2](https://github.com/Hacke2367/subtitle_engine/pull/2)) |
-| 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Not started |
+| 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Review      |
 | 04 | Line anchors (`.lrc`) for alignment    | `feature/lrc-anchors`           | Not started |
 
 ## 01 — Alpha overlay proof in CapCut

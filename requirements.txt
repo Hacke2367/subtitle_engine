@@ -1,4 +1,5 @@
 pillow==12.3.0
+fonttools==4.65.0        # font character maps for the renderer's glyph fallback (layout.py)
 
 # Local aligner (L-vocals): CPU-only PyTorch. The extra index serves the +cpu wheels; everything
 # else resolves from PyPI (the CPU index alone lacks wheels for some dependencies).
