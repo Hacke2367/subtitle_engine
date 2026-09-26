@@ -16,11 +16,11 @@ from __future__ import annotations
 
 import argparse
 import colorsys
+import io
 import json
 import shutil
 import subprocess
 import sys
-import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -241,15 +241,15 @@ def probe(path: Path) -> dict:
 
 
 def decoded_frame(path: Path, index: int) -> Image.Image:
-    with tempfile.TemporaryDirectory() as tmp:
-        png = Path(tmp) / "frame.png"
-        proc = _run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(path),
-                     "-vf", f"select=eq(n\\,{index})", "-fps_mode", "passthrough",
-                     "-frames:v", "1", "-pix_fmt", "rgba", str(png)])
-        if proc.returncode != 0 or not png.exists():
-            raise RuntimeError(f"could not decode frame {index} of {path.name}: {proc.stderr.strip()}")
-        with Image.open(png) as img:
-            return img.convert("RGBA")
+    # PNG over stdout, so nothing is written outside OUT_DIR (plan hard boundary).
+    proc = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-i", str(path),
+                           "-vf", f"select=eq(n\\,{index})", "-fps_mode", "passthrough",
+                           "-frames:v", "1", "-pix_fmt", "rgba", "-f", "image2pipe",
+                           "-c:v", "png", "-"], capture_output=True)
+    if proc.returncode != 0 or not proc.stdout:
+        stderr = proc.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError(f"could not decode frame {index} of {path.name}: {stderr}")
+    return Image.open(io.BytesIO(proc.stdout)).convert("RGBA")
 
 
 def _first_pixel(alpha: Image.Image, box: tuple[int, int, int, int], lo: int, hi: int) -> tuple[int, int]:

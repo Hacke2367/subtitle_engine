@@ -7,7 +7,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 
 | #  | Step                                   | Branch                          | Status      |
 |----|----------------------------------------|---------------------------------|-------------|
-| 01 | Alpha overlay proof in CapCut          | `feature/alpha-overlay-proof`   | Owner test  |
+| 01 | Alpha overlay proof in CapCut          | `feature/alpha-overlay-proof`   | Review      |
 | 02 | Word alignment → `words.json`          | `feature/word-alignment`        | Not started |
 | 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Not started |
 | 04 | Line anchors (`.lrc`) for alignment    | `feature/lrc-anchors`           | Not started |

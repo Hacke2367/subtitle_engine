@@ -12,7 +12,7 @@
 | MODIFY | `.claude/devsystem.json` | Add the proof run as `gate.commands` (D-004: first check → gate gets its command). |
 | MODIFY | `docs/decision.md` | D-005 (candidate encodings, HEVC-alpha excluded), D-006 (gate command). Owner's CapCut outcome later (AC8). |
 | MODIFY | `docs/development_plan.md`, `docs/pending_work.md` | Status and next action. |
-| — | `src/lyric_engine/*` | **Untouched.** Step 03 ports the winning encoder arguments into `render.py`; the proof does not pre-empt that design. |
+| — | `src/lyric_engine/*` | **No code.** Step 03 ports the winning encoder arguments into `render.py`; the proof does not pre-empt that design. (One docstring line in `render.py` was corrected for H-003 at `/start_work`, before this plan.) |
 
 ## 2. Architecture Decisions
 
@@ -103,7 +103,7 @@ Palette (placeholder look; hues far from 120°, per the spec Hard Rule):
 | `encoder_available` | `(name: str) -> bool` | `ffmpeg -hide_banner -h encoder=<name>`; False if the output contains "is not recognized" / "Unknown encoder". | `subprocess.run` |
 | `encode` | `(v: Variant) -> Result` | Missing encoder → `encoder_missing`. Otherwise runs ffmpeg: input `-framerate 30 -i frames/f_%03d.png`; `-frames:v 150 -an -y`; `v.args`; the green variant adds the overlay `-filter_complex`. Non-zero exit → `encode_failed` + stderr tail. | `encoder_available`, `subprocess.run` |
 | `probe` | `(path) -> dict` | `ffprobe -count_frames -show_streams -of json` → width, height, r_frame_rate, nb_read_frames, pix_fmt, has_audio. | `subprocess.run` |
-| `decoded_frame` | `(path, index) -> Image` | `ffmpeg -vf select=eq(n\,index) -frames:v 1 -pix_fmt rgba` to a temp PNG, loaded as RGBA. | `subprocess.run` |
+| `decoded_frame` | `(path, index) -> Image` | `ffmpeg -vf select=eq(n\,index) -frames:v 1 -pix_fmt rgba -f image2pipe -c:v png -`; PNG bytes read from stdout (no temp file, so nothing is written outside `OUT_DIR`), loaded as RGBA. | `subprocess.run` |
 | `pick_sample_points` | `(src: Image) -> dict[str,(x,y)]` | `corner`=(4,4); `solid`= first pixel (row-major) in the static-line box with alpha 255; `glow`= first pixel in the glow box with 60 ≤ alpha ≤ 190. | `RuntimeError("sample point not found: <name>")`, a generator bug |
 | `check_variant` | `(r: Result, src, points) -> None` | Fills `r.failures` per §5 tolerances. | `probe`, `decoded_frame` |
 | `check_palette` | `() -> list[str]` | Every palette colour: HSV saturation < 0.25 **or** hue outside 80°–160°. | `colorsys` |
@@ -165,7 +165,7 @@ then libx264 `-preset slow -crf 16 -profile:v high -movflags +faststart` + BT.70
 
 ## 8. Dependencies
 
-- stdlib: `argparse, colorsys, dataclasses, json, pathlib, shutil, subprocess, sys, tempfile`.
+- stdlib: `argparse, colorsys, dataclasses, io, json, pathlib, shutil, subprocess, sys`.
 - Pillow 12.3.0 (`Image, ImageDraw, ImageFont, ImageFilter`), installed into `venv/`.
 - ffmpeg/ffprobe 8.0.1 on PATH, with `prores_ks`, `png`, `qtrle`, `libx264` (all verified present).
 - Fonts: `C:/Windows/Fonts/segoeuib.ttf` (present), `arialbd.ttf` (present).
@@ -174,14 +174,14 @@ then libx264 `-preset slow -crf 16 -profile:v high -movflags +faststart` + BT.70
 
 ## 9. Hard Boundaries
 
-- [ ] Never write or delete outside `out/01_alpha_proof/`.
-- [ ] No network calls.
-- [ ] Never commit anything under `out/`.
-- [ ] Never fall back to `ImageFont.load_default()`.
-- [ ] Never skip a variant silently; every variant appears in the output with a status.
-- [ ] No text other than the original placeholder words above.
-- [ ] No palette colour within the green keying range.
-- [ ] Do not touch `src/lyric_engine/`.
+- [x] Never write or delete outside `out/01_alpha_proof/`.
+- [x] No network calls.
+- [x] Never commit anything under `out/`.
+- [x] Never fall back to `ImageFont.load_default()`.
+- [x] Never skip a variant silently; every variant appears in the output with a status.
+- [x] No text other than the original placeholder words above.
+- [x] No palette colour within the green keying range.
+- [x] Do not touch `src/lyric_engine/`. (No code. The branch diff there is one `render.py` docstring line for H-003, made at `/start_work` before this plan.)
 
 ## 10. Acceptance Criteria (runnable)
 
