@@ -109,3 +109,32 @@ merging PRs (needs an explicit instruction), the CapCut import test (H-006), and
 confirmation of the bake-off winner by watching the previews (a provisional pick by objective
 criteria is allowed).
 **Decided:** 2026-09-26
+
+### H-009 — How should emphasis words be marked?
+**Status:** pending
+**Raised:** 2026-09-26
+**Needed-before:** emphasis styling in the renderer (step 03 ships without it)
+**Context:** project_context puts "emphasis words marked by hand in `lyrics.txt`" in V1 scope. Red
+line 2 says on-screen text matches `lyrics.txt` exactly, and the lyrics reader rejects brackets. A
+marker inside `lyrics.txt` would be text that never appears on screen, so any option here touches
+a red line. That makes it the owner's call.
+**Options:** (a) `*word*` in `lyrics.txt`: asterisks mean emphasis and are never drawn, a documented
+exception to red line 2; alignment ignores them. (b) `"emphasis": true` per word in `words.json`,
+set by hand; lyrics stay pure, but a re-alignment needs the flag carried over. (c) No emphasis in V1.
+**Recommendation:** (a). It is set once per song, survives re-alignment, and is obvious in a
+text editor.
+**Decision:**
+**Decided:**
+
+### H-010 — Owner validated the first overlay
+**Status:** decided
+**Raised:** 2026-09-26
+**Needed-before:** calling V1's base done; merging PRs #2 and #3
+**Context:** H-008 left three checks to the owner: the aligner choice (D-009, provisional), the
+Soft Romantic look, and the CapCut import (H-006, which fixes the default codec, D-011).
+**Decision:** "maine check kar liya hai sab kuch shi hai". Sync by ear, look, and CapCut import are
+all OK. L-vocals is confirmed as the default aligner (D-009), and ProRes 4444 `overlay.mov` is
+confirmed as the default alpha codec (D-011). The look is kept as rendered, with no change such as
+ghosting upcoming words. The ElevenLabs E-variants become optional: re-run them only if a song
+aligns badly locally.
+**Decided:** 2026-09-26
