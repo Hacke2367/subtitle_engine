@@ -8,7 +8,7 @@ from __future__ import annotations
 import math
 import unittest
 from dataclasses import replace
-from itertools import combinations
+from itertools import combinations, product
 from pathlib import Path
 
 from PIL import ImageFont
@@ -16,7 +16,7 @@ from PIL import ImageFont
 from lyric_engine.layout import (
     FontSet, LayoutError, LineLayout, WordBox, font_set, layout_line, word_mask,
 )
-from lyric_engine.theme import FONTS, SOFT_ROMANTIC as THEME
+from lyric_engine.theme import FONTS, POP_KARAOKE, SOFT_ROMANTIC as THEME
 
 # songs/khidki/lyrics.txt is gitignored; its 8 lines, verbatim
 KHIDKI = [
@@ -30,6 +30,9 @@ KHIDKI = [
     "Ek chaand ka tukda rehta hai",
 ]
 LONG_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai afsos ye hai"
+# Longest line Pop Karaoke's wide font still fits in 3 rows with a 2x word (it shrinks to 64 px)
+LONG_FOR = {"soft-romantic": LONG_LINE,
+            "pop-karaoke": "Mere saamne waali khidki mein ek chaand ka tukda rehta hai"}
 FALLBACK_LINE = "dil😊 kuchh🥰 ❤\ufe0f कुछ दिल Öl saaf"
 NO_FONT = "\ufdd0"  # a noncharacter: never assigned, in none of the theme's five fonts
 MISSING = Path("C:/no/such/font.ttf")
@@ -243,9 +246,9 @@ class EmphasisLayoutTest(unittest.TestCase):
                 replace(THEME, emphasis_scale=scale)
 
     def test_marked_word_is_scale_times_the_line_size_even_when_shrunk(self):
-        for scale in (1.5, 2.0):
-            theme = replace(THEME, emphasis_scale=scale)
-            for line in ("Jis roz se dekha hai usko", LONG_LINE):
+        for scale, base in product((1.5, 2.0), (THEME, POP_KARAOKE)):   # both themes (spec 07)
+            theme = replace(base, emphasis_scale=scale)
+            for line in ("Jis roz se dekha hai usko", LONG_FOR[base.name]):
                 words = indexed(line)
                 lay = layout_line(words, 0, theme, emphasis=frozenset({3}))
                 big = font_set(theme, round(lay.font_size * scale))
@@ -258,9 +261,9 @@ class EmphasisLayoutTest(unittest.TestCase):
                 self.assertTrue(all(b.h == fonts.ascent + fonts.descent for b in plain))
 
     def test_rows_share_a_baseline_and_nothing_overlaps(self):
-        for scale in (1.5, 2.0):
-            theme = replace(THEME, emphasis_scale=scale)
-            for line in [*KHIDKI, LONG_LINE]:
+        for scale, base in product((1.5, 2.0), (THEME, POP_KARAOKE)):   # both themes (spec 07)
+            theme = replace(base, emphasis_scale=scale)
+            for line in [*KHIDKI, LONG_FOR[base.name]]:
                 words = indexed(line)
                 marked = frozenset({0, len(words) // 2})
                 lay = layout_line(words, 0, theme, emphasis=marked)
@@ -285,6 +288,17 @@ class EmphasisLayoutTest(unittest.TestCase):
             words = indexed(line)
             self.assertEqual(layout_line(words, 0, THEME, emphasis=frozenset()),
                              layout_line(words, 0, THEME))
+
+
+class CenterXTest(unittest.TestCase):
+    """Rows centre on theme.center_x: 540 for Soft Romantic, 510 for Pop Karaoke (spec 07 §4.6)."""
+
+    def test_rows_centre_on_the_theme_centre(self):
+        for theme in (THEME, POP_KARAOKE):
+            for line in KHIDKI[:2]:
+                for row in rows_of(layout_line(indexed(line), 0, theme)):
+                    centre = (row[0].x + row[-1].x + row[-1].w) / 2
+                    self.assertLessEqual(abs(centre - theme.center_x), 1, (theme.name, line))
 
 
 if __name__ == "__main__":
