@@ -1,6 +1,7 @@
 # Spec: Pop Karaoke Theme
-**Version:** 1.0.0 | **Component:** themes (`theme.py`), layout, renderer (`render/`), render checks, CLI (`render`, `make`)
-**Status:** Ready for Review
+**Version:** 1.0.1 | **Component:** themes (`theme.py`), layout, renderer (`render/`), render checks, CLI (`render`, `make`)
+**Status:** Approved by owner 2026-09-27 ("yes"), including the §7 choices. v1.0.1: §4.3 wording
+made exact (a leaving past line finishes its fade as the new line enters; AC4), no change in scope.
 **Plan step:** 07 (`docs/development_plan.md`) · **Branch:** `feature/pop-karaoke-theme` · **Decisions:** H-011, H-013, H-009
 
 ## 1. Problem Statement
@@ -99,10 +100,11 @@ on bright footage.
    opacity, final place) when its first word's fill starts.
 2. **Sing.** Each word fills on its own time (§4.4).
 3. **Hand over.** When the next line enters, the current line moves up into the past slot while
-   dimming and shrinking, over the same duration. A line already in the past slot fades out at
-   that moment.
+   dimming and shrinking, over the same duration. A line already in the past slot fades out,
+   finishing as the new line enters, so no more than two lines are ever visible.
 4. **Clear.** If the next line does not enter within `hold` after a line's last word ends (an
-   instrumental gap), the line fades out and the screen empties. The next line then enters alone.
+   instrumental gap), the line fades out and the screen empties; a past line fades with it. The
+   next line then enters alone.
 
 If the next line has to enter before the current line's last word has finished (lines sung back
 to back), that word keeps filling on its own time in the past slot. The report lists it as a
