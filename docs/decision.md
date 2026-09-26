@@ -28,6 +28,7 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-011 | Step 03 stacked on unmerged step 02; codec open     | Active |
 | D-012 | Balanced wrap; fallback fonts; Devanagari unshaped  | Active |
 | D-013 | Fade waits for the last word; render subpackage     | Active |
+| D-014 | Step 05 (workflow) before 04; stacked on step 03    | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -184,3 +185,15 @@ rows.
 **Why:** The last word of every line has to be readable. The rest improves the look on real
 backgrounds and follows the module-size rule.
 **Supersedes:** plan 03 §4 fade_start formula and check sample frame
+
+### D-014 — Step 05 (workflow) before step 04; stacked on step 03
+**Date:** 2026-09-26
+**Context:** After H-010 the owner chose "2" (workflow commands) and said "pahele tum karke, 2
+kaam karo, /ship and /handoff". PRs #2 and #3 are not merged yet (no merge instruction).
+**Decision:** Add plan step 05 (`clip` + `make`) and build it now. Step 04 (`.lrc` anchors) is
+deferred: the plan made it optional, and the khidki clip aligned with 0 flags without it. The
+step 05 branch is stacked on `feature/soft-romantic-render` (merge order: #2 → #3 → step 05). The
+owner's instruction stands in for the spec approval stop.
+**Why:** It cuts a short's manual work from 5 steps to 2 commands, which is the project's
+success signal.
+**Supersedes:** —

@@ -4,6 +4,8 @@
     python -m lyric_engine.cli align songs/<song> [--variant NAME] [--fresh] [--overwrite]
     python -m lyric_engine.cli validate songs/<song>/words.json [--song songs/<song>]
     python -m lyric_engine.cli render songs/<song> [--codec prores|png|qtrle] [--allow-flagged]
+    python -m lyric_engine.cli clip songs/<full-song> --from 0:27 --to 0:57 [--out songs/<clip>]
+    python -m lyric_engine.cli make songs/<song> [--codec ...] [--allow-flagged]
 """
 from __future__ import annotations
 
@@ -48,6 +50,39 @@ def _render(song: Path, codec: str | None, allow_flagged: bool) -> int:
     return 0 if not result.checks else 1
 
 
+def _seconds(text: str) -> float:
+    """27, 27.5, 0:27 or 1:05.5 -> seconds."""
+    try:
+        parts = [float(p) for p in text.split(":")]
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"not a time: {text!r} (use 27, 0:27 or 1:05.5)") from None
+    if len(parts) > 2 or any(p < 0 for p in parts):
+        raise argparse.ArgumentTypeError(f"not a time: {text!r} (use 27, 0:27 or 1:05.5)")
+    return parts[0] * 60 + parts[1] if len(parts) == 2 else parts[0]
+
+
+def _clip(song: Path, start: float, end: float, out: Path | None) -> int:
+    from . import workflow
+    out = out or song.parent / f"{song.name}_{int(start)}-{int(end)}"
+    try:
+        plan = workflow.clip_song(song, start, end, out)
+    except workflow.ClipError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    print(f"{out}: {plan.end - plan.start:.1f} s ({plan.start:.2f}-{plan.end:.2f} s of "
+          f"{song.name}), lyric lines {plan.lines[0] + 1}-{plan.lines[-1] + 1}")
+    for warning in plan.warnings:
+        print(f"warning: {warning}")
+    print(f"next: python -m lyric_engine.cli make {out}")
+    return 0
+
+
+def _make(song: Path, codec: str | None, allow_flagged: bool) -> int:
+    from . import workflow
+    code = workflow.ensure_aligned(song)
+    return code if code != 0 else _render(song, codec, allow_flagged)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="lyric_engine")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -68,6 +103,15 @@ def main(argv: list[str] | None = None) -> int:
                    help="alpha codec for overlay.mov (default: theme's, provisional until CapCut test)")
     r.add_argument("--allow-flagged", action="store_true",
                    help="render despite flagged words; untimed ones are shown static, never animated")
+    c = sub.add_parser("clip", help="cut whole lyric lines of an aligned song into a new song folder")
+    c.add_argument("song_dir", type=Path, help="an aligned full song (has words.json)")
+    c.add_argument("--from", dest="start", type=_seconds, required=True, help="e.g. 27 or 0:27")
+    c.add_argument("--to", dest="end", type=_seconds, required=True, help="e.g. 57 or 0:57")
+    c.add_argument("--out", type=Path, help="new song folder (default: <song>_<from>-<to>)")
+    m = sub.add_parser("make", help="align (if not done yet) and render a song folder")
+    m.add_argument("song_dir", type=Path)
+    m.add_argument("--codec", choices=["prores", "png", "qtrle"])
+    m.add_argument("--allow-flagged", action="store_true")
     args = parser.parse_args(argv)
 
     try:
@@ -78,6 +122,10 @@ def main(argv: list[str] | None = None) -> int:
                                     overwrite=args.overwrite)
         if args.cmd == "render":
             return _render(args.song_dir, args.codec, args.allow_flagged)
+        if args.cmd == "clip":
+            return _clip(args.song_dir, args.start, args.end, args.out)
+        if args.cmd == "make":
+            return _make(args.song_dir, args.codec, args.allow_flagged)
         return _validate(args.words_json, args.song)
     except (timing.LyricsError, FileNotFoundError) as exc:
         print(f"error: {exc}", file=sys.stderr)
