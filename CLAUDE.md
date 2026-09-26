@@ -18,11 +18,16 @@ word-synced, transparent 9:16 lyric overlay for CapCut.
 
 `src/lyric_engine/` is one package of staged modules:
 
-- `align.py`: audio + `lyrics.txt` → `words.json` (alignment API). Never renders.
-- `timing.py`: owns the `words.json` format. The only thing align and render share.
+- `align.py`: audio + `lyrics.txt` → `words.json`; aligner variants, `raw.json` cache, bake-off.
+  Engines: `eleven.py` (ElevenLabs forced-alignment API, stdlib HTTP), `local_aligner.py` +
+  `vocals.py` (CPU models, imported lazily: torch). `review.py`: preview videos + reports
+  (review only, not product output). Never renders the overlay.
+- `timing.py`: owns the `words.json` format, lyrics reader, flag rules, validator. The only thing
+  align and render share.
 - `theme.py`, `layout.py`, `render.py`: `words.json` → alpha `.mov` + green-screen mp4.
   `render.py` never calls the alignment API, so hand-edit + re-render stays free.
-- `cli.py`: entry point, operating on one `songs/<song>/` folder.
+- `cli.py`: `python -m lyric_engine.cli bakeoff|align|validate songs/<song>` (package installed
+  with `pip install -e .`). Tests: `venv/Scripts/python -m unittest discover -s tests -t .`
 
 Split a module into a subpackage only when it passes ~300 lines.
 

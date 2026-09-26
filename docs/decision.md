@@ -21,6 +21,10 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-004 | Gate commands empty until the first tested module   | Active |
 | D-005 | Alpha candidates: ProRes 4444, PNG-in-MOV, qtrle     | Active |
 | D-006 | Gate runs the alpha proof end to end                | Active |
+| D-007 | Order flags judged against the last trusted word    | Active |
+| D-008 | Editable install + stdlib unittest gate              | Active |
+| D-009 | Provisional default aligner: L-vocals               | Active |
+| D-010 | Local stack: torch 2.11 CPU, MMS_FA, htdemucs       | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -74,4 +78,54 @@ is it.
 checks; about 20 s; exit non-zero on any missing variant or failed check).
 **Why:** Offline, self-contained, and it fails when it should (verified against a no-alpha,
 149-frame clip: all four failures caught).
+**Supersedes:** —
+
+### D-007 — Order flags judged against the last trusted word
+**Date:** 2026-09-26
+**Context:** Plan 02 said `out_of_order` compares with the previous placed word "flagged or not".
+Agent T found that an aligner jumping back two or more words then produces a doc `validate()`
+rejects, so the whole variant would fail instead of reporting flagged words.
+**Decision:** `apply_flags` compares with the nearest earlier placed **and unflagged** word, the
+same rule `validate()` uses. A test proves a backward jump yields flags and a valid doc.
+**Why:** Flag output must always validate; a bad stretch of alignment is a finding to report,
+not a crash.
+**Supersedes:** plan 02 §4 wording for `out_of_order`
+
+### D-008 — Editable install + stdlib unittest gate
+**Date:** 2026-09-26
+**Context:** Step 02 adds the first importable package code and tests.
+**Decision:** Minimal `pyproject.toml`, `pip install -e .` into `venv/`; tests use stdlib
+`unittest` (`venv/Scripts/python -m unittest discover -s tests -t .`), added as the first gate
+command before the alpha proof.
+**Why:** No test-framework dependency; `python -m lyric_engine.cli` works from the repo root.
+**Supersedes:** —
+
+### D-009 — Provisional default aligner: L-vocals
+**Date:** 2026-09-26
+**Context:** The first bake-off on the 30 s clip (`songs/khidki`, lines 1–8, 27.0–57.0 s of the
+full song): E-raw and E-vocals failed with HTTP 401, "missing the permission forced_alignment"
+(no charge). L-vocals: 44/44 words placed, 0 flagged, 11.3 s. Its word starts match an
+independent full-song run of the same model within 20 ms. The lowest scores (0.00–0.12) sit in
+the repeated chorus lines 2–4.
+**Decision:** `DEFAULT_VARIANT = "L-vocals"`, provisionally under H-008. `min_score` stays
+disabled: there is no ground truth yet to calibrate it against.
+**Why:** It is the only working variant, and its output is valid and stable. The owner still
+confirms by watching `songs/khidki/bakeoff/L-vocals/preview.mp4` (AC10), and the E-variants are
+re-run once the key has the permission.
+**Supersedes:** —
+
+### D-010 — Local stack: torch 2.11 CPU, MMS_FA, htdemucs
+**Date:** 2026-09-26
+**Context:** Agent L tried the plan-02 candidates on this laptop (Python 3.10, 8 GB RAM, no GPU).
+**Decision:** `torch==2.11.0+cpu` and `torchaudio==2.11.0+cpu` (`pipelines.MMS_FA` +
+`functional.forced_align`), and `demucs==4.0.1` (`htdemucs`, shifts=0). PyPI is the main index,
+with the PyTorch CPU index as an extra index. MMS weights are loaded memory-mapped (peak 5.2 GB →
+under 4 GB). The local engine also places a wildcard token between lyric lines (`lines=`), so an
+unwritten repeat cannot drag a line across it; `SETTINGS_VERSION` is now 2.
+**Why:** It installs and runs within the budget: the full 172 s song takes 116 s to separate and
+50 s to align. Not tried: `ctc-forced-aligner` (pulls transformers plus a second 1.2 GB weight
+copy) and `audio-separator`.
+**Risk:** the MMS_FA weights are **CC-BY-NC 4.0 (non-commercial)**. That is fine for this personal
+tool, but it conflicts with the SaaS "future vision" in project_context. A commercial version needs
+a different aligner or licence. Recorded for the owner.
 **Supersedes:** —

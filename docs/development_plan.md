@@ -8,7 +8,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | #  | Step                                   | Branch                          | Status      |
 |----|----------------------------------------|---------------------------------|-------------|
 | 01 | Alpha overlay proof in CapCut          | `feature/alpha-overlay-proof`   | Done ([PR #1](https://github.com/Hacke2367/subtitle_engine/pull/1)) |
-| 02 | Word alignment → `words.json`          | `feature/word-alignment`        | Not started |
+| 02 | Word alignment → `words.json`          | `feature/word-alignment`        | Review      |
 | 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Not started |
 | 04 | Line anchors (`.lrc`) for alignment    | `feature/lrc-anchors`           | Not started |
 
@@ -27,7 +27,8 @@ animation work is sunk into it.
 
 **Delivers:** `songs/<song>/` audio + `lyrics.txt` → `words.json` with a start/end time per word,
 via an alignment API. Words the aligner could not place are marked as flagged, never estimated.
-**Needs:** H-004 answered (alignment provider / API key). Step 01 done.
+**Needs:** H-004 (decided: try ElevenLabs API and a local pipeline, keep the better). Step 01
+done. An ElevenLabs API key in `.env`. The test song's audio + lyrics from the owner.
 **Done when:** on one real Hinglish song, the owner spot-checks `words.json` against the audio;
 every word's text matches `lyrics.txt` exactly; any unaligned word is listed in the run report.
 **Red lines touched:** both.
