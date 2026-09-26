@@ -8,9 +8,10 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | #  | Step                                   | Branch                          | Status      |
 |----|----------------------------------------|---------------------------------|-------------|
 | 01 | Alpha overlay proof in CapCut          | `feature/alpha-overlay-proof`   | Done ([PR #1](https://github.com/Hacke2367/subtitle_engine/pull/1)) |
-| 02 | Word alignment → `words.json`          | `feature/word-alignment`        | Review ([PR #2](https://github.com/Hacke2367/subtitle_engine/pull/2)) |
-| 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Review ([PR #3](https://github.com/Hacke2367/subtitle_engine/pull/3), stacked on #2) |
-| 04 | Line anchors (`.lrc`) for alignment    | `feature/lrc-anchors`           | Not started |
+| 02 | Word alignment → `words.json`          | `feature/word-alignment`        | Done ([PR #2](https://github.com/Hacke2367/subtitle_engine/pull/2)) |
+| 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Done ([PR #3](https://github.com/Hacke2367/subtitle_engine/pull/3), via #2) |
+| 04 | Line anchors (`.lrc`) for alignment    | `feature/lrc-anchors`           | Deferred (optional, D-014) |
+| 05 | Workflow: `clip` + `make` commands     | `feature/workflow-clip-make`    | Done ([PR #4](https://github.com/Hacke2367/subtitle_engine/pull/4), via #3 → #2) |
 
 ## 01 — Alpha overlay proof in CapCut
 
@@ -57,3 +58,12 @@ alignment to within each line.
 - Alignment provider (step 02; ElevenLabs forced alignment is the default candidate).
 - Rendering approach (step 03; the blueprint suggests MoviePy, not locked).
 - Emphasis marker syntax in `lyrics.txt` (step 03).
+
+## 05 — Workflow: `clip` + `make` commands
+
+**Delivers:** `clip` cuts a portion of an aligned full song into a new song folder: the audio cut
+at line boundaries, plus exactly the lyric lines sung in it, verbatim. `make` aligns a song folder
+if needed and renders it in one command.
+**Needs:** steps 02 and 03 (stacked branch, D-014).
+**Done when:** a short goes from full song + time range to overlay with two commands, tested on a
+second portion of the test song. A different song is pending the owner.
