@@ -120,19 +120,22 @@ def word_fonts(theme: Theme, size: int, emphasis: bool) -> FontSet:
     return font_set(theme, round(size * theme.emphasis_scale) if emphasis else size)
 
 
-def word_mask(text: str, fonts: FontSet, pad: int = 0) -> Image.Image:
+def word_mask(text: str, fonts: FontSet, pad: int = 0, stroke: int = 0) -> Image.Image:
     """The word's ink as an "L" mask, (ceil(advance) + 2·pad) × (ascent + descent + 2·pad), with
     the baseline at pad + ascent. The mask that measures a word (pad=0) is the one that draws it.
 
     Vertically all ink is inside the box (FontSet._fitted). Side bearings can put ink slightly
     left of 0 or right of the advance (1 px for the "f" of "saaf"); only a pad keeps that.
+    stroke > 0: the glyphs plus an outline that many px wide (a theme's stroke layer), same size;
+    the caller keeps pad ≥ stroke.
     """
     mask = Image.new("L", (math.ceil(fonts.advance(text)) + 2 * pad,
                            fonts.ascent + fonts.descent + 2 * pad), 0)
     draw = ImageDraw.Draw(mask)
+    outline = {"stroke_width": stroke, "stroke_fill": 255} if stroke else {}
     x = float(pad)
     for run, font in fonts.runs(text):
-        draw.text((x, pad + fonts.ascent), run, font=font, fill=255, anchor="ls")
+        draw.text((x, pad + fonts.ascent), run, font=font, fill=255, anchor="ls", **outline)
         x += font.getlength(run)
     return mask
 
@@ -212,7 +215,7 @@ def _balance(rows: list[list[Item]], space: float, max_width: int) -> list[list[
 
 def _place(rows: list[list[Item]], theme: Theme, line: int, size: int,
            emphasis: frozenset[int]) -> tuple[WordBox, ...]:
-    """Each row centred horizontally, its words on one baseline; the block of rows centred at
+    """Each row centred on theme.center_x, its words on one baseline; the block of rows centred at
     anchor_y · height. A row is as tall as its tallest word; the gap between rows is the plain
     row pitch minus a plain word's height, so rows without marked words sit exactly as before."""
     fonts = font_set(theme, size)
@@ -224,7 +227,7 @@ def _place(rows: list[list[Item]], theme: Theme, line: int, size: int,
     y = round(theme.anchor_y * theme.height - (sum(heights) + gap * (len(rows) - 1)) / 2)
     boxes = []
     for row, fs, ascent, height in zip(rows, row_fonts, ascents, heights):
-        left = (theme.width - _row_width(row, fonts.space)) // 2
+        left = (2 * theme.center_x - _row_width(row, fonts.space)) // 2   # 540: as (width − w) // 2
         boxes += [WordBox(i, text, left + x, y + ascent - f.ascent, math.ceil(advance),
                           f.ascent + f.descent, i in emphasis)
                   for (i, text, advance), x, f in zip(row, _offsets(row, fonts.space), fs)]

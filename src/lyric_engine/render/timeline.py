@@ -44,27 +44,40 @@ def _ceil_frame(t: float, fps: int) -> int:
     return math.ceil(round(t * fps, 6))
 
 
-def plan_timeline(doc: dict, theme: Theme, n_frames: int, layout_fn=None,
-                  emphasis: frozenset[int] = frozenset()) -> tuple[list[LinePlan], list[int]]:
-    """Shown lines in time order (layout, visible span, per-word frames), and the lines skipped
-    because none of their words has a time. Only a word's own start/end sets its frames.
+def laid_out_lines(doc: dict, theme: Theme, layout_fn=None,
+                   emphasis: frozenset[int] = frozenset()
+                   ) -> tuple[list[tuple[list[dict], LineLayout]], list[int]]:
+    """Each lyric line that has a timed word, in line order, with its layout; and the lines
+    skipped because none of their words has a time. Shared by every theme's timeline.
     `emphasis`: indexes of *marked* words, laid out bigger (H-013)."""
     layout_fn = layout_fn or layout.layout_line
-    fps, lead = theme.fps, theme.lead_s
     by_line: dict[int, list[dict]] = {}
     for w in doc["words"]:
         by_line.setdefault(w["line"], []).append(w)
-    plans, skipped = [], []
+    rows, skipped = [], []
     for line in sorted(by_line):
         words = by_line[line]
-        timed = [w for w in words if _timed(w)]
-        if not timed:
+        if not any(_timed(w) for w in words):
             skipped.append(line)
             continue
         lay = layout_fn([(w["i"], w["text"]) for w in words], line, theme, emphasis=emphasis)
         want, got = [(w["i"], w["text"]) for w in words], [(b.index, b.text) for b in lay.words]
         if got != want:   # red line 2: the layout places exactly these words, verbatim, in order
             raise AssertionError(f"layout of line {line + 1} returned {got}, expected {want}")
+        rows.append((words, lay))
+    return rows, skipped
+
+
+def plan_timeline(doc: dict, theme: Theme, n_frames: int, layout_fn=None,
+                  emphasis: frozenset[int] = frozenset()) -> tuple[list[LinePlan], list[int]]:
+    """Shown lines in time order (layout, visible span, per-word frames), and the lines skipped
+    because none of their words has a time. Only a word's own start/end sets its frames.
+    `emphasis`: indexes of *marked* words, laid out bigger (H-013)."""
+    fps, lead = theme.fps, theme.lead_s
+    rows, skipped = laid_out_lines(doc, theme, layout_fn, emphasis)
+    plans = []
+    for words, lay in rows:
+        timed = [w for w in words if _timed(w)]
         plan = []
         for w, box in zip(words, lay.words):
             if not _timed(w):

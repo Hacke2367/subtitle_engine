@@ -27,6 +27,19 @@ def _scaled(mask: Image.Image, k: float) -> Image.Image:
 Sprites = dict[int, tuple[Image.Image, Image.Image, int]]   # word index -> (text, glow, pad)
 
 
+def checked_mask(text: str, box: layout.WordBox, fonts: layout.FontSet, pad: int) -> Image.Image:
+    """The word's glyph mask padded by pad, after the two checks every theme draws through:
+    the string is the words.json text (red line 2) and the drawn mask is the measured one."""
+    if text != box.text:   # red line 2, checked where the string is drawn
+        raise AssertionError(f"word {box.index}: layout text {box.text!r} is not the "
+                             f"words.json text {text!r}")
+    mask = layout.word_mask(text, fonts, pad)
+    if mask.size != (box.w + 2 * pad, box.h + 2 * pad):   # measured mask == drawn mask
+        raise AssertionError(f"word {box.index} {text!r}: drawn mask {mask.size} does "
+                             f"not match its layout box {box.w}x{box.h} + pad {pad}")
+    return mask
+
+
 def build_sprites(lines: list[LinePlan], theme: Theme) -> Sprites:
     """Per word index: (text sprite, glow sprite, pad). Both are the word's mask padded by pad,
     drawn at (box.x − pad, box.y − pad). The blurs happen here, once per word."""
@@ -35,14 +48,8 @@ def build_sprites(lines: list[LinePlan], theme: Theme) -> Sprites:
     for lp in lines:
         for wp in lp.words:
             box = wp.box
-            if wp.text != box.text:   # red line 2, checked where the string is drawn
-                raise AssertionError(f"word {box.index}: layout text {box.text!r} is not the "
-                                     f"words.json text {wp.text!r}")
             fonts = layout.word_fonts(theme, lp.layout.font_size, box.emphasis)
-            mask = layout.word_mask(wp.text, fonts, pad)
-            if mask.size != (box.w + 2 * pad, box.h + 2 * pad):   # measured mask == drawn mask
-                raise AssertionError(f"word {box.index} {wp.text!r}: drawn mask {mask.size} does "
-                                     f"not match its layout box {box.w}x{box.h} + pad {pad}")
+            mask = checked_mask(wp.text, box, fonts, pad)
             blurred = mask.filter(ImageFilter.GaussianBlur(theme.shadow_radius))
             shadow = Image.new("L", mask.size, 0)
             shadow.paste(_scaled(blurred, theme.shadow_alpha), theme.shadow_offset)
@@ -106,6 +113,13 @@ def _frame_parts(n: int, lines: list[LinePlan], sprites: Sprites, theme: Theme,
             if level > 0:
                 out.append((cache.faded(img, level, (wp.box.index, kind, level)), pos))
     layers = glows + texts   # every glow under every text: no glow tints a neighbour's letters
+    return band_parts(layers, theme)
+
+
+def band_parts(layers: list[tuple[Image.Image, tuple[int, int]]], theme: Theme) -> list:
+    """Sprites composited in order onto the rows they cover, as [zero above, band, zero below]
+    (or the shared zero frame when nothing is drawn)."""
+    zero = _zero_frame(theme.width, theme.height)
     if not layers:
         return [zero]
     top = max(0, min(y for _, (_, y) in layers))
