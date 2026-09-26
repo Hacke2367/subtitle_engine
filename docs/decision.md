@@ -31,6 +31,7 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-014 | Step 05 (workflow) before 04; stacked on step 03    | Active |
 | D-015 | Stacked PRs merged top-down (#4→#3→#2→dev)          | Active |
 | D-016 | Emphasis (06) before Pop Karaoke (07), own branches | Active |
+| D-017 | Order of styling steps 08–14                        | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -222,4 +223,16 @@ Emphasis is V1 scope that step 03 shipped without; the new theme is a V1.1 scope
 Pop Karaoke and theme selection. Each gets its own branch off `dev`, merged before the next starts.
 **Why:** Emphasis touches the lyrics reader and a red line, so it is reviewed on its own; Pop
 Karaoke then reuses it. Separate, sequential branches avoid another stacked merge (D-015).
+**Supersedes:** —
+
+### D-017 — Order of styling steps 08–14
+**Date:** 2026-09-26
+**Context:** H-012: the owner builds every researched style after step 07 but set no order.
+**Decision:** 08 Soft Romantic v2 → 09 Lofi Minimal → 10 Cinematic → 11 Beat detection →
+12 Beat Pop → 13 Phonk Neon; 14 Devanagari shaping is deferred until a song needs it. One branch
+per step off `dev`, merged before the next starts (as D-016).
+**Why:** Themes that need no new input come first and reuse the alignment. Soft Romantic v2
+upgrades the theme the owner's romantic channel uses most. Primitives accumulate: 07 brings the
+fill and scale cache, 08 the blur cache that 10's blur-in reuses. Beat detection is a new input,
+so it gets its own step before the two beat-driven themes. Latin Hinglish needs no shaper.
 **Supersedes:** —

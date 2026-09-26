@@ -46,6 +46,11 @@ creators is a future vision, not V1.
 - Emphasis words marked by hand by the owner in `lyrics.txt` as `*word*` (H-009)
 - **V1.1 (H-011, scope change):** a second theme, **Pop Karaoke**: left-to-right fill on the
   sung word, bold sans, white plus one accent. Look details in its `/spec`.
+- **V1.1, rest of the styling phase (H-012):** the owner builds every researched style, in plan
+  order (steps 08–14): Soft Romantic v2, Lofi Minimal, Cinematic, beat detection (a new input:
+  beat times from the audio, used for decoration only), Beat Pop, Phonk Neon, and Devanagari
+  shaping once a song needs it. Research: `docs/research/lyric_aesthetics.md`. Looks are
+  decided in each step's `/spec`.
 - Two primary outputs, both 1080×1920, song length, starting at t=0 (H-003):
   `.mov` with alpha channel for CapCut desktop, and a solid-green-background mp4 for CapCut
   mobile (Chroma Key)
@@ -56,8 +61,7 @@ creators is a future vision, not V1.
 - Transcription (audio without lyrics); spoken / voiceover content
 - `.ass` or any subtitle-file output (CapCut cannot read styled subtitles)
 - AI stylist / LLM auto-tagging; the custom tag markup (`<glow>`, `<shake>`, `<glitch>`, ...)
-- Themes other than Soft Romantic and Pop Karaoke (Phonk, Lofi/Vaporwave, Minimalist Cinematic)
-  until the owner picks the next one
+- Themes beyond the V1.1 list above
 - Finished video export (background + audio + text in one file)
 - SaaS, multi-user, web UI, YouTube-channel marketing
 - Fast preview mode (nice-to-have only; owner accepts up to ~10 min render per song)

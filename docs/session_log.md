@@ -2,6 +2,24 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-26 (8): step 06 revised: marked words 1.5x-2x (H-013)
+**Did:** owner found the 1.06x swell too subtle; replaced it with a permanent size rule: marked word = `emphasis_scale` (1.5-2.0, enforced by `Theme`) times its line's font size, laid out with room (shared baseline, taller row). Swell code removed. Unmarked songs still pixel-identical to `dev`; 1.5x and 2x previews rendered, checks pass.
+**Decisions:** H-013; spec 06 v1.1.0.
+**Open:** owner merges step 06's PR (shipped at 1.5x after the owner's "ok"). `/init` refreshed `CLAUDE.md`.
+**Next:** merge → `/start_work` step 07 Pop Karaoke.
+
+## 2026-09-26 (7): step 06 emphasis words built
+**Did:** H-009/H-011 logged, spec + plan 06 (owner approved), built it (3598a65): `*word*` reader, marker-free words.json, markers-only edits not stale, clip keeps markers, Soft Romantic swell. Gate green (157 tests). Unmarked `khidki`/`khidki_s2` frames pixel-identical to `dev`; `khidki_s2_em` (3 marks) renders, checks pass, `words.json` untouched, no slower.
+**Decisions:** H-009, H-011, D-016; spec 06 v1.0.1 (brief word settles after its own end).
+**Open:** owner look (AC10); `/ship` not run (not pushed); session (6)'s doc edits still uncommitted.
+**Next:** owner approves the swell → `/ship` → merge → step 07 Pop Karaoke.
+
+## 2026-09-26 (6): styling roadmap saved (no code)
+**Did:** saved the research roadmap: plan steps 08–14 plus shared styling rules in `development_plan.md`, the V1.1 scope in `project_context.md`. Left spec 06 alone, since another session is working on it.
+**Decisions:** H-012 (owner builds every researched style), D-017 (order of steps 08–14).
+**Open:** these doc edits are uncommitted on `feature/emphasis-markers`; step 08 needs the owner to re-approve next-line ghosting (H-010) or it ships without it.
+**Next:** step 06 → step 07 → steps 08–13 in order.
+
 ## 2026-09-26 (5): styling research (no code)
 **Did:** owner asked for aesthetics research only. Four parallel research agents (short-form styles, Hinglish/fonts/palettes, PIL animation primitives, CapCut limits + open source) plus local benchmarks → `docs/research/lyric_aesthetics.md`. Verified locally: per-word effects cost ~1 ms, Pillow has no raqm in this venv (Devanagari shaping wrong), ffmpeg's libass renders ASS onto a transparent ProRes canvas.
 **Decisions:** none. H-011 raised (which styles first; recommendation Soft Romantic v2 → Karaoke Fill → Minimal Lowercase).

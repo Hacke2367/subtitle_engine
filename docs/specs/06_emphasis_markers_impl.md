@@ -255,17 +255,17 @@ pins this (§6).
 
 ## 9. Hard Boundaries
 
-- [ ] Never draw, send to an aligner, or store in `words[i].text` an asterisk that is part of a
+- [x] Never draw, send to an aligner, or store in `words[i].text` an asterisk that is part of a
       marker.
-- [ ] Never change any other character of the lyrics: no trimming, no case change, no
+- [x] Never change any other character of the lyrics: no trimming, no case change, no
       punctuation moves.
-- [ ] Never auto-fix a malformed marker; report the line and stop.
-- [ ] Never read another word's time for the swell; untimed → no swell.
-- [ ] Never move a word's layout position or re-wrap for emphasis; scale about the sprite
-      centre only.
-- [ ] Never change the pixels of a frame where every word has `swell == 1.0`.
-- [ ] Never write to `words.json` from `render`, `validate` or `clip`.
-- [ ] No emphasis field in `words.json`; no `WORDS_VERSION` bump.
+- [x] Never auto-fix a malformed marker; report the line and stop.
+- [x] ~~Never read another word's time for the swell~~ (swell removed, H-013); emphasis adds no timing at all.
+- [x] ~~Never move a word's layout position or re-wrap for emphasis~~: superseded by H-013,
+      the layout now makes room for the bigger word; lines without marks are placed as before.
+- [x] Never change the pixels of a line without marked words (frame hashes identical to `dev`).
+- [x] Never write to `words.json` from `render`, `validate` or `clip`.
+- [x] No emphasis field in `words.json`; no `WORDS_VERSION` bump.
 
 ## 10. Acceptance Criteria (runnable)
 
