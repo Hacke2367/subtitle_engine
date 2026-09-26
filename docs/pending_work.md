@@ -2,8 +2,8 @@
 
 ## WIP
 
-`feature/word-alignment` (from `dev` @ 52e87d6): step 02, status Review; PR into `dev` (link
-below once opened). Bake-off on the 30 s clip `songs/khidki` (27.0–57.0 s, lines 1–8): L-vocals
+`feature/word-alignment` (from `dev` @ 52e87d6): step 02, status Review,
+[PR #2](https://github.com/Hacke2367/subtitle_engine/pull/2) into `dev` (merge waits for the owner). Bake-off on the 30 s clip `songs/khidki` (27.0–57.0 s, lines 1–8): L-vocals
 valid (0/44 flagged), E-variants blocked by the key permission. Provisional default L-vocals
 (D-009).
 
