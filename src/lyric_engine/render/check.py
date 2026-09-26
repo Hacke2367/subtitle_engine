@@ -138,7 +138,8 @@ def _stream(cmd: list[str], frame_size: int, visit) -> tuple[int, str | None]:
 
 def check_outputs(result: RenderResult, lines: list, theme: Theme, n_frames: int) -> list[str]:
     """ffprobe checks of the three outputs, then the theme's frame checks on the decoded overlay:
-    the alpha sync check, plus the safe zone if set (reveal, focus), or the karaoke checks."""
+    the alpha sync check, plus the safe zone if set (reveal, focus), or the karaoke or lofi
+    checks."""
     out, size = result.outputs, (theme.width, theme.height)
     overlay = _probe(out["overlay"])
     fails = _video_failures("overlay.mov", overlay, size, theme.fps)
@@ -149,6 +150,9 @@ def check_outputs(result: RenderResult, lines: list, theme: Theme, n_frames: int
                              theme.fps, n_frames)
     fails += _video_failures("preview.mp4", _probe(out["preview"]), theme.preview_size,
                              audio=True)
+    if theme.motion == "lofi":   # here, not at the top: lofi_check imports this module
+        from .lofi_check import lofi_checks
+        return fails + lofi_checks(result, lines, theme, n_frames)
     check = _karaoke_checks if theme.motion == "karaoke" else _alpha_sync
     return fails + check(result, lines, theme, n_frames)
 
@@ -168,12 +172,14 @@ def _decode_cmd(path: Path, *video_args: str) -> list[str]:
 
 
 def _alpha_sync(result: RenderResult, lines: list[LinePlan], theme: Theme,
-                n_frames: int) -> list[str]:
+                n_frames: int, samples: list[_Sample] | None = None) -> list[str]:
     """Reveal and focus themes: the overlay's alpha plane decoded once; every timed word's ink is
-    solid just after its reveal and absent just before it; the safe zone, if the theme has one."""
+    solid just after its reveal and absent just before it; the safe zone, if the theme has one.
+    `samples`: the words to read, when the theme builds its own (lofi-typewriter)."""
     size, fails = (theme.width, theme.height), []
-    samples = (_focus_samples(result, lines, theme) if theme.motion == "focus"
-               else _sync_samples(lines, theme))
+    if samples is None:
+        samples = (_focus_samples(result, lines, theme) if theme.motion == "focus"
+                   else _sync_samples(lines, theme))
     wanted, means = _wanted(samples), {}
     zone, outside = theme.safe_zone, []
 
@@ -217,7 +223,7 @@ def _karaoke_checks(result: RenderResult, lines: list, theme: Theme, n_frames: i
     """Karaoke themes, one decode of one colour plane stacked on the alpha plane:
     fill sync (a word shows no accent the frame before its fill starts and is all accent on the
     frame its fill ends, both read with its line at rest) and the safe zone on every frame."""
-    size, fails = (theme.width, theme.height), []
+    fails = []
     text, accent = theme.text_rgb, theme.accent_rgb
     c = max(range(3), key=lambda k: abs(text[k] - accent[k]))   # the channel that tells them apart
     span = text[c] - accent[c]
@@ -242,26 +248,14 @@ def _karaoke_checks(result: RenderResult, lines: list, theme: Theme, n_frames: i
             samples.append(_Sample(label, (b.x, b.y, b.x + b.w, b.y + b.h), ink, fw.end,
                                    fw.start - 1 if fw.start > 0 and at_rest(fw.start - 1)
                                    else None, False))
-    wanted, means = _wanted(samples), {}
-    plane, zone, outside = theme.width * theme.height, theme.safe_zone, []
-
-    def visit(k: int, data: bytes) -> None:
-        if k in wanted:
-            frame = Image.frombytes("L", size, data[:plane])
-            for s, kind in wanted[k]:
-                means[s.label, kind] = ImageStat.Stat(frame.crop(s.box), s.ink).mean[0]
-        if zone is not None and (box := _zone_box(memoryview(data)[plane:], size, zone)):
-            outside.append((k, box))
-
-    graph = f"[0:v]format=gbrap,extractplanes={'rgb'[c]}+a[c][a];[c][a]vstack"
-    decoded, error = _stream(_decode_cmd(result.outputs["overlay"], "-filter_complex", graph),
-                             2 * plane, visit)
+    means, outside, decoded, error = _colour_alpha(result, theme, c, _wanted(samples))
     if error is not None:
         return [f"overlay.mov: colour decode failed: {error}"]
     if decoded != n_frames:
         fails.append(f"overlay.mov: {decoded} frames, expected {n_frames}")
     for s in samples:
-        after, before = means.get((s.label, "on")), means.get((s.label, "before"))
+        after, before = (means[s.label, kind][0] if (s.label, kind) in means else None
+                         for kind in ("on", "before"))
         if after is None:
             fails.append(f"fill: {s.label}: frame {s.on}, where its fill ends, is outside the "
                          "overlay")
@@ -273,8 +267,33 @@ def _karaoke_checks(result: RenderResult, lines: list, theme: Theme, n_frames: i
             fails.append(f"fill: {s.label}: {f:.0%} filled at frame {s.before}, the frame before "
                          "its fill starts; expected 0%")
     if outside:
-        fails.append(_zone_failure(outside, zone))
+        fails.append(_zone_failure(outside, theme.safe_zone))
     return fails
+
+
+def _colour_alpha(result: RenderResult, theme: Theme, c: int,
+                  wanted: dict[int, list[tuple[_Sample, str]]]
+                  ) -> tuple[dict[tuple[str, str], tuple[float, float]], list, int, str | None]:
+    """One decode of the overlay's colour plane c ("rgb"[c]) stacked on its alpha plane: per
+    wanted (label, kind), the mean colour and alpha over the sample's ink; the frames drawing
+    outside the safe zone; the decoded frame count; and ffmpeg's error tail, if it failed."""
+    size, plane = (theme.width, theme.height), theme.width * theme.height
+    zone, means, outside = theme.safe_zone, {}, []
+
+    def visit(k: int, data: bytes) -> None:
+        if k in wanted:
+            colour = Image.frombytes("L", size, data[:plane])
+            alpha = Image.frombytes("L", size, data[plane:])
+            for s, kind in wanted[k]:
+                means[s.label, kind] = (ImageStat.Stat(colour.crop(s.box), s.ink).mean[0],
+                                        ImageStat.Stat(alpha.crop(s.box), s.ink).mean[0])
+        if zone is not None and (box := _zone_box(memoryview(data)[plane:], size, zone)):
+            outside.append((k, box))
+
+    graph = f"[0:v]format=gbrap,extractplanes={'rgb'[c]}+a[c][a];[c][a]vstack"
+    decoded, error = _stream(_decode_cmd(result.outputs["overlay"], "-filter_complex", graph),
+                             2 * plane, visit)
+    return means, outside, decoded, error
 
 
 def _zone_box(alpha, size: tuple[int, int], zone: tuple[int, int, int, int]) -> tuple | None:
@@ -319,6 +338,10 @@ def write_report(result: RenderResult, doc: dict, *, codec: str, theme: Theme,
                 *(f'- word {w["i"]} "{w["text"]}" (line {w["line"] + 1})' for w in static)]
     frame_checks = (f"fill check of {timed} timed word(s) on the overlay's colour" if
                     theme.motion == "karaoke" else
+                    f"typing check of {timed} timed word(s) on the overlay's alpha" if
+                    theme.motion == "lofi" and theme.typewriter else
+                    f"colour-state check of {timed} timed word(s) on the overlay's colour and "
+                    "alpha" if theme.motion == "lofi" else
                     f"sync check of {timed} timed word(s) on the overlay's alpha")
     frame_checks += "; safe-zone check of every frame." if theme.safe_zone else "."
     out += ["", "## Output check", "", f"ffprobe checks of all three outputs; {frame_checks}", ""]

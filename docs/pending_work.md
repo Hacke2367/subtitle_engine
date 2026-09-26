@@ -1,23 +1,30 @@
 # Pending Work
 
-Last updated: 2026-09-27 (step 08 merged, PR #7)
+Last updated: 2026-09-27 (step 09 in review)
 
 ## WIP
 
-None. Step 08 (Soft Romantic v2) merged into `dev` ([PR #7](https://github.com/Hacke2367/subtitle_engine/pull/7)).
+Step 09 (Lofi Minimal + Lofi Typewriter) on `feature/lofi-minimal-theme`, base `dev @ 1b9e6e9`.
+Stage: review (gate green, AC1-10 and AC12 pass; AC11, the owner's look, open).
 
 ## Current focus
 
-V1.1 styling. Three themes: Soft Romantic v2 (default, H-015), Soft Romantic v1 and Pop Karaoke
-(`--theme`, outputs in `render/<theme>/`, D-018). Next: step 09, Lofi Minimal (H-012, D-017).
+V1.1 styling. Five themes: Soft Romantic v2 (default, H-015), Soft Romantic v1, Pop Karaoke,
+Lofi Minimal and Lofi Typewriter (H-016) (`--theme`, outputs in `render/<theme>/`, D-018).
+Next: step 10, Cinematic (H-012, D-017).
 
 ## Next up
 
-1. **Resume point:** `/start_work` step 09 (Lofi Minimal, `feature/lofi-minimal-theme`), then
-   `/spec`. Needs nothing new from the owner (H-012, D-017 cover it).
-2. Optional cleanup: `render/check.py` (≈330 lines) and `render/karaoke.py` (≈310) are past the
-   ~300-line split guideline; split only if the owner wants it (e.g. a `chore/` branch).
-3. Steps 09–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
+1. **Resume point:** step 09 built (spec v1.0.1, plan `docs/specs/09_lofi_minimal_theme_impl.md`,
+   D-020). Gate green; every render check passes on `khidki_s2`, `khidki_s2_em`, `khidki_s2_lofi`
+   and the full `khidki_full`, other themes byte-identical to `dev`. Shipped for review. The owner
+   watches `songs/khidki_s2_lofi/render/lofi-minimal/preview.mp4` and `.../lofi-typewriter/` (AC11);
+   changes asked for become `theme.py` values. Merge only on the owner's word (`/merge_pr`), then
+   `/start_work` step 10 (Cinematic).
+2. Optional cleanup: `render/check.py` (≈354 lines), `render/karaoke.py` (≈310) and
+   `render/lofi.py` (≈307) are past the ~300-line split guideline; split only if the owner
+   wants it (e.g. a `chore/` branch).
+3. Steps 10–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
    shaping) only when a song needs it.
 4. Owner: try a different song end to end (spec 05 AC4), now with any theme.
 5. Step 04 (`.lrc` anchors) only if a real song drifts.

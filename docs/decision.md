@@ -34,6 +34,7 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-017 | Order of styling steps 08–14                        | Active |
 | D-018 | Theme outputs in `render/<theme>/`; Poppins bundled | Active |
 | D-019 | v2 hand-over rule and sync readability (step 08)    | Active |
+| D-020 | Lofi line timing on frames; tracking units (step 09) | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -264,4 +265,18 @@ margin around the word's whole box.
 the word's ink rectangle; any word it cannot read is a report note.
 **Why:** Two lines never overlap in the current slot. On `khidki_s2` and `khidki_s2_em`, every
 timed word is now read by the check (no notes), instead of the first words being skipped.
+**Supersedes:** —
+
+### D-020 — Lofi line timing on frames; tracking units (step 09)
+**Date:** 2026-09-27
+**Context:** Spec 09 §4.2 sets the one-line life cycle in words; plan 09 made it exact.
+**Decision:** Between a line's last word and the next line's first current frame `F`, the frames
+are split as exit then entrance, and frame `F − 1` is kept clean: the next `lofi-minimal` line is
+already at rest there, and in `lofi-typewriter` no other line is on screen. Too few frames for
+both: they shrink in proportion; under two frames: a cut, with a report note. A typewriter line
+never leaves before its last letter has faded in. Tracking splits a word into units: each Latin
+letter of the primary font is one; any other run (fallback font, non-Latin) stays whole.
+**Why:** The check can then read every first word's "before" frame, so `khidki_s2`,
+`khidki_s2_em` and `khidki_s2_lofi` pass with no notes. Whole non-Latin units keep emoji sequences
+and Devanagari from being pulled apart by tracking.
 **Supersedes:** —
