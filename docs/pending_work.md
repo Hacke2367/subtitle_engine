@@ -1,5 +1,7 @@
 # Pending Work
 
+Last updated: 2026-09-26 (handoff after steps 01–03)
+
 ## WIP
 
 - `feature/soft-romantic-render` (stacked on `feature/word-alignment`, D-011): step 03, status
@@ -17,7 +19,9 @@ V1 steps 01–03 are built. What's left needs the owner (see "Waiting on the own
 
 ## Next up
 
-1. Owner: watch `songs/khidki/render/preview.mp4` (look + sync) and import
+1. **Resume point:** steps 02 and 03 are in Review (PRs #2 and #3), waiting on the owner. Read
+   `docs/pending_work.md` "Waiting on the owner" and `songs/khidki/render/report.md` first.
+   Owner: watch `songs/khidki/render/preview.mp4` (look + sync) and import
    `render/overlay.mov` / `overlay_green.mp4` into CapCut desktop / mobile (H-006) → fix the
    default codec.
 2. Owner: merge PR #2, then PR #3 (retargeted to `dev`).
