@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-26 (3): owner validated V1; step 05 workflow commands
+**Did:** recorded the owner's check (H-010: sync, look and CapCut OK; L-vocals and ProRes defaults confirmed). Built step 05: `clip` (whole lines, snapped cut, verbatim lyrics) and `make` (align if needed, then render); PR #4, stacked on #3. Clip 27–57 is byte-identical to the hand-made one; stanza 2 went clip → make, 0 flags, checks pass.
+**Decisions:** H-010, D-014 (step 05 before 04; stacked).
+**Open:** merging #2 → #3 → #4; H-009 emphasis; a different song end to end; rotating the API key.
+**Next:** owner merges the stacked PRs in order; then styling (H-009 emphasis, then new themes as a logged scope change).
+
 ## 2026-09-26 (2): steps 01–03 built, owner away (H-008)
 **Did:** step 01 merged (PR #1). Step 02 alignment bake-off (PR #2): L-vocals 44/44 on the 30 s khidki clip, E-variants blocked by the key permission. Step 03 renderer (PR #3, stacked): the first real overlay passed every check in 33.7 s. Used 5 parallel agents.
 **Decisions:** H-004 (option c), H-006, H-007 (30 s prototype), H-008 (autonomy); D-005…D-013. H-009 is pending (emphasis syntax).
