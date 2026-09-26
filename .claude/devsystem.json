@@ -6,7 +6,14 @@
   ],
   "gate": {
     "commands": [
-      { "name": "alpha proof (render, encode, check)", "run": "venv/Scripts/python scripts/alpha_proof.py" }
+      {
+        "name": "unit tests",
+        "run": "venv/Scripts/python -m unittest discover -s tests -t ."
+      },
+      {
+        "name": "alpha proof (render, encode, check)",
+        "run": "venv/Scripts/python scripts/alpha_proof.py"
+      }
     ]
   }
 }

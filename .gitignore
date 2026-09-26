@@ -12,3 +12,4 @@ songs/example/*
 
 # Rendered test clips and renders (spec 01 hard rule)
 out/
+*.egg-info/
