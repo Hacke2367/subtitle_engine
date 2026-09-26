@@ -1,28 +1,31 @@
 # Pending Work
 
-Last updated: 2026-09-26 (after merging #2/#3/#4)
+Last updated: 2026-09-26 (step 06 merged, PR #5)
 
 ## WIP
 
-None. Steps 02, 03 and 05 were merged into `dev` via PRs #2/#3/#4 (D-015).
+None. Step 06 (emphasis words) merged into `dev` via [PR #5](https://github.com/Hacke2367/subtitle_engine/pull/5).
 
 ## Current focus
 
-V1 is done: song + lyrics → word-synced Soft Romantic overlay for CapCut, and `clip` + `make`
-bring a short down to two commands. Next phase: styling (V1.1).
+V1.1 styling. Emphasis is done: `*word*` in `lyrics.txt`, drawn 1.5x its line (H-009, H-013).
+Next: step 07, Pop Karaoke, the first new theme (H-011), then steps 08-13 (H-012, D-017).
 
 ## Next up
 
-1. **Resume point:** plan the styling phase. The owner answers **H-009** (emphasis marker,
-   recommendation `*word*`) and picks the **first new theme** (Phonk / Lofi / Pop karaoke /
-   Minimal). New themes are a scope change from V1's "one theme": log it with `/log_decision`,
-   update `project_context.md`, add plan step 06, then `/start_work`.
-2. Owner: try a different song end to end (spec 05 AC4).
-3. Step 04 (`.lrc` anchors) only if a real song drifts.
+1. **Resume point:** `/start_work` step 07 (Pop Karaoke theme, branch `feature/pop-karaoke-theme`)
+   off the updated `dev`, then `/spec`. No pending `H-` item blocks it (H-011 decided). The spec
+   must cover a way to pick the theme per render, and the styling rules in
+   `development_plan.md`; marked words keep the H-013 size rule.
+2. Steps 08–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
+   shaping) only when a song needs it.
+3. Owner: try a different song end to end (spec 05 AC4).
+4. Step 04 (`.lrc` anchors) only if a real song drifts.
 
 ## Waiting on the owner
 
-- H-009: how to mark emphasis words (recommendation: `*word*` in lyrics.txt).
+- FYI: emphasis ships at 1.5x; set `emphasis_scale` (up to 2.0) in `theme.py` any time. The 2x
+  preview is in `songs/khidki_s2_em_2x`.
 - Try a different song: `align` → `clip` → `make` (spec 05 AC4).
 - Rotate the ElevenLabs API key (it was pasted in chat).
 - FYI (D-010): the local model's weights are non-commercial (CC-BY-NC). Fine for V1, but it

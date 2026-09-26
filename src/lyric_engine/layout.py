@@ -30,6 +30,7 @@ class WordBox:
     y: int
     w: int            # mask size = word_mask(text, fonts) size
     h: int
+    emphasis: bool = False   # *marked*: measured and drawn with word_fonts(..., True) (H-013)
 
 
 @dataclass(frozen=True)
@@ -113,6 +114,12 @@ def font_set(theme: Theme, size: int) -> FontSet:
     return FontSet(theme, size)
 
 
+def word_fonts(theme: Theme, size: int, emphasis: bool) -> FontSet:
+    """The fonts a word of a line laid out at `size` is measured and drawn with: a *marked* word
+    at emphasis_scale times the line's size, so the ratio holds when a long line shrinks."""
+    return font_set(theme, round(size * theme.emphasis_scale) if emphasis else size)
+
+
 def word_mask(text: str, fonts: FontSet, pad: int = 0) -> Image.Image:
     """The word's ink as an "L" mask, (ceil(advance) + 2·pad) × (ascent + descent + 2·pad), with
     the baseline at pad + ascent. The mask that measures a word (pad=0) is the one that draws it.
@@ -134,23 +141,27 @@ def word_mask(text: str, fonts: FontSet, pad: int = 0) -> Image.Image:
 Item = tuple[int, str, float]  # (words.json "i", text, advance)
 
 
-def layout_line(words: list[tuple[int, str]], line: int, theme: Theme) -> LineLayout:
+def layout_line(words: list[tuple[int, str]], line: int, theme: Theme,
+                emphasis: frozenset[int] = frozenset()) -> LineLayout:
     """Wrap one lyric line into balanced, centred rows at the largest size, from font_size down
-    to min_font_size in font_step steps, that gives ≤ max_rows rows of ≤ max_width px."""
+    to min_font_size in font_step steps, that gives ≤ max_rows rows of ≤ max_width px. Words whose
+    index is in `emphasis` take word_fonts(..., True) space."""
     sizes = [*range(theme.font_size, theme.min_font_size, -theme.font_step), theme.min_font_size]
     for size in sizes:
         fonts = font_set(theme, size)
         try:
-            items = [(i, text, fonts.advance(text)) for i, text in words]
+            items = [(i, text, word_fonts(theme, size, i in emphasis).advance(text))
+                     for i, text in words]
         except LayoutError as exc:  # a missing glyph: no size fixes that
             raise LayoutError(f"line {line + 1}: {exc}") from None
         rows = _wrap(items, fonts.space, theme.max_width)
         if rows is not None and len(rows) <= theme.max_rows:
             rows = _balance(rows, fonts.space, theme.max_width)
-            return LineLayout(line, size, _place(rows, fonts, theme, line))
+            return LineLayout(line, size, _place(rows, theme, line, size, emphasis))
 
-    fonts = font_set(theme, theme.min_font_size)
-    wide = [text for _, text in words if math.ceil(fonts.advance(text)) > theme.max_width]
+    size = theme.min_font_size
+    wide = [text for i, text in words
+            if math.ceil(word_fonts(theme, size, i in emphasis).advance(text)) > theme.max_width]
     why = (f"the word {wide[0]!r} is wider than {theme.max_width} px" if wide
            else f"it needs more than {theme.max_rows} rows of {theme.max_width} px")
     raise LayoutError(f"line {line + 1} does not fit even at {theme.min_font_size} px: {why}")
@@ -199,17 +210,25 @@ def _balance(rows: list[list[Item]], space: float, max_width: int) -> list[list[
     return best
 
 
-def _place(rows: list[list[Item]], fonts: FontSet, theme: Theme,
-           line: int) -> tuple[WordBox, ...]:
-    """Each row centred horizontally; the block of rows centred at anchor_y · height."""
+def _place(rows: list[list[Item]], theme: Theme, line: int, size: int,
+           emphasis: frozenset[int]) -> tuple[WordBox, ...]:
+    """Each row centred horizontally, its words on one baseline; the block of rows centred at
+    anchor_y · height. A row is as tall as its tallest word; the gap between rows is the plain
+    row pitch minus a plain word's height, so rows without marked words sit exactly as before."""
+    fonts = font_set(theme, size)
     h = fonts.ascent + fonts.descent
-    pitch = round(h * theme.row_spacing)
-    top = round(theme.anchor_y * theme.height - ((len(rows) - 1) * pitch + h) / 2)
+    gap = round(h * theme.row_spacing) - h
+    row_fonts = [[word_fonts(theme, size, i in emphasis) for i, _, _ in row] for row in rows]
+    ascents = [max(f.ascent for f in fs) for fs in row_fonts]
+    heights = [a + max(f.descent for f in fs) for a, fs in zip(ascents, row_fonts)]
+    y = round(theme.anchor_y * theme.height - (sum(heights) + gap * (len(rows) - 1)) / 2)
     boxes = []
-    for r, row in enumerate(rows):
+    for row, fs, ascent, height in zip(rows, row_fonts, ascents, heights):
         left = (theme.width - _row_width(row, fonts.space)) // 2
-        boxes += [WordBox(i, text, left + x, top + r * pitch, math.ceil(advance), h)
-                  for (i, text, advance), x in zip(row, _offsets(row, fonts.space))]
+        boxes += [WordBox(i, text, left + x, y + ascent - f.ascent, math.ceil(advance),
+                          f.ascent + f.descent, i in emphasis)
+                  for (i, text, advance), x, f in zip(row, _offsets(row, fonts.space), fs)]
+        y += height + gap
     if any(b.x < 0 or b.y < 0 or b.x + b.w > theme.width or b.y + b.h > theme.height
            for b in boxes):
         raise LayoutError(f"line {line + 1} does not fit on the {theme.width}x{theme.height} "

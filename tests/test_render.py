@@ -24,7 +24,7 @@ from lyric_engine.theme import SOFT_ROMANTIC as THEME
 W, H = THEME.width, THEME.height   # fps 30, lead 0.05 s, reveal 6 frames, fade 8 frames
 
 
-def fake_layout(words, line, theme):
+def fake_layout(words, line, theme, emphasis=frozenset()):
     """One row of 100x80 boxes, 120 px apart: layout geometry without fonts."""
     return LineLayout(line, theme.font_size, tuple(
         WordBox(i, text, 100 + 120 * k, 1000, 100, 80) for k, (i, text) in enumerate(words)))
@@ -138,7 +138,7 @@ class PlanTimelineTest(unittest.TestCase):
             self.assertLessEqual(sum(render.line_opacity(lp, n) > 0 for lp in lines), 1)
 
     def test_layout_must_keep_the_words_json_text(self):  # red line 2
-        def lowercasing(words, line, theme):
+        def lowercasing(words, line, theme, emphasis=frozenset()):
             lay = fake_layout(words, line, theme)
             return dataclasses.replace(lay, words=tuple(dataclasses.replace(b, text=b.text.lower())
                                                         for b in lay.words))
@@ -191,9 +191,10 @@ class LoadForRenderTest(unittest.TestCase):
         self.tmp.cleanup()
 
     def test_valid_song_loads(self):
-        doc, audio = render.load_for_render(make_song(self.root), allow_flagged=False)
+        doc, audio, emphasis = render.load_for_render(make_song(self.root), allow_flagged=False)
         self.assertEqual(audio.name, "audio.wav")
         self.assertEqual([w["text"] for w in doc["words"]], ["Mere", "saamne"])
+        self.assertEqual(emphasis, frozenset())
 
     def test_flagged_words_refused_and_listed(self):
         song = make_song(self.root, times=((0.3, 0.7), (None, None)))
@@ -201,7 +202,7 @@ class LoadForRenderTest(unittest.TestCase):
             render.load_for_render(song, allow_flagged=False)
         self.assertIn('word 1 "saamne" (line 2): not_placed', str(ctx.exception))
         self.assertIn("--allow-flagged", str(ctx.exception))
-        doc, _ = render.load_for_render(song, allow_flagged=True)
+        doc, _, _ = render.load_for_render(song, allow_flagged=True)
         self.assertTrue(doc["words"][1]["flagged"])
 
     def test_stale_lyrics_refused(self):
@@ -400,6 +401,31 @@ class RenderSmokeTest(unittest.TestCase):
                     self.assertRaisesRegex(RenderError, "ffmpeg failed .*no_such_encoder"):
                 render.render(song, codec="bad")
             self.assertEqual(list((song / "render").iterdir()), [])
+
+
+class EmphasisRenderTest(unittest.TestCase):
+    """End to end: a marker added after alignment renders with no re-align, bigger, and passes
+    the sync check measured on the bigger word (spec 06, H-013)."""
+
+    def test_marker_added_after_align(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            song = make_song(Path(tmp), times=((0.3, 1.2), (1.3, 1.6)))
+            words_sha = hashlib.sha256((song / "words.json").read_bytes()).hexdigest()
+            (song / "lyrics.txt").write_text("*Mere*\nsaamne\n", encoding="utf-8")
+            result = render.render(song, codec="qtrle")
+            self.assertEqual(result.checks, [])
+            self.assertEqual(result.emphasis, ['"Mere" (line 1)'])
+            self.assertIn('Emphasis words: 1: "Mere" (line 1)',
+                          (result.render_dir / "report.md").read_text("utf-8"))
+            self.assertEqual(hashlib.sha256((song / "words.json").read_bytes()).hexdigest(),
+                             words_sha)
+
+    def test_malformed_marker_stops_render_with_the_hint(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            song = make_song(Path(tmp))
+            (song / "lyrics.txt").write_text("*Mere\nsaamne\n", encoding="utf-8")
+            with self.assertRaisesRegex(RenderError, r"(?s)line 1: .*\*tere\* \*bina\*"):
+                render.load_for_render(song, allow_flagged=False)
 
 
 if __name__ == "__main__":

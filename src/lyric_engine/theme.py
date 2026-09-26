@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 FONTS = Path("C:/Windows/Fonts")
+EMPHASIS_MIN, EMPHASIS_MAX = 1.5, 2.0   # marked word size / line font size (H-013)
 
 
 @dataclass(frozen=True)
@@ -47,11 +48,21 @@ class Theme:
     glow_out_s: float = 0.30
     hold_s: float = 0.60          # line stays after its last word ends
     fade_out_s: float = 0.25
+    # Emphasis (*word*, H-009): a marked word is drawn this many times its line's font size, for
+    # as long as the line is on screen; the layout makes room for it (H-013, spec 06)
+    emphasis_scale: float = 1.5
     # Outputs
     alpha_codec: str = "prores"   # owner-confirmed in CapCut (H-010)
     key_green_hex: str = "0x00FF00"
     preview_bg_hex: str = "0x120E16"
     preview_size: tuple[int, int] = (540, 960)
+
+    def __post_init__(self) -> None:
+        # Owner rule (H-013): a marked word is 1.5x to 2x its line's other words, never less
+        # (it would read as the same size) and never more.
+        if not EMPHASIS_MIN <= self.emphasis_scale <= EMPHASIS_MAX:
+            raise ValueError(f"theme {self.name}: emphasis_scale {self.emphasis_scale} is outside "
+                             f"{EMPHASIS_MIN}-{EMPHASIS_MAX} (H-013)")
 
 
 SOFT_ROMANTIC = Theme("soft-romantic")

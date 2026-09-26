@@ -30,6 +30,8 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-013 | Fade waits for the last word; render subpackage     | Active |
 | D-014 | Step 05 (workflow) before 04; stacked on step 03    | Active |
 | D-015 | Stacked PRs merged top-down (#4→#3→#2→dev)          | Active |
+| D-016 | Emphasis (06) before Pop Karaoke (07), own branches | Active |
+| D-017 | Order of styling steps 08–14                        | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -211,4 +213,26 @@ steps 02+03+05. The per-step history stays in PRs #2/#3/#4 and in these docs. Th
 on the top branch, so it flows down into `dev`.
 **Why:** It is the safest path for a stacked squash workflow. For later stacks, prefer merging each
 PR before the next branch starts.
+**Supersedes:** —
+
+### D-016 — Emphasis (step 06) before Pop Karaoke (step 07), separate branches
+**Date:** 2026-09-26
+**Context:** H-009 chose `*word*` emphasis and H-011 chose Pop Karaoke as the first new theme.
+Emphasis is V1 scope that step 03 shipped without; the new theme is a V1.1 scope change.
+**Decision:** Step 06 adds `*word*` parsing and one emphasis move to Soft Romantic. Step 07 adds
+Pop Karaoke and theme selection. Each gets its own branch off `dev`, merged before the next starts.
+**Why:** Emphasis touches the lyrics reader and a red line, so it is reviewed on its own; Pop
+Karaoke then reuses it. Separate, sequential branches avoid another stacked merge (D-015).
+**Supersedes:** —
+
+### D-017 — Order of styling steps 08–14
+**Date:** 2026-09-26
+**Context:** H-012: the owner builds every researched style after step 07 but set no order.
+**Decision:** 08 Soft Romantic v2 → 09 Lofi Minimal → 10 Cinematic → 11 Beat detection →
+12 Beat Pop → 13 Phonk Neon; 14 Devanagari shaping is deferred until a song needs it. One branch
+per step off `dev`, merged before the next starts (as D-016).
+**Why:** Themes that need no new input come first and reuse the alignment. Soft Romantic v2
+upgrades the theme the owner's romantic channel uses most. Primitives accumulate: 07 brings the
+fill and scale cache, 08 the blur cache that 10's blur-in reuses. Beat detection is a new input,
+so it gets its own step before the two beat-driven themes. Latin Hinglish needs no shaper.
 **Supersedes:** —

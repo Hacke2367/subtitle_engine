@@ -136,6 +136,18 @@ class ClipSongTest(unittest.TestCase):
         self.assertFalse((self.root / "clip").exists())
 
 
+class ClipEmphasisTest(unittest.TestCase):
+    """Spec 06 AC7: a clip keeps the source's *emphasis* markers, even ones added after align."""
+
+    def test_markers_carried_into_the_clip(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source = make_source(Path(tmp))
+            (source / "lyrics.txt").write_text("ek *do*\n\n*teen* chaar\n", encoding="utf-8")
+            workflow.clip_song(source, 0.5, 5.8, Path(tmp) / "both")
+            self.assertEqual((Path(tmp) / "both" / "lyrics.txt").read_text(encoding="utf-8"),
+                             "ek *do*\n\n*teen* chaar\n")
+
+
 class EnsureAlignedTest(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

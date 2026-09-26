@@ -30,15 +30,22 @@ class RenderResult:
     skipped_lines: list[int]        # lines with no timed word (not shown)
     checks: list[str]               # output-check failures; [] = pass
     notes: list[str] = field(default_factory=list)   # not failures, e.g. words sung back to back
+    emphasis: list[str] = field(default_factory=list)   # '"dil" (line 2)' per *marked* word
 
 
 # --- Input -----------------------------------------------------------------------------------
-def load_for_render(song_dir: Path, *, allow_flagged: bool) -> tuple[dict, Path]:
-    """The song's validated words.json doc and audio path, or a RenderError saying what to fix."""
+def load_for_render(song_dir: Path, *,
+                    allow_flagged: bool) -> tuple[dict, Path, frozenset[int]]:
+    """The song's validated words.json doc, audio path and *emphasised* word indexes (read from
+    lyrics.txt, the only place emphasis lives: H-009), or a RenderError saying what to fix."""
     song_dir = Path(song_dir)
     try:
         audio, lyrics = align.song_paths(song_dir)
     except FileNotFoundError as exc:
+        raise RenderError(str(exc)) from None
+    try:   # before validate: a malformed marker gets the reader's hint, not a "stale"
+        emphasis = timing.read_lyrics(lyrics).emphasis
+    except timing.LyricsError as exc:
         raise RenderError(str(exc)) from None
     path = song_dir / "words.json"
     if not path.exists():
@@ -64,7 +71,7 @@ def load_for_render(song_dir: Path, *, allow_flagged: bool) -> tuple[dict, Path]
             'Fix their times in words.json by hand (numeric start and end, "flagged": false, '
             '"reasons": []), or pass --allow-flagged: timed flagged words then animate at the '
             "aligner's time, and untimed ones are shown static with their line."]))
-    return doc, audio
+    return doc, audio, emphasis
 
 
 # --- Render ----------------------------------------------------------------------------------
@@ -77,13 +84,13 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
     codec = codec or theme.alpha_codec
     if codec not in encode.ALPHA_CODECS:
         raise RenderError(f"unknown codec {codec!r}; choose one of: {', '.join(encode.ALPHA_CODECS)}")
-    doc, audio = load_for_render(song_dir, allow_flagged=allow_flagged)
+    doc, audio, emphasis = load_for_render(song_dir, allow_flagged=allow_flagged)
     try:
         duration = align.probe_duration(audio)
     except (RuntimeError, OSError) as exc:
         raise RenderError(str(exc)) from None
     n = _ceil_frame(duration, theme.fps)
-    lines, skipped = plan_timeline(doc, theme, n)
+    lines, skipped = plan_timeline(doc, theme, n, emphasis=emphasis)
     sprites = build_sprites(lines, theme)
 
     render_dir = song_dir / "render"
@@ -95,7 +102,8 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
     _encode(_ffmpeg_cmd(theme, codec, audio, outputs),
             (_frame_parts(k, lines, sprites, theme, cache) for k in range(n)), outputs)
     encode_s = time.perf_counter() - t1
-    result = RenderResult(render_dir, outputs, n, 0.0, skipped, [])
+    result = RenderResult(render_dir, outputs, n, 0.0, skipped, [], emphasis=[
+        f'"{w["text"]}" (line {w["line"] + 1})' for w in doc["words"] if w["i"] in emphasis])
     t2 = time.perf_counter()
     result.checks = check_outputs(result, lines, theme, n)
     check_s = time.perf_counter() - t2

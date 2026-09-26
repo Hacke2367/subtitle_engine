@@ -67,10 +67,10 @@ def _sync_samples(lines: list[LinePlan], theme: Theme) -> list[_Sample]:
     rev = _ceil_frame(theme.reveal_s, theme.fps)
     samples = []
     for lp in lines:
-        fonts = layout.font_set(theme, lp.layout.font_size)
         for wp in lp.words:
             if wp.reveal is None:
                 continue
+            fonts = layout.word_fonts(theme, lp.layout.font_size, wp.box.emphasis)
             mask = layout.word_mask(wp.text, fonts)
             top = (mask.getextrema() or (0, 0))[1]   # 255 for any real glyph; a 0-px mask → None
             if top == 0:
@@ -164,6 +164,8 @@ def write_report(result: RenderResult, doc: dict, *, codec: str, theme: Theme,
            f"output check {check_s:.1f} s)",
            f"- Flagged words rendered (--allow-flagged): "
            f"{sum(1 for w in doc['words'] if w['flagged'])}",
+           f"- Emphasis words: {len(result.emphasis)}"
+           + (": " + ", ".join(result.emphasis) if result.emphasis else ""),
            "", "## Outputs", "", "| Output | File | Size (MB) |", "|---|---|---|",
            *(f"| {key} | `{p.name}` | {p.stat().st_size / 1e6:.1f} |" if p.exists()
              else f"| {key} | `{p.name}` | missing |" for key, p in result.outputs.items()),

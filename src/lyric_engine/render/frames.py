@@ -33,14 +33,12 @@ def build_sprites(lines: list[LinePlan], theme: Theme) -> Sprites:
     pad = 3 * theme.glow_radius
     sprites = {}
     for lp in lines:
-        fonts = None
         for wp in lp.words:
             box = wp.box
             if wp.text != box.text:   # red line 2, checked where the string is drawn
                 raise AssertionError(f"word {box.index}: layout text {box.text!r} is not the "
                                      f"words.json text {wp.text!r}")
-            if fonts is None:
-                fonts = layout.font_set(theme, lp.layout.font_size)
+            fonts = layout.word_fonts(theme, lp.layout.font_size, box.emphasis)
             mask = layout.word_mask(wp.text, fonts, pad)
             if mask.size != (box.w + 2 * pad, box.h + 2 * pad):   # measured mask == drawn mask
                 raise AssertionError(f"word {box.index} {wp.text!r}: drawn mask {mask.size} does "

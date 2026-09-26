@@ -401,5 +401,70 @@ class ValidateTest(TempDirTest):
         self.assertEqual(len(validate(self.doc, lyrics_path=missing, audio_path=missing)), 2)
 
 
+class EmphasisTest(TempDirTest):
+    """*word* markers (H-009, spec 06 AC1/AC4/AC6): never part of a word's text, never stale."""
+
+    def doc_for(self, path: Path) -> dict:
+        lyrics = read_lyrics(path)
+        words = build_words(lyrics, [RawWord(0.5 * i, 0.5 * i + 0.4, 0.9)
+                                     for i in range(len(lyrics.words))])
+        return make_doc("song", path, 10.0, "ab" * 32, lyrics, ALIGNER, words)
+
+    def test_marked_words(self):
+        cases = {"*dil*": ("dil", True), "*dil,*": ("dil,", True), "f**k": ("f**k", False),
+                 "*a*b*": ("a*b", True), "dil": ("dil", False)}
+        for token, (text, marked) in cases.items():
+            with self.subTest(token):
+                lyrics = read_lyrics(self.write("lyrics.txt", f"tum {token} ho\n"))
+                self.assertEqual(lyrics.words[1], (text, 0))
+                self.assertEqual(lyrics.emphasis, frozenset({1} if marked else ()))
+
+    def test_malformed_markers_rejected_naming_the_line(self):
+        for token in ("*dil*,", "*dil", "dil*", "**dil**", "*", "**", "*tere bina*"):
+            with self.subTest(token), self.assertRaises(LyricsError) as ctx:
+                read_lyrics(self.write("lyrics.txt", f"tum paas ho\ndil {token} hai\n"))
+            message = str(ctx.exception)
+            self.assertEqual(re.findall(r"\bline (\d+)", message), ["2"])
+            self.assertIn("*tere* *bina*", message)          # the hint shows the right form
+
+    def test_lines_keep_markers_words_and_doc_do_not(self):
+        path = self.write("lyrics.txt", "Mere *samne*\n\nwaali  *khidki,* mein\n")
+        lyrics = read_lyrics(path)
+        self.assertEqual(lyrics.lines, ["Mere *samne*", "", "waali  *khidki,* mein"])
+        self.assertEqual(lyrics.words, [("Mere", 0), ("samne", 0), ("waali", 2), ("khidki,", 2),
+                                        ("mein", 2)])
+        self.assertEqual(lyrics.emphasis, frozenset({1, 3}))
+        doc = self.doc_for(path)
+        self.assertEqual(doc["lyrics"]["lines"], ["Mere samne", "", "waali  khidki, mein"])
+        self.assertEqual(doc["lyrics"]["sha256"], sha256_file(path))
+        self.assertNotIn("*", "".join(w["text"] for w in doc["words"]))
+        self.assertEqual(validate(doc, lyrics_path=path), [])
+
+    def test_markers_only_edits_are_not_stale(self):
+        path = self.write("lyrics.txt", "Mere samne\nwaali khidki mein\n")
+        doc = self.doc_for(path)
+        for text in ("Mere *samne*\nwaali khidki mein\n", "*Mere* samne\nwaali *khidki* mein\n",
+                     "Mere samne\nwaali khidki mein\n"):
+            with self.subTest(text):
+                self.write("lyrics.txt", text)
+                self.assertEqual(validate(doc, lyrics_path=path), [])
+
+    def test_text_edits_stay_stale(self):
+        path = self.write("lyrics.txt", "Mere *samne*\n")
+        doc = self.doc_for(path)
+        self.write("lyrics.txt", "Mere *saamne*\n")
+        errors = validate(doc, lyrics_path=path)
+        self.assertEqual(len(errors), 1, errors)
+        self.assertTrue(errors[0].startswith("stale:"), errors)
+
+    def test_malformed_marker_after_align_reported_not_raised(self):
+        path = self.write("lyrics.txt", "Mere samne\n")
+        doc = self.doc_for(path)
+        self.write("lyrics.txt", "Mere *samne\n")
+        errors = validate(doc, lyrics_path=path)
+        self.assertTrue(errors[0].startswith("lyrics.txt line 1:"), errors)
+        self.assertIn("*tere* *bina*", errors[-1])
+
+
 if __name__ == "__main__":
     unittest.main()

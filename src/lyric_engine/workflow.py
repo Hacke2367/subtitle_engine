@@ -116,7 +116,12 @@ def clip_song(source: Path, a: float, b: float, out: Path) -> ClipPlan:
     if proc.returncode != 0:
         shutil.rmtree(out)   # our own fresh folder: leave nothing half-made
         raise ClipError(f"ffmpeg could not cut the audio: {proc.stderr.strip()[-300:]}")
-    lines = doc["lyrics"]["lines"][plan.lines[0]:plan.lines[-1] + 1]   # verbatim, stanza breaks kept
+    try:   # from lyrics.txt, not words.json: its lines keep the *emphasis* markers (H-009)
+        source_lines = timing.read_lyrics(lyrics_path).lines
+    except timing.LyricsError as exc:
+        shutil.rmtree(out)
+        raise ClipError(str(exc)) from None
+    lines = source_lines[plan.lines[0]:plan.lines[-1] + 1]   # verbatim, stanza breaks kept
     (out / "lyrics.txt").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     (out / "clip.json").write_text(json.dumps({
         "source": str(source), "requested": [a, b], "start_s": plan.start, "end_s": plan.end,
