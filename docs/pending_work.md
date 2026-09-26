@@ -4,7 +4,7 @@ Last updated: 2026-09-26 (step 07 started)
 
 ## WIP
 
-Step 07, Pop Karaoke theme, on `feature/pop-karaoke-theme` (base `dev` @ 0ba2a4f). Status: Spec.
+Step 07, Pop Karaoke theme, on `feature/pop-karaoke-theme` (base `dev` @ 0ba2a4f). Status: Build (spec approved, plan written).
 
 ## Current focus
 
@@ -13,9 +13,9 @@ Now: step 07, Pop Karaoke, the first new theme (H-011), then steps 08-13 (H-012,
 
 ## Next up
 
-1. **Resume point:** owner reviews `docs/specs/07_pop_karaoke_theme.md` (§7 lists the choices
-   made for them: two lines on screen, hot pink accent, `render/<theme>/` folders, Poppins in
-   the repo). On their yes, run `/plan`. Nothing gets built before that.
+1. **Resume point:** build step 07 from `docs/specs/07_pop_karaoke_theme_impl.md`, in its §11
+   build order (spec approved 2026-09-27, plan written). Take the frame-hash baseline (AC2)
+   before any source edit.
 2. Steps 08–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
    shaping) only when a song needs it.
 3. Owner: try a different song end to end (spec 05 AC4).

@@ -304,8 +304,7 @@ fits iff `target − past_scale·((B − T)/2 + pad) ≥ safe_zone[1]` (true whe
 
 ## 7. File Layout
 
-`render/karaoke.py`, in order: module docstring (spec link, red lines) → imports → constants
-(`SAFE`-free; frame-count helper) → easing functions → `FillWord`, `KaraokeLine` →
+`render/karaoke.py`, in order: module docstring (spec link, red lines) → imports → easing functions → `FillWord`, `KaraokeLine` →
 `# --- Timeline` `fill_progress`, `_past_slot`, `plan_karaoke`, `line_state` →
 `# --- Sprites` `stroke_px`, `sprite_pad`, `build_sprites`, `word_image` →
 `# --- Frames` `LineCache`, `line_image`, `frame_parts`. Target ≤ 250 lines.
@@ -320,7 +319,7 @@ fits iff `target − past_scale·((B − T)/2 + pad) ≥ safe_zone[1]` (true whe
 - `karaoke.py` → `layout` (`word_fonts`, `word_mask`, `LineLayout`, `WordBox`), `timeline`
   (`laid_out_lines`, `_floor_frame`, `_ceil_frame`), `frames` (`checked_mask`, `band_parts`,
   `_solid`, `_scaled`, `_LUTS`, `LEVELS`, `_zero_frame`), `theme` (`EMPHASIS_MAX`).
-- `check.py` → `karaoke` (`KaraokeLine`, `fill_progress` not needed; reads line fields only).
+- `check.py` → `karaoke` (`KaraokeLine` fields only).
 - Font file must be in place before `POP_KARAOKE` is used (tests included).
 - **Conflicts found:** `tests/test_render.py` `test_encoder_failure_removes_partial_outputs`
   lists `song/render` (now `render/soft-romantic`). `.gitignore` must not exclude `fonts/*.ttf`
