@@ -7,9 +7,10 @@ from PIL import Image, ImageFilter
 
 from .. import layout
 from ..theme import Theme
-from .timeline import LinePlan, line_opacity, word_state
+from .timeline import LinePlan, line_opacity, swell, word_state
 
 LEVELS = 32   # faded sprite copies are cached at 1/32 opacity steps
+SWELL_STEP = 0.004   # swelled sprite copies are cached per 0.4 % of scale (spec 06)
 
 
 # --- Sprites and frames ----------------------------------------------------------------------
@@ -56,18 +57,39 @@ def build_sprites(lines: list[LinePlan], theme: Theme) -> Sprites:
     return sprites
 
 
+def swell_step(scale: float) -> int:
+    """Cache step of a swell scale; 0 = unscaled, drawn exactly as before emphasis existed."""
+    return round((scale - 1) / SWELL_STEP)
+
+
+def scale_sprite(img: Image.Image, step: int) -> Image.Image:
+    """img scaled by 1 + step·SWELL_STEP. Pillow premultiplies RGBA while resampling, so the
+    straight-alpha sprite gets no dark fringe. Placed centred on the unscaled sprite."""
+    f = 1 + step * SWELL_STEP
+    return img.resize((round(img.width * f), round(img.height * f)), Image.BICUBIC)
+
+
 _LUTS = [[(v * k + LEVELS // 2) // LEVELS for v in range(256)] for k in range(LEVELS + 1)]
 
 
 class FadeCache:
-    """Faded sprite copies of the line on screen, keyed (word, kind, level). Dropped when the
-    visible line changes, so memory stays at one line's worth."""
+    """Faded sprite copies of the line on screen, keyed (word, kind, level, swell step), and
+    swelled ones keyed (word, kind, step). Dropped when the visible line changes, so memory
+    stays at one line's worth."""
 
     def __init__(self) -> None:
         self.line: LinePlan | None = None
-        self.images: dict[tuple[int, str, int], Image.Image] = {}
+        self.images: dict[tuple[int, str, int, int], Image.Image] = {}
+        self.swelled: dict[tuple[int, str, int], Image.Image] = {}
 
-    def faded(self, sprite: Image.Image, level: int, key: tuple[int, str, int]) -> Image.Image:
+    def scaled(self, sprite: Image.Image, key: tuple[int, str, int]) -> Image.Image:
+        img = self.swelled.get(key)
+        if img is None:
+            img = self.swelled[key] = scale_sprite(sprite, key[2])
+        return img
+
+    def faded(self, sprite: Image.Image, level: int,
+              key: tuple[int, str, int, int]) -> Image.Image:
         if level >= LEVELS:
             return sprite
         img = self.images.get(key)
@@ -95,18 +117,24 @@ def _frame_parts(n: int, lines: list[LinePlan], sprites: Sprites, theme: Theme,
     if cache is None:
         cache = FadeCache()
     elif cache.line is not lp:
-        cache.line, cache.images = lp, {}
+        cache.line, cache.images, cache.swelled = lp, {}, {}
     glows, texts = [], []
     for wp in lp.words:
         opacity, rise, glow = word_state(wp, n, theme)
         text_img, glow_img, pad = sprites[wp.box.index]
         # A revealing word starts rise px below its resting place and settles upwards.
-        pos = (wp.box.x - pad, wp.box.y - pad + round(rise))
+        x, y = wp.box.x - pad, wp.box.y - pad + round(rise)
+        step = swell_step(swell(wp, n, theme))
+        if step:   # a *marked* word swells about its centre; neighbours never move
+            w0, h0 = text_img.size
+            text_img = cache.scaled(text_img, (wp.box.index, "text", step))
+            glow_img = cache.scaled(glow_img, (wp.box.index, "glow", step))
+            x, y = x - (text_img.width - w0) // 2, y - (text_img.height - h0) // 2
         for out, kind, img, f in ((glows, "glow", glow_img, glow),
                                   (texts, "text", text_img, opacity)):
             level = min(LEVELS, round(f * line_op * LEVELS))
             if level > 0:
-                out.append((cache.faded(img, level, (wp.box.index, kind, level)), pos))
+                out.append((cache.faded(img, level, (wp.box.index, kind, level, step)), (x, y)))
     layers = glows + texts   # every glow under every text: no glow tints a neighbour's letters
     if not layers:
         return [zero]

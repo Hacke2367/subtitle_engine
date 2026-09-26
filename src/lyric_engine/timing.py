@@ -30,8 +30,9 @@ class LyricsError(ValueError):
 class Lyrics:
     path: Path
     sha256: str                     # of the file's bytes
-    lines: list[str]                # verbatim, newline stripped, blank lines kept as ""
-    words: list[tuple[str, int]]    # (verbatim token from line.split(), line index)
+    lines: list[str]                # verbatim (emphasis markers kept), blank lines kept as ""
+    words: list[tuple[str, int]]    # (token from line.split() minus its *marker*, line index)
+    emphasis: frozenset[int] = field(default_factory=frozenset)   # indexes of *marked* words
 
 
 @dataclass
@@ -77,7 +78,35 @@ def flag_summary(words: list[Word]) -> dict:
 
 # --- Lyrics, flags, words.json IO and validation (plan §4) ------------------------------------
 _ANNOTATION_CHARS = "()[]{}"
+# Emphasis (H-009): a whole token *word*; the inside neither starts nor ends with "*". Any other
+# token starting or ending with "*" is malformed; an asterisk inside a word (f**k) is lyric text.
+_MARKED = re.compile(r"\*([^\s*](?:\S*[^\s*])?)\*")
+_MARKED_IN_LINE = re.compile(r"(?<!\S)\*([^\s*](?:\S*[^\s*])?)\*(?!\S)")
+MARKER_HINT = ("Wrap one whole word, punctuation inside: *dil,*. "
+               "Mark each word on its own: *tere* *bina*.")
 _WORD_KEYS = ("i", "text", "line", "start", "end", "score", "flagged", "reasons")
+
+
+def _marker(token: str) -> tuple[str, bool] | None:
+    """(text, emphasised) of a lyrics token; None when it holds a malformed marker."""
+    if m := _MARKED.fullmatch(token):
+        return m[1], True
+    return None if token[:1] == "*" or token[-1:] == "*" else (token, False)
+
+
+def strip_markers(lines: list[str]) -> list[str]:
+    """Lines with every *word* marker's asterisks removed; spacing and all else kept."""
+    return [_MARKED_IN_LINE.sub(r"\1", line) for line in lines]
+
+
+def marker_problems(lines: list[str]) -> list[str]:
+    """One "line N: ..." entry per line holding a malformed marker; [] = fine."""
+    out = []
+    for n, line in enumerate(lines, start=1):
+        bad = [t for t in line.split() if _marker(t) is None]
+        if bad:
+            out.append(f"line {n}: {line.strip()} (cannot read: {', '.join(bad)})")
+    return out
 
 
 def read_lyrics(path: Path) -> Lyrics:
@@ -97,10 +126,15 @@ def read_lyrics(path: Path) -> Lyrics:
             f"{path.name} has brackets, used for annotations like (x2) or [chorus]:", *bad,
             "Write every repeat out in full, with no annotations (for sung words in brackets, "
             "keep the words and drop the brackets). Lyrics are never edited automatically."]))
-    words = _tokens(lines)
+    if bad := marker_problems(lines):
+        raise LyricsError("\n".join([
+            f"{path.name} has emphasis markers it cannot read:", *(f"  {b}" for b in bad),
+            MARKER_HINT + " Lyrics are never edited automatically."]))
+    words = _tokens(strip_markers(lines))
     if not words:
         raise LyricsError(f"{path.name} has no words")
-    return Lyrics(path, hashlib.sha256(data).hexdigest(), lines, words)
+    emphasis = frozenset(i for i, (token, _) in enumerate(_tokens(lines)) if _marker(token)[1])
+    return Lyrics(path, hashlib.sha256(data).hexdigest(), lines, words, emphasis)
 
 
 def build_words(lyrics: Lyrics, raw: list[RawWord]) -> list[Word]:
@@ -141,7 +175,7 @@ def make_doc(song: str, audio_path: Path, duration_s: float, audio_sha: str, lyr
         "song": song,
         "audio": {"file": Path(audio_path).name, "duration_s": duration_s, "sha256": audio_sha},
         "lyrics": {"file": Path(lyrics.path).name, "sha256": lyrics.sha256,
-                   "lines": list(lyrics.lines)},
+                   "lines": strip_markers(lyrics.lines)},
         "aligner": aligner,
         "created": datetime.now().isoformat(timespec="seconds"),
         "words": [{"i": w.index, "text": w.text, "line": w.line, "start": w.start, "end": w.end,
@@ -173,7 +207,8 @@ def validate(doc: dict, lyrics_path: Path | None = None,
     """Every problem with a words.json doc; [] means valid. Bad input is reported, never raised.
 
     Given lyrics_path / audio_path, the doc is also reported stale if that file changed after
-    alignment, and lyrics.lines must still equal lyrics.txt's lines.
+    alignment. For lyrics, only the text counts: lyrics.lines must equal lyrics.txt's lines
+    without emphasis markers, so adding, moving or removing *markers* is never stale (H-009).
     """
     if not isinstance(doc, dict):
         return ["words.json is not a JSON object"]
@@ -261,11 +296,19 @@ def validate(doc: dict, lyrics_path: Path | None = None,
             errors.append(f"cannot read {path}: {exc.strerror or exc}")
             continue
         name = Path(path).name
-        if hashlib.sha256(data).hexdigest() != section.get("sha256"):
-            errors.append(f"stale: {name} changed after this words.json was made "
-                          "(sha256 differs); re-run align")
-        elif what == "lyrics" and data.decode("utf-8-sig", "replace").splitlines() != lines:
-            errors.append(f"lyrics.lines differ from {name}; they must be a verbatim copy of it")
+        changed = hashlib.sha256(data).hexdigest() != section.get("sha256")
+        if what == "audio":
+            if changed:
+                errors.append(f"stale: {name} changed after this words.json was made "
+                              "(sha256 differs); re-run align")
+            continue
+        file_lines = data.decode("utf-8-sig", "replace").splitlines()
+        if bad := marker_problems(file_lines):
+            errors += [f"{name} {b}" for b in bad] + [MARKER_HINT]
+        elif strip_markers(file_lines) != lines:
+            errors.append(f"stale: {name} changed after this words.json was made; re-run align"
+                          if changed else f"lyrics.lines differ from {name}; they must be its "
+                          "lines without the emphasis asterisks")
     return errors
 
 

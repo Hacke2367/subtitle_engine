@@ -47,6 +47,10 @@ class Theme:
     glow_out_s: float = 0.30
     hold_s: float = 0.60          # line stays after its last word ends
     fade_out_s: float = 0.25
+    # Emphasis (*word*, H-009): the one move is a swell about the word's centre, eased in with
+    # the reveal, held while sung, settled after its own end (spec 06)
+    swell: float = 1.06           # peak scale
+    swell_out_s: float = 0.35
     # Outputs
     alpha_codec: str = "prores"   # owner-confirmed in CapCut (H-010)
     key_green_hex: str = "0x00FF00"

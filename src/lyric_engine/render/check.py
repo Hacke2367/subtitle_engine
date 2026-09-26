@@ -12,7 +12,8 @@ from PIL import Image, ImageStat
 from .. import layout
 from ..theme import Theme
 from .encode import _drain, _tail_text
-from .timeline import LinePlan, _ceil_frame, _timed
+from .frames import scale_sprite, swell_step
+from .timeline import LinePlan, _ceil_frame, _timed, swell
 
 if TYPE_CHECKING:
     from . import RenderResult
@@ -77,10 +78,18 @@ def _sync_samples(lines: list[LinePlan], theme: Theme) -> list[_Sample]:
                 continue
             # Solid from reveal + rev until the line starts fading (never earlier, D-013).
             b, on = wp.box, min(wp.reveal + rev, lp.fade_start - 1, lp.stop - 1)
+            box, ink = (b.x, b.y, b.x + b.w, b.y + b.h), mask.point(
+                lambda v, top=top: 255 if v >= top else 0)
+            if step := swell_step(swell(wp, on, theme)):   # measured where it is drawn (spec 06)
+                pad = 3 * theme.glow_radius   # the sprite's pad, so the scaling matches frames.py
+                big = layout.word_mask(wp.text, fonts, pad).point(
+                    lambda v, top=top: 255 if v >= top else 0)
+                ink = scale_sprite(big, step).point(lambda v: 255 if v >= 250 else 0)
+                x = b.x - pad - (ink.width - big.width) // 2
+                y = b.y - pad - (ink.height - big.height) // 2
+                box = (x, y, x + ink.width, y + ink.height)
             samples.append(_Sample(f'word {b.index} "{wp.text}" (line {lp.layout.line + 1})',
-                                   (b.x, b.y, b.x + b.w, b.y + b.h),
-                                   mask.point(lambda v, top=top: 255 if v >= top else 0), on,
-                                   wp.reveal - 1 if wp.reveal > 0 else None,
+                                   box, ink, on, wp.reveal - 1 if wp.reveal > 0 else None,
                                    on < wp.reveal + rev))
     return samples
 
@@ -164,6 +173,8 @@ def write_report(result: RenderResult, doc: dict, *, codec: str, theme: Theme,
            f"output check {check_s:.1f} s)",
            f"- Flagged words rendered (--allow-flagged): "
            f"{sum(1 for w in doc['words'] if w['flagged'])}",
+           f"- Emphasis words: {len(result.emphasis)}"
+           + (": " + ", ".join(result.emphasis) if result.emphasis else ""),
            "", "## Outputs", "", "| Output | File | Size (MB) |", "|---|---|---|",
            *(f"| {key} | `{p.name}` | {p.stat().st_size / 1e6:.1f} |" if p.exists()
              else f"| {key} | `{p.name}` | missing |" for key, p in result.outputs.items()),

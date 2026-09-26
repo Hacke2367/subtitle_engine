@@ -50,6 +50,7 @@ class FakeEngine:
 
     def __call__(self, audio: Path, words: list[str]):
         self.calls += 1
+        self.words = words
         raw = [RawWord(None, None, None) if i in self.missing
                else RawWord(0.1 + 0.3 * i, 0.3 + 0.3 * i, 0.9) for i in range(len(words))]
         return raw, {"engine": "fake"}
@@ -114,6 +115,28 @@ class RunVariantTest(unittest.TestCase):
         result = align.run_variant(self.song, FAKE, artifacts=False, engine=engine)
         self.assertEqual(engine.calls, 0)
         self.assertIn("line 1", result.error)
+
+
+class AlignEmphasisTest(unittest.TestCase):
+    """Spec 06 AC2: *word* markers never reach an aligner or words.json."""
+
+    def test_engines_get_words_without_markers(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            song = make_song(Path(tmp), "ek *do* teen\nchaar *paanch,*\n")
+            engine = FakeEngine()
+            result = align.run_variant(song, FAKE, artifacts=False, engine=engine)
+            self.assertEqual(engine.words, ["ek", "do", "teen", "chaar", "paanch,"])
+            self.assertEqual([w["text"] for w in result.doc["words"]], engine.words)
+            # ElevenLabs sends exactly these words as its request text.
+            urlopen = mock.MagicMock()
+            urlopen.return_value.__enter__.return_value.read.return_value = json.dumps(
+                {"words": [{"text": w, "start": i, "end": i + 0.5, "loss": 0.0}
+                           for i, w in enumerate(engine.words)]}).encode()
+            with mock.patch("urllib.request.urlopen", urlopen):
+                eleven.align(song / "audio.wav", engine.words, api_key="test-key")
+            body = urlopen.call_args.args[0].data
+            self.assertIn(b'name="text"\r\n\r\nek do teen chaar paanch,\r\n', body)
+            self.assertNotIn(b"*", body.split(b'name="text"')[1])
 
 
 class AlignSongTest(unittest.TestCase):

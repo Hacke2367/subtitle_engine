@@ -41,6 +41,7 @@ def _render(song: Path, codec: str | None, allow_flagged: bool) -> int:
     for name, path in result.outputs.items():
         print(f"{name}: {path}")
     print(f"frames: {result.frames}  wall: {result.wall_s:.1f} s")
+    print("emphasis: " + (", ".join(result.emphasis) or "none"))
     if result.skipped_lines:
         print("not shown (no timed word): lines " + ", ".join(str(n + 1) for n in result.skipped_lines))
     for note in result.notes:

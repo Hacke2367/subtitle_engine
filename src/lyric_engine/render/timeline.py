@@ -19,6 +19,7 @@ class WordPlan:
     reveal: int | None      # first frame of the reveal; None = untimed (static, allow_flagged only)
     end: int | None         # frame of the word's end (end − lead); glow holds until here
     text: str               # the words.json text; build_sprites asserts box.text == text
+    emphasis: bool = False  # *marked* in lyrics.txt: swells while sung (spec 06)
 
 
 @dataclass
@@ -44,8 +45,8 @@ def _ceil_frame(t: float, fps: int) -> int:
     return math.ceil(round(t * fps, 6))
 
 
-def plan_timeline(doc: dict, theme: Theme, n_frames: int,
-                  layout_fn=None) -> tuple[list[LinePlan], list[int]]:
+def plan_timeline(doc: dict, theme: Theme, n_frames: int, layout_fn=None,
+                  emphasis: frozenset[int] = frozenset()) -> tuple[list[LinePlan], list[int]]:
     """Shown lines in time order (layout, visible span, per-word frames), and the lines skipped
     because none of their words has a time. Only a word's own start/end sets its frames."""
     layout_fn = layout_fn or layout.layout_line
@@ -67,11 +68,11 @@ def plan_timeline(doc: dict, theme: Theme, n_frames: int,
         plan = []
         for w, box in zip(words, lay.words):
             if not _timed(w):
-                plan.append(WordPlan(box, None, None, w["text"]))
+                plan.append(WordPlan(box, None, None, w["text"], w["i"] in emphasis))
                 continue
             reveal = max(0, _floor_frame(w["start"] - lead, fps))
             plan.append(WordPlan(box, reveal, max(reveal, _floor_frame(w["end"] - lead, fps)),
-                                 w["text"]))
+                                 w["text"], w["i"] in emphasis))
         first = min(wp.reveal for wp in plan if wp.reveal is not None)
         natural = _ceil_frame(max(w["end"] for w in timed) + theme.hold_s, fps)
         plans.append(LinePlan(lay, first, natural, first, plan))
@@ -93,17 +94,36 @@ def _ramp(k: float, frames: float) -> float:
     return 1.0 if frames <= 0 else max(0.0, min(1.0, k / frames))
 
 
+def _smooth(k: float, frames: float) -> float:
+    p = _ramp(k, frames)
+    return p * p * (3 - 2 * p)                         # smoothstep
+
+
 def word_state(wp: WordPlan, n: int, theme: Theme) -> tuple[float, float, float]:
     """(opacity, rise_px, glow) of a word at frame n. An untimed word is static: (1, 0, 0)."""
     if wp.reveal is None:
         return 1.0, 0.0, 0.0
     if n < wp.reveal:
         return 0.0, 0.0, 0.0
-    p = _ramp(n - wp.reveal, theme.reveal_s * theme.fps)
-    ease = p * p * (3 - 2 * p)                         # smoothstep
+    ease = _smooth(n - wp.reveal, theme.reveal_s * theme.fps)
     glow_in = _ramp(n - wp.reveal, theme.glow_in_s * theme.fps)
     glow_out = 1.0 if n <= wp.end else 1.0 - _ramp(n - wp.end, theme.glow_out_s * theme.fps)
     return ease, theme.rise_px * (1 - ease), min(glow_in, glow_out)
+
+
+def swell(wp: WordPlan, n: int, theme: Theme) -> float:
+    """Scale of a *marked* word at frame n, from its own frames only (red line 1): eases in with
+    the reveal, holds to its end, settles over swell_out_s. A word sung shorter than the reveal
+    peaks lower. Unmarked, untimed or not yet revealed: exactly 1.0."""
+    if not wp.emphasis or wp.reveal is None or n < wp.reveal:
+        return 1.0
+    rin = theme.reveal_s * theme.fps
+    if n <= wp.end:
+        amount = _smooth(n - wp.reveal, rin)
+    else:
+        amount = (_smooth(wp.end - wp.reveal, rin)
+                  * (1 - _smooth(n - wp.end, theme.swell_out_s * theme.fps)))
+    return 1 + (theme.swell - 1) * amount
 
 
 def line_opacity(lp: LinePlan, n: int) -> float:
