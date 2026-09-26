@@ -1,6 +1,6 @@
 # Spec: Emphasis Words (`*word*`)
-**Version:** 1.0.0 | **Component:** lyrics reader and `words.json` contract (`timing.py`), aligner input, `clip`, Soft Romantic renderer
-**Status:** Ready for Review
+**Version:** 1.0.1 | **Component:** lyrics reader and `words.json` contract (`timing.py`), aligner input, `clip`, Soft Romantic renderer
+**Status:** Approved by owner 2026-09-26 (v1.0.1 clarifies the brief-word row: see plan §2.6)
 **Plan step:** 06 (`docs/development_plan.md`) · **Branch:** `feature/emphasis-markers` · **Decisions:** H-009, D-016
 
 ## 1. Problem Statement
@@ -88,7 +88,7 @@ timings.
 | Markers added or moved after `align` | `validate` passes; `render` runs with no re-align; `words.json` unchanged |
 | A word's letters changed after `align` | stale, as today: re-align needed |
 | Marked word is flagged (unaligned), `--allow-flagged` | drawn static, no swell |
-| Marked word sung very briefly (shorter than the swell's ease) | swell scales down with the word's own duration; never extends past its timing window into the next word's |
+| Marked word sung very briefly (shorter than the swell's ease) | swell peaks lower, in proportion to the word's own duration; it settles after the word's own end (like the glow fade) and never reads another word's time |
 | Old `words.json`, no markers anywhere | renders pixel-identically to before this step |
 | Every word on a line marked | allowed; each swells on its own time |
 
