@@ -8,10 +8,10 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | #  | Step                                   | Branch                          | Status      |
 |----|----------------------------------------|---------------------------------|-------------|
 | 01 | Alpha overlay proof in CapCut          | `feature/alpha-overlay-proof`   | Done ([PR #1](https://github.com/Hacke2367/subtitle_engine/pull/1)) |
-| 02 | Word alignment → `words.json`          | `feature/word-alignment`        | Review ([PR #2](https://github.com/Hacke2367/subtitle_engine/pull/2)) |
-| 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Review ([PR #3](https://github.com/Hacke2367/subtitle_engine/pull/3), stacked on #2) |
+| 02 | Word alignment → `words.json`          | `feature/word-alignment`        | Done ([PR #2](https://github.com/Hacke2367/subtitle_engine/pull/2)) |
+| 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Done ([PR #3](https://github.com/Hacke2367/subtitle_engine/pull/3), via #2) |
 | 04 | Line anchors (`.lrc`) for alignment    | `feature/lrc-anchors`           | Deferred (optional, D-014) |
-| 05 | Workflow: `clip` + `make` commands     | `feature/workflow-clip-make`    | Review ([PR #4](https://github.com/Hacke2367/subtitle_engine/pull/4), stacked on #3) |
+| 05 | Workflow: `clip` + `make` commands     | `feature/workflow-clip-make`    | Done ([PR #4](https://github.com/Hacke2367/subtitle_engine/pull/4), via #3 → #2) |
 
 ## 01 — Alpha overlay proof in CapCut
 

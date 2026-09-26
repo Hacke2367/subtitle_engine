@@ -1,34 +1,27 @@
 # Pending Work
 
-Last updated: 2026-09-26 (handoff after step 05)
+Last updated: 2026-09-26 (after merging #2/#3/#4)
 
 ## WIP
 
-- `feature/workflow-clip-make` (stacked on step 03, D-014): step 05, Review,
-  [PR #4](https://github.com/Hacke2367/subtitle_engine/pull/4). `clip` + `make`
-  work: the 27–57 s clip is byte-identical to the hand-made one; stanza 2 (75–89 s) went
-  clip → make with 22/22 words, 0 flagged, checks pass, 45 s.
-- `feature/soft-romantic-render`: step 03, Review,
-  [PR #3](https://github.com/Hacke2367/subtitle_engine/pull/3) (stacked on #2).
-- `feature/word-alignment`: step 02, Review,
-  [PR #2](https://github.com/Hacke2367/subtitle_engine/pull/2).
+None. Steps 02, 03 and 05 were merged into `dev` via PRs #2/#3/#4 (D-015).
 
 ## Current focus
 
-Base plus workflow are done. A short is now: `align songs/<full>` once, then
-`clip songs/<full> --from A --to B`, then `make songs/<clip>`.
+V1 is done: song + lyrics → word-synced Soft Romantic overlay for CapCut, and `clip` + `make`
+bring a short down to two commands. Next phase: styling (V1.1).
 
 ## Next up
 
-1. **Resume point:** steps 02, 03 and 05 are in Review, waiting on the owner to merge (#2 → #3 →
-   step 05's PR, each retargeted to `dev` in turn). Then styling: H-009 emphasis, then more themes,
-   which is a scope change to log.
-2. Owner: try a **different song** end to end (spec 05 AC4).
+1. **Resume point:** plan the styling phase. The owner answers **H-009** (emphasis marker,
+   recommendation `*word*`) and picks the **first new theme** (Phonk / Lofi / Pop karaoke /
+   Minimal). New themes are a scope change from V1's "one theme": log it with `/log_decision`,
+   update `project_context.md`, add plan step 06, then `/start_work`.
+2. Owner: try a different song end to end (spec 05 AC4).
 3. Step 04 (`.lrc` anchors) only if a real song drifts.
 
 ## Waiting on the owner
 
-- Merge PR #2, then PR #3 (retargeted to `dev`); both fully accepted after H-010.
 - H-009: how to mark emphasis words (recommendation: `*word*` in lyrics.txt).
 - Try a different song: `align` → `clip` → `make` (spec 05 AC4).
 - Rotate the ElevenLabs API key (it was pasted in chat).

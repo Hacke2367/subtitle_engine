@@ -29,6 +29,7 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-012 | Balanced wrap; fallback fonts; Devanagari unshaped  | Active |
 | D-013 | Fade waits for the last word; render subpackage     | Active |
 | D-014 | Step 05 (workflow) before 04; stacked on step 03    | Active |
+| D-015 | Stacked PRs merged top-down (#4→#3→#2→dev)          | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -196,4 +197,18 @@ step 05 branch is stacked on `feature/soft-romantic-render` (merge order: #2 →
 owner's instruction stands in for the spec approval stop.
 **Why:** It cuts a short's manual work from 5 steps to 2 commands, which is the project's
 success signal.
+**Supersedes:** —
+
+### D-015 — Stacked PRs merged top-down (#4 → #3 → #2 → dev)
+**Date:** 2026-09-26
+**Context:** The owner said "abhi merge karo". PRs #2, #3 and #4 are stacked (D-011, D-014), and the
+project squash-merges. Squashing #2 into `dev` first would force a rebase + force-push of #3 and
+#4, or a large conflict merge, because the squash commit shares no history with the stacked
+branches.
+**Decision:** Squash #4 into `feature/soft-romantic-render`, then #3 into `feature/word-alignment`,
+then #2 into `dev`. There are no conflicts and no force-pushes. `dev` gets one squash commit for
+steps 02+03+05. The per-step history stays in PRs #2/#3/#4 and in these docs. The merge is recorded
+on the top branch, so it flows down into `dev`.
+**Why:** It is the safest path for a stacked squash workflow. For later stacks, prefer merging each
+PR before the next branch starts.
 **Supersedes:** —

@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-26 (4): merged steps 02, 03, 05
+**Did:** merged the stacked PRs top-down, #4 → #3 → #2 → `dev` (D-015).
+**Decisions:** D-015.
+**Open:** H-009; the first new theme; a different song end to end; rotating the API key.
+**Next:** plan the styling phase (step 06) once H-009 and the first theme are decided.
+
 ## 2026-09-26 (3): owner validated V1; step 05 workflow commands
 **Did:** recorded the owner's check (H-010: sync, look and CapCut OK; L-vocals and ProRes defaults confirmed). Built step 05: `clip` (whole lines, snapped cut, verbatim lyrics) and `make` (align if needed, then render); PR #4, stacked on #3. Clip 27–57 is byte-identical to the hand-made one; stanza 2 went clip → make, 0 flags, checks pass.
 **Decisions:** H-010, D-014 (step 05 before 04; stacked).
