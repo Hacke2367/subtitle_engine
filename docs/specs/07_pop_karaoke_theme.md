@@ -2,6 +2,7 @@
 **Version:** 1.0.1 | **Component:** themes (`theme.py`), layout, renderer (`render/`), render checks, CLI (`render`, `make`)
 **Status:** Approved by owner 2026-09-27 ("yes"), including the §7 choices. v1.0.1: §4.3 wording
 made exact (a leaving past line finishes its fade as the new line enters; AC4), no change in scope.
+AC10: the owner approved by saying "merge" on PR #6 (2026-09-27).
 **Plan step:** 07 (`docs/development_plan.md`) · **Branch:** `feature/pop-karaoke-theme` · **Decisions:** H-011, H-013, H-009
 
 ## 1. Problem Statement

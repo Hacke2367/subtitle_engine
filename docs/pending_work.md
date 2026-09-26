@@ -1,33 +1,31 @@
 # Pending Work
 
-Last updated: 2026-09-27 (step 07 shipped for review)
+Last updated: 2026-09-27 (step 07 merged, PR #6)
 
 ## WIP
 
-Step 07, Pop Karaoke theme, on `feature/pop-karaoke-theme` ([PR #6](https://github.com/Hacke2367/subtitle_engine/pull/6)). Status:
-Review. Built, gate green, every acceptance criterion passes except AC10 (the owner's look
-approval). Previews: `songs/khidki_s2_em/render/pop-karaoke/preview.mp4` (3 marked words),
-`songs/khidki_s2/render/pop-karaoke/preview.mp4`, full song
-`songs/khidki_full/render/pop-karaoke/preview.mp4`.
+None. Step 07 (Pop Karaoke theme) merged into `dev` via
+[PR #6](https://github.com/Hacke2367/subtitle_engine/pull/6).
 
 ## Current focus
 
-V1.1 styling. Step 07 (Pop Karaoke, H-011) is in review; then steps 08-13 (H-012, D-017).
+V1.1 styling. Two themes ship: Soft Romantic and Pop Karaoke (`--theme`, outputs in
+`render/<theme>/`, D-018). Next: step 08, Soft Romantic v2, then steps 09-13 (H-012, D-017).
 
 ## Next up
 
-1. **Resume point:** the owner watches the Pop Karaoke previews (AC10). Look changes are
-   `POP_KARAOKE` values in `theme.py` (accent, font size, past-line opacity/size, timings), then
-   re-render; new behaviour only if the owner asks. On approval and "merge", run `/merge_pr`.
-2. Step 08 (Soft Romantic v2) after step 07 merges; it also brings Soft Romantic inside the safe
-   zone (x 60-960; today its rows are centred on 540 with a 900 px box, so x 90-990).
-3. Owner: try a different song end to end (spec 05 AC4).
+1. **Resume point:** `/start_work` step 08 (Soft Romantic v2, branch `feature/soft-romantic-v2`)
+   off the updated `dev`, then `/spec`. No pending `H-` item blocks it. The spec must decide
+   whether v2 replaces v1 or sits beside it, and must ask the owner to re-approve any waiting
+   next line (H-010 kept "no ghosting"). It should also bring Soft Romantic inside the safe zone
+   (x 60-960; today x 90-990) and reuse step 07's dim/scale primitives in `render/karaoke.py`.
+2. Steps 09–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
+   shaping) only when a song needs it.
+3. Owner: try a different song end to end (spec 05 AC4), now with either theme.
 4. Step 04 (`.lrc` anchors) only if a real song drifts.
 
 ## Waiting on the owner
 
-- Approve the Pop Karaoke look (spec 07 AC10), or name the changes (e.g. accent yellow
-  `#FFD60A` / cyan `#00E5FF` instead of hot pink, bigger or smaller text).
 - FYI (D-018): renders now go to `songs/<song>/render/<theme>/`. Older outputs directly in
   `songs/<song>/render/` were left in place; delete them whenever you like.
 - FYI: emphasis ships at 1.5x; set `emphasis_scale` (up to 2.0) in `theme.py` any time. The 2x
