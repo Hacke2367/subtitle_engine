@@ -16,7 +16,9 @@ from PIL import ImageFont
 from lyric_engine.layout import (
     FontSet, LayoutError, LineLayout, WordBox, font_set, layout_line, word_mask,
 )
-from lyric_engine.theme import FONTS, POP_KARAOKE, SOFT_ROMANTIC as THEME, SOFT_ROMANTIC_V2
+from lyric_engine.theme import (
+    FONTS, LOFI_MINIMAL, LOFI_TYPEWRITER, POP_KARAOKE, SOFT_ROMANTIC as THEME, SOFT_ROMANTIC_V2,
+)
 
 # songs/khidki/lyrics.txt is gitignored; its 8 lines, verbatim
 KHIDKI = [
@@ -30,9 +32,12 @@ KHIDKI = [
     "Ek chaand ka tukda rehta hai",
 ]
 LONG_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai afsos ye hai"
-# Longest line Pop Karaoke's wide font still fits in 3 rows with a 2x word (it shrinks to 64 px)
-LONG_FOR = {"soft-romantic": LONG_LINE, "soft-romantic-v2": LONG_LINE,
-            "pop-karaoke": "Mere saamne waali khidki mein ek chaand ka tukda rehta hai"}
+# Longest line Pop Karaoke's wide font (and lofi's tracked one) still fits in 3 rows with a 2x
+# word (they shrink to their smallest size)
+MEDIUM_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai"
+LONG_FOR = {"soft-romantic": LONG_LINE, "soft-romantic-v2": LONG_LINE, "pop-karaoke": MEDIUM_LINE,
+            "lofi-minimal": MEDIUM_LINE, "lofi-typewriter": MEDIUM_LINE}
+ALL_THEMES = (THEME, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL, LOFI_TYPEWRITER)
 FALLBACK_LINE = "dil😊 kuchh🥰 ❤\ufe0f कुछ दिल Öl saaf"
 NO_FONT = "\ufdd0"  # a noncharacter: never assigned, in none of the theme's five fonts
 MISSING = Path("C:/no/such/font.ttf")
@@ -235,6 +240,60 @@ class LayoutLineTest(unittest.TestCase):
             layout_line([(0, "chaand"), (1, "dil" + NO_FONT)], 2, THEME)
 
 
+class TrackingTest(unittest.TestCase):
+    """Spec 09: tracking is part of the word as measured and drawn; 0 changes nothing."""
+
+    def test_tracking_zero_is_todays_measure(self):
+        fonts = font_set(THEME, 84)
+        self.assertEqual(fonts.tracking, 0)
+        primary = ImageFont.truetype(str(THEME.font), 84)
+        self.assertEqual(fonts.space, primary.getlength(" "))
+        for text in [*" ".join(KHIDKI).split(), *FALLBACK_LINE.split()]:
+            self.assertEqual(fonts.advance(text),
+                             sum((f.getlength(r) for r, f in fonts.runs(text)), 0.0))
+
+    def test_tracked_advance_adds_one_gap_per_unit(self):
+        tracked, plain = font_set(LOFI_MINIMAL, 76), font_set(replace(LOFI_MINIMAL, tracking=0), 76)
+        self.assertAlmostEqual(tracked.tracking, 7.6)
+        self.assertAlmostEqual(tracked.space, plain.space + 2 * 7.6)
+        for text in [*" ".join(KHIDKI).split(), *FALLBACK_LINE.split()]:
+            with self.subTest(text):
+                gaps = len(tracked.units(text)) - 1
+                self.assertAlmostEqual(tracked.advance(text), plain.advance(text) + 7.6 * gaps,
+                                       places=6)
+
+    def test_drawn_mask_is_the_measured_mask(self):
+        for size in (76, 114):   # a line size and a 1.5x marked word
+            fonts = font_set(LOFI_MINIMAL, size)
+            for text in [*" ".join(KHIDKI).split(), *FALLBACK_LINE.split()]:
+                mask = word_mask(text, fonts)
+                self.assertEqual(mask.size, (math.ceil(fonts.advance(text)),
+                                             fonts.ascent + fonts.descent), text)
+                self.assertIsNotNone(mask.getbbox(), text)
+        lay = layout_line(indexed(KHIDKI[0]), 0, LOFI_MINIMAL)
+        fonts = font_set(LOFI_MINIMAL, lay.font_size)
+        for box in lay.words:
+            self.assertEqual((box.w, box.h), word_mask(box.text, fonts).size)
+
+    def test_units_split_latin_letters_only(self):
+        fonts = font_set(LOFI_MINIMAL, 76)
+        units = lambda text: [u for u, _, _, _ in fonts.units(text)]
+        self.assertEqual(units("Öl,"), ["Ö", "l", ","])
+        self.assertEqual(units("dil😊"), ["d", "i", "l", "😊"])
+        self.assertEqual(units("❤️"), ["❤"])            # the ignorable VS16 is not drawn
+        self.assertEqual(units("👍🏽"), ["👍🏽"])               # a skin-tone sequence stays whole
+        self.assertEqual(units("कुछ"), ["कुछ"])
+        xs = [x for _, _, _, x in fonts.units("dekha")]
+        self.assertEqual(xs, sorted(xs))
+
+    def test_typeable(self):
+        fonts = font_set(LOFI_TYPEWRITER, 76)
+        for text in ("dekha", "hain,", "Öl"):
+            self.assertTrue(fonts.typeable(text), text)
+        for text in ("dil😊", "कुछ", "❤️"):
+            self.assertFalse(fonts.typeable(text), text)
+
+
 class EmphasisLayoutTest(unittest.TestCase):
     """H-013: a *marked* word is 1.5x-2x its line's other words, and the layout makes room."""
 
@@ -246,7 +305,7 @@ class EmphasisLayoutTest(unittest.TestCase):
                 replace(THEME, emphasis_scale=scale)
 
     def test_marked_word_is_scale_times_the_line_size_even_when_shrunk(self):
-        for scale, base in product((1.5, 2.0), (THEME, SOFT_ROMANTIC_V2, POP_KARAOKE)):
+        for scale, base in product((1.5, 2.0), ALL_THEMES):
             theme = replace(base, emphasis_scale=scale)
             for line in ("Jis roz se dekha hai usko", LONG_FOR[base.name]):
                 words = indexed(line)
@@ -261,7 +320,7 @@ class EmphasisLayoutTest(unittest.TestCase):
                 self.assertTrue(all(b.h == fonts.ascent + fonts.descent for b in plain))
 
     def test_rows_share_a_baseline_and_nothing_overlaps(self):
-        for scale, base in product((1.5, 2.0), (THEME, SOFT_ROMANTIC_V2, POP_KARAOKE)):
+        for scale, base in product((1.5, 2.0), ALL_THEMES):
             theme = replace(base, emphasis_scale=scale)
             for line in [*KHIDKI, LONG_FOR[base.name]]:
                 words = indexed(line)

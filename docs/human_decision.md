@@ -214,3 +214,19 @@ default until then).
 **Decision:** "yes v2". `render` and `make` now default to `soft-romantic-v2`
 (`theme.DEFAULT_THEME`); v1 stays available as `--theme soft-romantic`.
 **Decided:** 2026-09-27
+
+### H-016 — Lofi Minimal: the line shows ahead; typewriter is its own theme
+**Status:** decided
+**Raised:** 2026-09-27
+**Needed-before:** spec 09 (Lofi Minimal)
+**Context:** Plan step 09 lists sung / current / upcoming colour states, which means showing a line
+before its words are sung. H-010 and H-014 kept upcoming words hidden in Soft Romantic. The plan
+also lists an optional typewriter without saying how it is picked.
+**Options:** Upcoming: (a) the whole line shows ahead, dim, and each word changes colour as it is
+sung; (b) words appear only when sung, as Soft Romantic. Typewriter: (a) a separate theme
+`lofi-typewriter`; (b) a `theme.py` switch, off by default; (c) skip it in step 09.
+**Recommendation:** (a) and (a).
+**Decision:** "Line pehle dim dikhe" and "Alag theme lofi-typewriter". In `lofi-minimal` the line
+shows ahead in a dim upcoming state (this theme only; H-010 and H-014 still hold for Soft
+Romantic). The typewriter ships as a second theme, `lofi-typewriter`, picked with `--theme`.
+**Decided:** 2026-09-27

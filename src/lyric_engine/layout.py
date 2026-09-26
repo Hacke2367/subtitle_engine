@@ -50,6 +50,13 @@ _IGNORABLE = re.compile("[\u00ad\u034f\u061c\u115f\u1160\u17b4\u17b5\u180b-\u180
                         "\U0001bca0-\U0001bca3\U0001d173-\U0001d17a\U000e0000-\U000e0fff]")
 
 
+def _latin(ch: str) -> bool:
+    """Latin script plus the digits and punctuation Latin text uses (tracking and typewriter
+    split these into single letters; anything else stays whole)."""
+    c = ord(ch)
+    return c < 0x250 or 0x1E00 <= c < 0x1F00 or 0x2000 <= c < 0x2070
+
+
 @lru_cache(maxsize=None)
 def _coverage(path: Path) -> frozenset[int]:
     """Code points a font file maps, read once per file. fontNumber=0: first face of a .ttc."""
@@ -59,7 +66,8 @@ def _coverage(path: Path) -> frozenset[int]:
 
 class FontSet:
     """The theme's fonts at one size. The box (ascent, descent) and the space come from the
-    primary font only, so every word mask shares one height and baseline."""
+    primary font only, so every word mask shares one height and baseline. With theme.tracking,
+    letters sit tracking × size px further apart (spec 09); with 0, nothing changes."""
 
     def __init__(self, theme: Theme, size: int):
         if not Path(theme.font).is_file():
@@ -70,10 +78,14 @@ class FontSet:
         self._shrunk: dict[tuple[int, int], ImageFont.FreeTypeFont] = {}
         primary = self._fonts[0][0]
         self.ascent, self.descent = primary.getmetrics()
+        self.tracking = theme.tracking * size
         self.space = primary.getlength(" ")
+        if self.tracking:   # a space is one more tracked character: a gap on each side
+            self.space += 2 * self.tracking
 
-    def runs(self, text: str) -> list[tuple[str, ImageFont.FreeTypeFont]]:
-        """Consecutive characters grouped by the first font whose cmap has them."""
+    def _runs(self, text: str) -> list[tuple[str, int, ImageFont.FreeTypeFont]]:
+        """Consecutive characters grouped by the first font whose cmap has them, with that
+        font's index (0 = the primary font)."""
         groups: list[list] = []  # [run text, font index]
         for ch in _IGNORABLE.sub("", text):
             i = next((i for i, (_, cmap) in enumerate(self._fonts) if ord(ch) in cmap), None)
@@ -83,10 +95,43 @@ class FontSet:
                 groups[-1][0] += ch
             else:
                 groups.append([ch, i])
-        return [(run, self._fitted(run, i)) for run, i in groups]
+        return [(run, i, self._fitted(run, i)) for run, i in groups]
+
+    def runs(self, text: str) -> list[tuple[str, ImageFont.FreeTypeFont]]:
+        return [(run, font) for run, _, font in self._runs(text)]
+
+    def units(self, text: str) -> list[tuple[str, int, ImageFont.FreeTypeFont, float]]:
+        """The word as tracked units: (string, font index, font, x at pad 0). Each Latin
+        character of the primary font is a unit; any other run stays one unit, so emoji
+        sequences and Devanagari are never pulled apart. Units sit `tracking` px apart; kerning
+        inside a run is kept (research §4: x_i = len(run[:i+1]) − len(run[i]))."""
+        out, pen = [], 0.0
+        for run, i, font in self._runs(text):
+            segs: list[list] = []   # [string, offset in run]
+            for j, ch in enumerate(run):
+                if i == 0 and (_latin(ch) or not segs or _latin(run[j - 1])):
+                    segs.append([ch, j])
+                elif segs:
+                    segs[-1][0] += ch
+                else:
+                    segs.append([ch, j])
+            for seg, j in segs:
+                x = pen + font.getlength(run[:j + len(seg)]) - font.getlength(seg)
+                out.append((seg, i, font, x + self.tracking * len(out)))
+            pen += font.getlength(run)
+        return out
+
+    def typeable(self, text: str) -> bool:
+        """Whether the typewriter can type the word letter by letter: every unit is one Latin
+        character drawn by the primary font."""
+        units = self.units(text)
+        return bool(units) and all(len(s) == 1 and i == 0 and _latin(s) for s, i, _, _ in units)
 
     def advance(self, text: str) -> float:
-        return sum((font.getlength(run) for run, font in self.runs(text)), 0.0)
+        if not self.tracking:
+            return sum((font.getlength(run) for run, font in self.runs(text)), 0.0)
+        units = self.units(text)
+        return units[-1][3] + units[-1][2].getlength(units[-1][0]) if units else 0.0
 
     def _fitted(self, run: str, i: int) -> ImageFont.FreeTypeFont:
         """Font i at this size, or the largest smaller size at which the run's ink stays inside
@@ -133,6 +178,11 @@ def word_mask(text: str, fonts: FontSet, pad: int = 0, stroke: int = 0) -> Image
                            fonts.ascent + fonts.descent + 2 * pad), 0)
     draw = ImageDraw.Draw(mask)
     outline = {"stroke_width": stroke, "stroke_fill": 255} if stroke else {}
+    if fonts.tracking:   # the same units and x that FontSet.advance measured
+        for unit, _, font, x in fonts.units(text):
+            draw.text((pad + x, pad + fonts.ascent), unit, font=font, fill=255, anchor="ls",
+                      **outline)
+        return mask
     x = float(pad)
     for run, font in fonts.runs(text):
         draw.text((x, pad + fonts.ascent), run, font=font, fill=255, anchor="ls", **outline)

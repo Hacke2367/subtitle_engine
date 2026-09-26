@@ -15,7 +15,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 06 | Emphasis words (`*word*`)              | `feature/emphasis-markers`      | Done ([PR #5](https://github.com/Hacke2367/subtitle_engine/pull/5)) |
 | 07 | Pop Karaoke theme (V1.1)               | `feature/pop-karaoke-theme`     | Done ([PR #6](https://github.com/Hacke2367/subtitle_engine/pull/6)) |
 | 08 | Soft Romantic v2                       | `feature/soft-romantic-v2`      | Done ([PR #7](https://github.com/Hacke2367/subtitle_engine/pull/7)) |
-| 09 | Lofi Minimal theme                     | `feature/lofi-minimal-theme`    | Not started |
+| 09 | Lofi Minimal theme                     | `feature/lofi-minimal-theme`    | Done ([PR #8](https://github.com/Hacke2367/subtitle_engine/pull/8)) |
 | 10 | Cinematic theme                        | `feature/cinematic-theme`       | Not started |
 | 11 | Beat detection                         | `feature/beat-detection`        | Not started |
 | 12 | Beat Pop theme                         | `feature/beat-pop-theme`        | Not started |
