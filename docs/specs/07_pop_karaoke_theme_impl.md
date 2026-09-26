@@ -341,13 +341,13 @@ fits iff `target − past_scale·((B − T)/2 + pad) ≥ safe_zone[1]` (true whe
 
 ## 9. Hard Boundaries
 
-- [ ] Never change a Soft Romantic pixel (AC2 hashes).
-- [ ] Never derive a fill frame from anything but that word's own `start`/`end` minus `lead`.
-- [ ] Never fill an untimed word; never give it a frame.
-- [ ] Never draw a string other than the `words.json` text (asserts via `checked_mask`).
-- [ ] Never write outside `songs/<song>/render/<theme>/`; never delete files in `render/`.
-- [ ] Never write theme data into `words.json`.
-- [ ] Never add a package dependency; never load a font from outside the theme's font list.
+- [x] Never change a Soft Romantic pixel (AC2 hashes).
+- [x] Never derive a fill frame from anything but that word's own `start`/`end` minus `lead`.
+- [x] Never fill an untimed word; never give it a frame.
+- [x] Never draw a string other than the `words.json` text (asserts via `checked_mask`).
+- [x] Never write outside `songs/<song>/render/<theme>/`; never delete files in `render/`.
+- [x] Never write theme data into `words.json`.
+- [x] Never add a package dependency; never load a font from outside the theme's font list.
 
 ## 10. Acceptance Criteria (runnable)
 
