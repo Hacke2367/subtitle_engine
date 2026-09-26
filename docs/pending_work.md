@@ -4,7 +4,7 @@ Last updated: 2026-09-27 (step 07 shipped for review)
 
 ## WIP
 
-Step 07, Pop Karaoke theme, on `feature/pop-karaoke-theme` (base `dev` @ 0ba2a4f). Status:
+Step 07, Pop Karaoke theme, on `feature/pop-karaoke-theme` ([PR #6](https://github.com/Hacke2367/subtitle_engine/pull/6)). Status:
 Review. Built, gate green, every acceptance criterion passes except AC10 (the owner's look
 approval). Previews: `songs/khidki_s2_em/render/pop-karaoke/preview.mp4` (3 marked words),
 `songs/khidki_s2/render/pop-karaoke/preview.mp4`, full song
