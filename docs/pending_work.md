@@ -5,7 +5,7 @@ Last updated: 2026-09-27 (step 09 in review)
 ## WIP
 
 Step 09 (Lofi Minimal + Lofi Typewriter) on `feature/lofi-minimal-theme`, base `dev @ 1b9e6e9`.
-Stage: review (gate green, AC1-10 and AC12 pass; AC11, the owner's look, open).
+Stage: review ([PR #8](https://github.com/Hacke2367/subtitle_engine/pull/8), gate green, AC1-10 and AC12 pass; AC11, the owner's look, open).
 
 ## Current focus
 
@@ -17,7 +17,7 @@ Next: step 10, Cinematic (H-012, D-017).
 
 1. **Resume point:** step 09 built (spec v1.0.1, plan `docs/specs/09_lofi_minimal_theme_impl.md`,
    D-020). Gate green; every render check passes on `khidki_s2`, `khidki_s2_em`, `khidki_s2_lofi`
-   and the full `khidki_full`, other themes byte-identical to `dev`. Shipped for review. The owner
+   and the full `khidki_full`, other themes byte-identical to `dev`. In review ([PR #8](https://github.com/Hacke2367/subtitle_engine/pull/8)). The owner
    watches `songs/khidki_s2_lofi/render/lofi-minimal/preview.mp4` and `.../lofi-typewriter/` (AC11);
    changes asked for become `theme.py` values. Merge only on the owner's word (`/merge_pr`), then
    `/start_work` step 10 (Cinematic).
