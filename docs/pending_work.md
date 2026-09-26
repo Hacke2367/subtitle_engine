@@ -1,31 +1,31 @@
 # Pending Work
 
-Last updated: 2026-09-26 (step 06 shipped for review)
+Last updated: 2026-09-26 (step 06 merged, PR #5)
 
 ## WIP
 
-- Step 06, emphasis words (`*word*`), on `feature/emphasis-markers` (base `dev @ 72dee83`).
-  Status: Review, [PR #5](https://github.com/Hacke2367/subtitle_engine/pull/5). Gate green; every spec 06 AC passes.
-  Also carries the styling research and session (6)'s roadmap (steps 08-14, H-012, D-017).
+None. Step 06 (emphasis words) merged into `dev` via [PR #5](https://github.com/Hacke2367/subtitle_engine/pull/5).
 
 ## Current focus
 
-V1.1 styling. H-009 decided `*word*` emphasis; H-011 decided Pop Karaoke as the first new theme.
-Step 06 (emphasis) comes first, then step 07 (Pop Karaoke) on its own branch (D-016).
+V1.1 styling. Emphasis is done: `*word*` in `lyrics.txt`, drawn 1.5x its line (H-009, H-013).
+Next: step 07, Pop Karaoke, the first new theme (H-011), then steps 08-13 (H-012, D-017).
 
 ## Next up
 
-1. **Resume point:** the owner merges PR #5 (`/merge_pr 5`), then `/start_work` step 07
-   (Pop Karaoke) off the updated `dev`.
-2. Step 07: `/start_work` for Pop Karaoke once step 06 is merged.
-3. Steps 08–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
+1. **Resume point:** `/start_work` step 07 (Pop Karaoke theme, branch `feature/pop-karaoke-theme`)
+   off the updated `dev`, then `/spec`. No pending `H-` item blocks it (H-011 decided). The spec
+   must cover a way to pick the theme per render, and the styling rules in
+   `development_plan.md`; marked words keep the H-013 size rule.
+2. Steps 08–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
    shaping) only when a song needs it.
-4. Owner: try a different song end to end (spec 05 AC4).
-5. Step 04 (`.lrc` anchors) only if a real song drifts.
+3. Owner: try a different song end to end (spec 05 AC4).
+4. Step 04 (`.lrc` anchors) only if a real song drifts.
 
 ## Waiting on the owner
 
-- Merge step 06's PR (1.5x shipped; 2x preview in `songs/khidki_s2_em_2x` if you change your mind).
+- FYI: emphasis ships at 1.5x; set `emphasis_scale` (up to 2.0) in `theme.py` any time. The 2x
+  preview is in `songs/khidki_s2_em_2x`.
 - Try a different song: `align` → `clip` → `make` (spec 05 AC4).
 - Rotate the ElevenLabs API key (it was pasted in chat).
 - FYI (D-010): the local model's weights are non-commercial (CC-BY-NC). Fine for V1, but it

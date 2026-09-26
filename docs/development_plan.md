@@ -12,7 +12,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Done ([PR #3](https://github.com/Hacke2367/subtitle_engine/pull/3), via #2) |
 | 04 | Line anchors (`.lrc`) for alignment    | `feature/lrc-anchors`           | Deferred (optional, D-014) |
 | 05 | Workflow: `clip` + `make` commands     | `feature/workflow-clip-make`    | Done ([PR #4](https://github.com/Hacke2367/subtitle_engine/pull/4), via #3 → #2) |
-| 06 | Emphasis words (`*word*`)              | `feature/emphasis-markers`      | Review ([PR #5](https://github.com/Hacke2367/subtitle_engine/pull/5)) |
+| 06 | Emphasis words (`*word*`)              | `feature/emphasis-markers`      | Done ([PR #5](https://github.com/Hacke2367/subtitle_engine/pull/5)) |
 | 07 | Pop Karaoke theme (V1.1)               | `feature/pop-karaoke-theme`     | Not started |
 | 08 | Soft Romantic v2                       | `feature/soft-romantic-v2`      | Not started |
 | 09 | Lofi Minimal theme                     | `feature/lofi-minimal-theme`    | Not started |
@@ -100,7 +100,7 @@ text equals `lyrics.txt` minus the asterisks, and an existing unmarked song rend
 
 **Delivers:** a second theme, Pop Karaoke: left-to-right fill on the sung word, active line
 scales in slightly, past line dims; bold sans, white plus one accent. A way to pick the theme per
-render. Emphasis words from step 06 get this theme's own move.
+render. Marked `*word*`s keep H-013's size rule (1.5x-2x their line) in this theme's look.
 **Needs:** step 06 merged; H-011 (decided). Research notes: sections 3, 4, 6, 7.
 **Done when:** the test song renders in both themes from the same `words.json`, every render
 check passes, and the owner approves the Pop Karaoke look.
@@ -111,7 +111,7 @@ Source: `docs/research/lyric_aesthetics.md`. Each theme's spec covers these, and
 includes them.
 
 - Timing and restraint over motion: text lands with the voice; ease-out in, ease-in out;
-  overshoot at most 10%; only owner-marked `*word*`s get the theme's emphasis move (§2, §5).
+  overshoot at most 10%; only owner-marked `*word*`s are emphasised, at 1.5x-2x their line (H-013).
 - At most two font families, one palette and one motion set per theme; no hue-120 green,
   because the green-screen output keys it out (§6, §7).
 - A legibility layer that survives bright footage: shadow, stroke or soft scrim (§8).

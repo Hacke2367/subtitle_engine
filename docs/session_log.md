@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-26 (9): step 06 shipped and merged (PR #5), handoff
+**Did:** `/init` refreshed `CLAUDE.md` (commands, song folder, cross-file invariants). `/ship`: gate green, all 11 spec 06 ACs pass, PR #5 (incl. session (6)'s roadmap docs). Owner said merge → squash-merged into `dev`.
+**Decisions:** H-013 approved at 1.5x (owner "ok").
+**Open:** nothing on step 06. No CHANGELOG in this repo (earlier merges kept none).
+**Next:** `/start_work` step 07 Pop Karaoke → `/spec`.
+
 ## 2026-09-26 (8): step 06 revised: marked words 1.5x-2x (H-013)
 **Did:** owner found the 1.06x swell too subtle; replaced it with a permanent size rule: marked word = `emphasis_scale` (1.5-2.0, enforced by `Theme`) times its line's font size, laid out with room (shared baseline, taller row). Swell code removed. Unmarked songs still pixel-identical to `dev`; 1.5x and 2x previews rendered, checks pass.
 **Decisions:** H-013; spec 06 v1.1.0.
