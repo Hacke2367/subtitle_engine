@@ -2,6 +2,18 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-27 (11): step 07 merged (PR #6)
+**Did:** owner said "merge" → AC10 (look) taken as approved; merge recorded, PR #6 squash-merged into `dev`.
+**Decisions:** none new.
+**Open:** nothing on step 07. No CHANGELOG in this repo (as before).
+**Next:** `/start_work` step 08 Soft Romantic v2 → `/spec`.
+
+## 2026-09-27 (10): step 07 Pop Karaoke built and shipped for review (PR #6), handoff
+**Did:** `/start_work` step 07 → spec (owner "yes", incl. §7 choices) → plan → build: `render/karaoke.py` (line shown ahead, per-word fill on its own frames, past-line slot), `--theme` on `render`/`make`, `render/<theme>/` folders, fill-sync + safe-zone checks, key-green guard, Poppins bundled. Soft Romantic frames byte-identical to `dev`. Gate green (186 tests, alpha proof); `khidki_s2`, `khidki_s2_em`, full `khidki_full` render with checks passing (full song 271 s).
+**Decisions:** D-018 (per-theme folders, bundled Poppins). Spec v1.0.1: a leaving past line finishes its fade as the new line enters (max two lines). Entrance fades in with smoothstep (hand-over overlap fix).
+**Open:** spec 07 AC10, the owner's look approval; then merge PR #6.
+**Next:** owner watches `songs/khidki_s2_em/render/pop-karaoke/preview.mp4` → `theme.py` tweaks if asked → `/merge_pr 6` on "merge" → `/start_work` step 08.
+
 ## 2026-09-26 (9): step 06 shipped and merged (PR #5), handoff
 **Did:** `/init` refreshed `CLAUDE.md` (commands, song folder, cross-file invariants). `/ship`: gate green, all 11 spec 06 ACs pass, PR #5 (incl. session (6)'s roadmap docs). Owner said merge → squash-merged into `dev`.
 **Decisions:** H-013 approved at 1.5x (owner "ok").

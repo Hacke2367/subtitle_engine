@@ -4,7 +4,7 @@ Never calls the alignment API: editing words.json by hand and re-rendering must 
 Frames are drawn once and streamed as raw RGBA into ONE ffmpeg process that writes all three
 outputs (plan docs/specs/03_soft_romantic_render_impl.md). Every reveal and glow frame comes from
 that word's own words.json time minus the theme's uniform lead (red line 1), and every drawn string
-is the words.json text (red line 2). Everything written goes to songs/<song>/render/.
+is the words.json text (red line 2). Everything written goes to songs/<song>/render/<theme>/ (D-018).
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .. import align, layout, timing
 from ..theme import SOFT_ROMANTIC, Theme
-from . import encode
+from . import encode, karaoke
 from .check import REPORT, check_outputs, write_report
 from .encode import ALPHA_CODECS, OUTPUTS, RenderError, _encode, _ffmpeg_cmd, _remove
 from .frames import FadeCache, _frame_parts, build_sprites, compose_frame
@@ -77,8 +77,9 @@ def load_for_render(song_dir: Path, *,
 # --- Render ----------------------------------------------------------------------------------
 def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = False,
            theme: Theme = SOFT_ROMANTIC) -> RenderResult:
-    """songs/<song>/words.json -> render/overlay.mov, overlay_green.mp4, preview.mp4, report.md.
-    Raises RenderError (or layout.LayoutError for a line that cannot be laid out)."""
+    """songs/<song>/words.json -> render/<theme>/overlay.mov, overlay_green.mp4, preview.mp4,
+    report.md (D-018: each theme in its own folder). Raises RenderError (or layout.LayoutError
+    for a line that cannot be laid out)."""
     t0 = time.perf_counter()
     song_dir = Path(song_dir)
     codec = codec or theme.alpha_codec
@@ -90,17 +91,21 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
     except (RuntimeError, OSError) as exc:
         raise RenderError(str(exc)) from None
     n = _ceil_frame(duration, theme.fps)
-    lines, skipped = plan_timeline(doc, theme, n, emphasis=emphasis)
-    sprites = build_sprites(lines, theme)
+    if theme.motion == "karaoke":
+        lines, skipped = karaoke.plan_karaoke(doc, theme, n, emphasis=emphasis)
+        sprites, cache, parts = (karaoke.build_sprites(lines, theme), karaoke.LineCache(),
+                                 karaoke.frame_parts)
+    else:
+        lines, skipped = plan_timeline(doc, theme, n, emphasis=emphasis)
+        sprites, cache, parts = build_sprites(lines, theme), FadeCache(), _frame_parts
 
-    render_dir = song_dir / "render"
-    render_dir.mkdir(exist_ok=True)
+    render_dir = song_dir / "render" / theme.name
+    render_dir.mkdir(parents=True, exist_ok=True)
     outputs = {key: render_dir / name for key, name in OUTPUTS.items()}
     _remove([*outputs.values(), render_dir / REPORT])   # a failed run must not leave old results
-    cache = FadeCache()
     t1 = time.perf_counter()
     _encode(_ffmpeg_cmd(theme, codec, audio, outputs),
-            (_frame_parts(k, lines, sprites, theme, cache) for k in range(n)), outputs)
+            (parts(k, lines, sprites, theme, cache) for k in range(n)), outputs)
     encode_s = time.perf_counter() - t1
     result = RenderResult(render_dir, outputs, n, 0.0, skipped, [], emphasis=[
         f'"{w["text"]}" (line {w["line"] + 1})' for w in doc["words"] if w["i"] in emphasis])

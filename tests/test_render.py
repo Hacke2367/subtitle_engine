@@ -382,8 +382,9 @@ class RenderSmokeTest(unittest.TestCase):
             self.assertEqual(hashlib.sha256((song / "words.json").read_bytes()).hexdigest(),
                              words_sha)
             new = {p for p in song.rglob("*")} - before
-            self.assertTrue(all(p == result.render_dir or result.render_dir in p.parents
-                                for p in new), new)
+            self.assertEqual(result.render_dir, song / "render" / "soft-romantic")   # D-018
+            self.assertTrue(all(p in (song / "render", result.render_dir)
+                                or result.render_dir in p.parents for p in new), new)
 
             # The sync check is not vacuous: a timeline 10 frames late fails it.
             doc = timing.load_words(song / "words.json")
@@ -400,7 +401,7 @@ class RenderSmokeTest(unittest.TestCase):
             with mock.patch.object(render.encode, "ALPHA_CODECS", bad), \
                     self.assertRaisesRegex(RenderError, "ffmpeg failed .*no_such_encoder"):
                 render.render(song, codec="bad")
-            self.assertEqual(list((song / "render").iterdir()), [])
+            self.assertEqual(list((song / "render" / "soft-romantic").iterdir()), [])
 
 
 class EmphasisRenderTest(unittest.TestCase):

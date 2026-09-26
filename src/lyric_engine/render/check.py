@@ -20,6 +20,9 @@ if TYPE_CHECKING:
 REPORT = "report.md"
 ALPHA_PIX_FMTS = {"rgba", "argb", "bgra", "abgr", "rgba64le", "rgba64be"}
 SYNC_ON_MIN, SYNC_DROP_MIN = 200, 100   # mean word alpha when on / required drop just before it
+FILL_BEFORE_MAX, FILL_AFTER_MIN = 0.05, 0.95   # karaoke: filled share before start / at end
+SAFE_ALPHA_MIN = 16                            # alpha that counts as drawn for the safe zone
+_SAFE_LUT = [255 if v >= SAFE_ALPHA_MIN else 0 for v in range(256)]
 
 
 # --- Output check ----------------------------------------------------------------------------
@@ -70,25 +73,46 @@ def _sync_samples(lines: list[LinePlan], theme: Theme) -> list[_Sample]:
         for wp in lp.words:
             if wp.reveal is None:
                 continue
-            fonts = layout.word_fonts(theme, lp.layout.font_size, wp.box.emphasis)
-            mask = layout.word_mask(wp.text, fonts)
-            top = (mask.getextrema() or (0, 0))[1]   # 255 for any real glyph; a 0-px mask → None
-            if top == 0:
+            ink = _ink(wp.text, layout.word_fonts(theme, lp.layout.font_size, wp.box.emphasis))
+            if ink is None:
                 continue
             # Solid from reveal + rev until the line starts fading (never earlier, D-013).
             b, on = wp.box, min(wp.reveal + rev, lp.fade_start - 1, lp.stop - 1)
             samples.append(_Sample(f'word {b.index} "{wp.text}" (line {lp.layout.line + 1})',
-                                   (b.x, b.y, b.x + b.w, b.y + b.h),
-                                   mask.point(lambda v, top=top: 255 if v >= top else 0), on,
+                                   (b.x, b.y, b.x + b.w, b.y + b.h), ink, on,
                                    wp.reveal - 1 if wp.reveal > 0 else None,
                                    on < wp.reveal + rev))
     return samples
 
 
-def check_outputs(result: RenderResult, lines: list[LinePlan], theme: Theme,
-                  n_frames: int) -> list[str]:
-    """ffprobe checks of the three outputs, then a sync check on the overlay's alpha plane (decoded
-    once): every timed word's ink is solid just after its reveal and absent just before it."""
+def _ink(text: str, fonts: layout.FontSet) -> Image.Image | None:
+    """255 where the word's pad-0 glyph mask is solid, else 0; None for a word with no ink."""
+    mask = layout.word_mask(text, fonts)
+    top = (mask.getextrema() or (0, 0))[1]   # 255 for any real glyph; a 0-px mask → None
+    return None if top == 0 else mask.point(lambda v: 255 if v >= top else 0)
+
+
+def _stream(cmd: list[str], frame_size: int, visit) -> tuple[int, str | None]:
+    """Run an ffmpeg decode to raw frames on stdout; visit(k, data) per frame. Returns the frame
+    count and, if ffmpeg failed, the tail of its stderr."""
+    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    reader, tail = _drain(proc.stderr)
+    decoded = 0
+    try:
+        while len(data := proc.stdout.read(frame_size)) == frame_size:
+            visit(decoded, data)
+            decoded += 1
+    finally:
+        proc.stdout.close()
+        code = proc.wait()
+        reader.join()
+        proc.stderr.close()
+    return decoded, (_tail_text(tail) if code != 0 else None)
+
+
+def check_outputs(result: RenderResult, lines: list, theme: Theme, n_frames: int) -> list[str]:
+    """ffprobe checks of the three outputs, then the theme's frame checks on the decoded overlay:
+    the alpha sync check (reveal themes) or the fill and safe-zone checks (karaoke)."""
     out, size = result.outputs, (theme.width, theme.height)
     overlay = _probe(out["overlay"])
     fails = _video_failures("overlay.mov", overlay, size, theme.fps)
@@ -99,34 +123,43 @@ def check_outputs(result: RenderResult, lines: list[LinePlan], theme: Theme,
                              theme.fps, n_frames)
     fails += _video_failures("preview.mp4", _probe(out["preview"]), theme.preview_size,
                              audio=True)
+    check = _karaoke_checks if theme.motion == "karaoke" else _alpha_sync
+    return fails + check(result, lines, theme, n_frames)
 
-    samples = _sync_samples(lines, theme)
+
+def _wanted(samples: list[_Sample]) -> dict[int, list[tuple[_Sample, str]]]:
     wanted: dict[int, list[tuple[_Sample, str]]] = {}
     for s in samples:
         wanted.setdefault(s.on, []).append((s, "on"))
         if s.before is not None:
             wanted.setdefault(s.before, []).append((s, "before"))
-    means: dict[tuple[str, str], float] = {}
-    cmd = ["ffmpeg", "-hide_banner", "-nostats", "-loglevel", "error", "-i", str(out["overlay"]),
-           "-vf", "alphaextract,format=gray", "-fps_mode", "passthrough",
-           "-f", "rawvideo", "-pix_fmt", "gray", "-"]
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    reader, tail = _drain(proc.stderr)
-    decoded, frame_size = 0, theme.width * theme.height
-    try:
-        while len(data := proc.stdout.read(frame_size)) == frame_size:
-            if decoded in wanted:
-                frame = Image.frombytes("L", size, data)
-                for s, kind in wanted[decoded]:
-                    means[s.label, kind] = ImageStat.Stat(frame.crop(s.box), s.ink).mean[0]
-            decoded += 1
-    finally:
-        proc.stdout.close()
-        code = proc.wait()
-        reader.join()
-        proc.stderr.close()
-    if code != 0:
-        return fails + [f"overlay.mov: alpha decode failed: {_tail_text(tail)}"]
+    return wanted
+
+
+def _decode_cmd(path: Path, *video_args: str) -> list[str]:
+    return ["ffmpeg", "-hide_banner", "-nostats", "-loglevel", "error", "-i", str(path),
+            *video_args, "-fps_mode", "passthrough", "-f", "rawvideo", "-pix_fmt", "gray", "-"]
+
+
+def _alpha_sync(result: RenderResult, lines: list[LinePlan], theme: Theme,
+                n_frames: int) -> list[str]:
+    """Reveal themes: the overlay's alpha plane decoded once; every timed word's ink is solid
+    just after its reveal and absent just before it."""
+    size, fails = (theme.width, theme.height), []
+    samples = _sync_samples(lines, theme)
+    wanted, means = _wanted(samples), {}
+
+    def visit(k: int, data: bytes) -> None:
+        if k in wanted:
+            frame = Image.frombytes("L", size, data)
+            for s, kind in wanted[k]:
+                means[s.label, kind] = ImageStat.Stat(frame.crop(s.box), s.ink).mean[0]
+
+    decoded, error = _stream(_decode_cmd(result.outputs["overlay"], "-vf",
+                                         "alphaextract,format=gray"),
+                             theme.width * theme.height, visit)
+    if error is not None:
+        return [f"overlay.mov: alpha decode failed: {error}"]
     if decoded != n_frames:   # the overlay's frame count, from this one full decode
         fails.append(f"overlay.mov: {decoded} frames, expected {n_frames}")
 
@@ -136,16 +169,84 @@ def check_outputs(result: RenderResult, lines: list[LinePlan], theme: Theme,
                                 "so it never shows fully (sung back to back)")
             continue
         on, before = means.get((s.label, "on")), means.get((s.label, "before"))
-        why = ""
         if on is None:
             fails.append(f"sync: {s.label}: never shown solid; sample frame {s.on} is outside "
-                         f"the overlay{why}")
+                         "the overlay")
         elif on < SYNC_ON_MIN:
             fails.append(f"sync: {s.label}: mean alpha {on:.0f} at frame {s.on}, expected "
-                         f">= {SYNC_ON_MIN} once revealed{why}")
+                         f">= {SYNC_ON_MIN} once revealed")
         elif before is not None and before > on - SYNC_DROP_MIN:
             fails.append(f"sync: {s.label}: mean alpha {before:.0f} at frame {s.before}, the "
                          f"frame before its reveal; expected <= {on - SYNC_DROP_MIN:.0f}")
+    return fails
+
+
+def _karaoke_checks(result: RenderResult, lines: list, theme: Theme, n_frames: int) -> list[str]:
+    """Karaoke themes, one decode of one colour plane stacked on the alpha plane:
+    fill sync (a word shows no accent the frame before its fill starts and is all accent on the
+    frame its fill ends, both read with its line at rest) and the safe zone on every frame."""
+    size, fails = (theme.width, theme.height), []
+    text, accent = theme.text_rgb, theme.accent_rgb
+    c = max(range(3), key=lambda k: abs(text[k] - accent[k]))   # the channel that tells them apart
+    span = text[c] - accent[c]
+    if abs(span) < 64:
+        return [f"fill: accent {accent} is too close to text colour {text} to check the fill"]
+    samples = []
+    for kl in lines:
+        def at_rest(m: int, kl=kl) -> bool:
+            return kl.rest <= m < kl.fade_start and (kl.handover is None or m <= kl.handover)
+        for fw in kl.words:
+            if fw.start is None:
+                continue
+            ink = _ink(fw.text, layout.word_fonts(theme, kl.layout.font_size, fw.box.emphasis))
+            if ink is None:
+                continue
+            label = f'word {fw.box.index} "{fw.text}" (line {kl.layout.line + 1})'
+            if not at_rest(fw.end):   # handed over mid-fill: its fill still runs on its own time
+                result.notes.append(f"{label}: its line moved to the past slot before its fill "
+                                    "finished (sung back to back)")
+                continue
+            b = fw.box
+            samples.append(_Sample(label, (b.x, b.y, b.x + b.w, b.y + b.h), ink, fw.end,
+                                   fw.start - 1 if fw.start > 0 and at_rest(fw.start - 1)
+                                   else None, False))
+    wanted, means = _wanted(samples), {}
+    plane, zone, outside = theme.width * theme.height, theme.safe_zone, []
+
+    def visit(k: int, data: bytes) -> None:
+        if k in wanted:
+            frame = Image.frombytes("L", size, data[:plane])
+            for s, kind in wanted[k]:
+                means[s.label, kind] = ImageStat.Stat(frame.crop(s.box), s.ink).mean[0]
+        if zone is not None:
+            box = Image.frombytes("L", size, memoryview(data)[plane:]).point(_SAFE_LUT).getbbox()
+            if box and (box[0] < zone[0] or box[1] < zone[1] or box[2] > zone[2]
+                        or box[3] > zone[3]):
+                outside.append((k, box))
+
+    graph = f"[0:v]format=gbrap,extractplanes={'rgb'[c]}+a[c][a];[c][a]vstack"
+    decoded, error = _stream(_decode_cmd(result.outputs["overlay"], "-filter_complex", graph),
+                             2 * plane, visit)
+    if error is not None:
+        return [f"overlay.mov: colour decode failed: {error}"]
+    if decoded != n_frames:
+        fails.append(f"overlay.mov: {decoded} frames, expected {n_frames}")
+    for s in samples:
+        after, before = means.get((s.label, "on")), means.get((s.label, "before"))
+        if after is None:
+            fails.append(f"fill: {s.label}: frame {s.on}, where its fill ends, is outside the "
+                         "overlay")
+            continue
+        if (f := (text[c] - after) / span) < FILL_AFTER_MIN:
+            fails.append(f"fill: {s.label}: {f:.0%} filled at frame {s.on}, where its fill ends; "
+                         "expected 100%")
+        if before is not None and (f := (text[c] - before) / span) > FILL_BEFORE_MAX:
+            fails.append(f"fill: {s.label}: {f:.0%} filled at frame {s.before}, the frame before "
+                         "its fill starts; expected 0%")
+    if outside:
+        k, box = outside[0]
+        fails.append(f"safe zone: {len(outside)} frame(s) draw outside x {zone[0]}-{zone[2]}, "
+                     f"y {zone[1]}-{zone[3]}; first: frame {k}, bbox {box}")
     return fails
 
 
@@ -175,9 +276,10 @@ def write_report(result: RenderResult, doc: dict, *, codec: str, theme: Theme,
     if static:
         out += ["", "Untimed words shown static with their line (never animated):", "",
                 *(f'- word {w["i"]} "{w["text"]}" (line {w["line"] + 1})' for w in static)]
-    out += ["", "## Output check", "",
-            f"ffprobe checks of all three outputs; sync check of {timed} timed word(s) on the "
-            "overlay's alpha.", ""]
+    frame_checks = (f"fill check of {timed} timed word(s) on the overlay's colour; safe-zone "
+                    "check of every frame." if theme.motion == "karaoke" else
+                    f"sync check of {timed} timed word(s) on the overlay's alpha.")
+    out += ["", "## Output check", "", f"ffprobe checks of all three outputs; {frame_checks}", ""]
     out += (["**pass**"] if not result.checks
             else ["**FAIL**", "", *(f"- {c}" for c in result.checks)])
     if result.notes:

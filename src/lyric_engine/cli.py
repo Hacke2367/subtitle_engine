@@ -3,9 +3,10 @@
     python -m lyric_engine.cli bakeoff songs/<song> [--fresh]
     python -m lyric_engine.cli align songs/<song> [--variant NAME] [--fresh] [--overwrite]
     python -m lyric_engine.cli validate songs/<song>/words.json [--song songs/<song>]
-    python -m lyric_engine.cli render songs/<song> [--codec prores|png|qtrle] [--allow-flagged]
+    python -m lyric_engine.cli render songs/<song> [--theme NAME] [--codec prores|png|qtrle]
+                                      [--allow-flagged]
     python -m lyric_engine.cli clip songs/<full-song> --from 0:27 --to 0:57 [--out songs/<clip>]
-    python -m lyric_engine.cli make songs/<song> [--codec ...] [--allow-flagged]
+    python -m lyric_engine.cli make songs/<song> [--theme NAME] [--codec ...] [--allow-flagged]
 """
 from __future__ import annotations
 
@@ -15,6 +16,7 @@ import sys
 from pathlib import Path
 
 from . import align, timing
+from .theme import THEMES
 
 
 def _validate(path: Path, song: Path | None) -> int:
@@ -31,10 +33,11 @@ def _validate(path: Path, song: Path | None) -> int:
     return 0 if not errors else 1
 
 
-def _render(song: Path, codec: str | None, allow_flagged: bool) -> int:
+def _render(song: Path, codec: str | None, allow_flagged: bool, theme: str) -> int:
     from . import layout, render   # lazy: fonts/Pillow only when rendering
     try:
-        result = render.render(song, codec=codec, allow_flagged=allow_flagged)
+        result = render.render(song, codec=codec, allow_flagged=allow_flagged,
+                               theme=THEMES[theme])
     except (render.RenderError, layout.LayoutError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
@@ -78,10 +81,10 @@ def _clip(song: Path, start: float, end: float, out: Path | None) -> int:
     return 0
 
 
-def _make(song: Path, codec: str | None, allow_flagged: bool) -> int:
+def _make(song: Path, codec: str | None, allow_flagged: bool, theme: str) -> int:
     from . import workflow
     code = workflow.ensure_aligned(song)
-    return code if code != 0 else _render(song, codec, allow_flagged)
+    return code if code != 0 else _render(song, codec, allow_flagged, theme)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -100,6 +103,8 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--song", type=Path)
     r = sub.add_parser("render", help="words.json → overlay.mov + overlay_green.mp4 + preview.mp4")
     r.add_argument("song_dir", type=Path)
+    r.add_argument("--theme", choices=list(THEMES), default="soft-romantic",
+                   help="look of the overlay; outputs go to render/<theme>/ (default: soft-romantic)")
     r.add_argument("--codec", choices=["prores", "png", "qtrle"],
                    help="alpha codec for overlay.mov (default: theme's, provisional until CapCut test)")
     r.add_argument("--allow-flagged", action="store_true",
@@ -111,6 +116,7 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("--out", type=Path, help="new song folder (default: <song>_<from>-<to>)")
     m = sub.add_parser("make", help="align (if not done yet) and render a song folder")
     m.add_argument("song_dir", type=Path)
+    m.add_argument("--theme", choices=list(THEMES), default="soft-romantic")
     m.add_argument("--codec", choices=["prores", "png", "qtrle"])
     m.add_argument("--allow-flagged", action="store_true")
     args = parser.parse_args(argv)
@@ -122,11 +128,11 @@ def main(argv: list[str] | None = None) -> int:
             return align.align_song(args.song_dir, variant=args.variant, fresh=args.fresh,
                                     overwrite=args.overwrite)
         if args.cmd == "render":
-            return _render(args.song_dir, args.codec, args.allow_flagged)
+            return _render(args.song_dir, args.codec, args.allow_flagged, args.theme)
         if args.cmd == "clip":
             return _clip(args.song_dir, args.start, args.end, args.out)
         if args.cmd == "make":
-            return _make(args.song_dir, args.codec, args.allow_flagged)
+            return _make(args.song_dir, args.codec, args.allow_flagged, args.theme)
         return _validate(args.words_json, args.song)
     except (timing.LyricsError, FileNotFoundError) as exc:
         print(f"error: {exc}", file=sys.stderr)

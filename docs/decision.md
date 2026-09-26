@@ -236,3 +236,16 @@ upgrades the theme the owner's romantic channel uses most. Primitives accumulate
 fill and scale cache, 08 the blur cache that 10's blur-in reuses. Beat detection is a new input,
 so it gets its own step before the two beat-driven themes. Latin Hinglish needs no shaper.
 **Supersedes:** —
+
+### D-018 — Theme outputs in `render/<theme>/`; Poppins SemiBold bundled in `fonts/`
+**Date:** 2026-09-27
+**Context:** Step 07 adds a second theme and a `--theme` choice per render. Spec 07 §7 proposed
+these defaults; the owner approved the spec ("yes").
+**Decision:** Every render writes to `songs/<song>/render/<theme-name>/` (Soft Romantic too, in
+`render/soft-romantic/`), so themes never overwrite each other. Outputs of older runs directly in
+`render/` are left alone. Pop Karaoke's font, Poppins SemiBold (SIL OFL 1.1), lives in `fonts/`
+with its `OFL.txt` and is found relative to `theme.py`.
+**Why:** Eight themes are planned (H-012); side-by-side folders make comparing them free. A
+bundled font renders identically on any machine and keeps the tests offline; OFL allows
+redistribution with the licence.
+**Supersedes:** —
