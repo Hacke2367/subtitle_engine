@@ -2,7 +2,7 @@
 
 ## WIP
 
-`feature/alpha-overlay-proof` (from `dev` @ b08e6b1): step 01, status Review. Automated checks
+`feature/alpha-overlay-proof` (from `dev` @ b08e6b1): step 01, status Review, [PR #1](https://github.com/Hacke2367/subtitle_engine/pull/1) into `dev`. Automated checks
 pass (AC1–5, AC9). The CapCut import test (AC6–8) is deferred by H-006.
 
 ## Current focus
