@@ -19,6 +19,8 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-002 | `songs/` is gitignored except the example lyrics    | Active |
 | D-003 | Keep the existing venv (Python 3.10.11)             | Active |
 | D-004 | Gate commands empty until the first tested module   | Active |
+| D-005 | Alpha candidates: ProRes 4444, PNG-in-MOV, qtrle     | Active |
+| D-006 | Gate runs the alpha proof end to end                | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -50,4 +52,26 @@ are visible in `words.json`.
 **Decision:** Leave `gate.commands` empty; add the test command in the step that adds the first
 test.
 **Why:** A gate listing commands that do not exist yet would fail or lie.
+**Supersedes:** —
+
+### D-005 — Alpha candidates: ProRes 4444, PNG-in-MOV, qtrle
+**Date:** 2026-09-26
+**Context:** Spec 01 needs more than one alpha encoding family so one CapCut session finds a
+working one.
+**Decision:** Test `A_prores4444.mov` (yuva444p10le, 16-bit alpha, vendor apl0), `B_png.mov`
+(rgba), `C_qtrle.mov` (argb), plus `G_green.mp4` (H.264 High, yuv420p, BT.709) for mobile.
+HEVC-with-alpha is excluded.
+**Why:** Three distinct families (ProRes, lossless PNG, RLE). HEVC alpha was probed on this
+machine: "Loaded libx265 does not support alpha layer encoding". Measured sizes for a 3-minute
+song: ProRes ~1.8 GB, PNG ~380 MB, qtrle ~310 MB, green mp4 ~13 MB.
+**Supersedes:** —
+
+### D-006 — Gate runs the alpha proof end to end
+**Date:** 2026-09-26
+**Context:** D-004 deferred gate commands until the first check existed; `scripts/alpha_proof.py`
+is it.
+**Decision:** `gate.commands` = `venv/Scripts/python scripts/alpha_proof.py` (renders, encodes,
+checks; about 20 s; exit non-zero on any missing variant or failed check).
+**Why:** Offline, self-contained, and it fails when it should (verified against a no-alpha,
+149-frame clip: all four failures caught).
 **Supersedes:** —

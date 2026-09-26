@@ -32,15 +32,16 @@ through `words.json`), C (two separate tools).
 **Decided:** 2026-09-26
 
 ### H-003 — CapCut desktop or mobile?
-**Status:** pending
+**Status:** decided
 **Raised:** 2026-09-26
 **Needed-before:** step 01 (alpha overlay proof)
 **Context:** Desktop CapCut imports `.mov` with alpha; mobile CapCut does not, and would need the
 green-screen mp4 + Chroma Key path as the main output instead of the fallback.
 **Options:** desktop / mobile / both
 **Recommendation:** desktop (assumed during kickoff)
-**Decision:**
-**Decided:**
+**Decision:** "both". Alpha `.mov` (desktop) and green-screen mp4 (mobile, Chroma Key) are both
+primary outputs; neither is a fallback.
+**Decided:** 2026-09-26
 
 ### H-004 — Alignment provider
 **Status:** pending
@@ -64,4 +65,16 @@ alignment model (free, slower, more setup)
 mattpocock-skills disabled. This project has no UI.
 **Decision:** "both yes": `.claude/settings.json` enables devsystem, disables frontend-design.
 chisle left to the owner's user-level setting.
+**Decided:** 2026-09-26
+
+### H-006 — Move past step 01 before the CapCut import test
+**Status:** decided
+**Raised:** 2026-09-26
+**Needed-before:** step 02
+**Context:** Step 01's automated checks (AC1–5, AC9) pass. AC6–8 need the owner to import the
+clips into CapCut desktop and mobile.
+**Decision:** "abhi kiya hum ye maan ke chal sakte hai, ki capcut ka test pass hogya hai, and abhi
+aage ka kaam chalu karte hai, mein baad mein import karke check karlunga." Treat step 01 as passed;
+the owner runs the CapCut test later. Step 02 is output-format independent, so that is safe. The
+test must be done **before step 03's spec**, because the renderer's output format depends on it.
 **Decided:** 2026-09-26
