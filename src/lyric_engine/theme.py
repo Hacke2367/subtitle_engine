@@ -4,6 +4,7 @@
 Soft Romantic: values chosen under H-008, tuned by the owner via
 songs/<song>/render/soft-romantic/preview.mp4 (spec docs/specs/03_soft_romantic_render.md).
 Pop Karaoke: start values from spec docs/specs/07_pop_karaoke_theme.md §4.5.
+Soft Romantic v2: v1's look plus spec docs/specs/08_soft_romantic_v2.md §4.4.
 """
 from __future__ import annotations
 
@@ -15,7 +16,7 @@ FONTS = Path("C:/Windows/Fonts")
 REPO_FONTS = Path(__file__).resolve().parents[2] / "fonts"   # bundled OFL fonts (D-018)
 EMPHASIS_MIN, EMPHASIS_MAX = 1.5, 2.0   # marked word size / line font size (H-013)
 KEY_HUE, KEY_HUE_TOL, KEY_SAT_MIN = 120, 15, 0.5   # colours the green-screen output would key out
-MOTIONS = ("reveal", "karaoke")
+MOTIONS = ("reveal", "karaoke", "focus")
 
 
 def _near_key_green(rgb: tuple[int, int, int]) -> bool:
@@ -63,7 +64,8 @@ class Theme:
     # as long as the line is on screen; the layout makes room for it (H-013, spec 06)
     emphasis_scale: float = 1.5
     # Motion family: "reveal" = words fade and rise in as sung, glow (Soft Romantic);
-    # "karaoke" = the line is shown ahead and colour fills each word as sung (Pop Karaoke)
+    # "karaoke" = the line is shown ahead and colour fills each word as sung (Pop Karaoke);
+    # "focus" = reveal, plus the finished line dims and blurs above the next (Soft Romantic v2)
     motion: str = "reveal"
     center_x: int = 540           # rows are centred on this x
     safe_zone: tuple[int, int, int, int] | None = None   # x0, y0, x1, y1 every frame stays in
@@ -73,11 +75,17 @@ class Theme:
     stroke_frac: float = 0.0      # stroke width as a fraction of the word's own size
     fill_soft_px: int = 8         # width of the fill's soft edge
     preroll_s: float = 0.5        # a line appears this long before its first word's fill
-    enter_s: float = 0.28         # entrance and hand-over duration
+    enter_s: float = 0.28         # entrance and hand-over duration (focus: hand-over only)
     enter_scale: float = 0.94     # entrance starts at this scale
-    past_scale: float = 0.8       # the past line, above the current one
+    past_scale: float = 0.8       # the past line, above the current one (karaoke and focus)
     past_opacity: float = 0.4
     past_gap_px: int = 40         # past line bottom to current line top
+    # Focus only (spec 08): past-line blur, hand-over lead, glow breath on held words
+    past_blur_px: float = 6.0     # the past line's blur radius once it has moved up
+    handover_lead_s: float = 0.2  # the move starts this long before the next line's first word
+    breath_min_s: float = 1.0     # a word held this long (its own frames) breathes
+    breath_low: float = 0.65      # glow strength at the bottom of a breath
+    breath_period_s: float = 2.0  # one breath
     # Outputs
     alpha_codec: str = "prores"   # owner-confirmed in CapCut (H-010)
     key_green_hex: str = "0x00FF00"
@@ -103,6 +111,12 @@ class Theme:
 
 SOFT_ROMANTIC = Theme("soft-romantic")
 
+# v1's look; 820 px keeps the glow (~29 px past a glyph) inside x 60-960 (plan 08 §2.8)
+SOFT_ROMANTIC_V2 = Theme(
+    "soft-romantic-v2", motion="focus",
+    max_width=820, center_x=510, safe_zone=(60, 380, 960, 1540),
+    enter_s=0.35, past_scale=0.85, past_opacity=0.4, past_gap_px=40, hold_s=1.0, fade_out_s=0.3)
+
 POP_KARAOKE = Theme(
     "pop-karaoke", motion="karaoke",
     font=REPO_FONTS / "Poppins-SemiBold.ttf", font_size=96, min_font_size=64,
@@ -111,4 +125,5 @@ POP_KARAOKE = Theme(
     stroke_frac=0.04, shadow_rgb=(0, 0, 0), shadow_alpha=0.5, shadow_radius=4,
     shadow_offset=(0, 3), hold_s=1.0, fade_out_s=0.2)
 
-THEMES = {t.name: t for t in (SOFT_ROMANTIC, POP_KARAOKE)}
+THEMES = {t.name: t for t in (SOFT_ROMANTIC, SOFT_ROMANTIC_V2, POP_KARAOKE)}
+DEFAULT_THEME = SOFT_ROMANTIC_V2.name   # the owner preferred v2 over v1 (spec 08 AC10)

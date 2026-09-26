@@ -188,3 +188,29 @@ must be 1.5-2.0 (default 1.5 until the owner picks from the 1.5x and 2x previews
 dropped. Spec 06 v1.1.0. The owner then said "ok ab ship kardo" without asking for 2x, so
 1.5x ships as the default (AC10); `emphasis_scale` can be raised up to 2.0 any time.
 **Decided:** 2026-09-26
+
+### H-014 — Soft Romantic v2: no waiting next line; v2 sits beside v1
+**Status:** decided
+**Raised:** 2026-09-27
+**Needed-before:** spec 08 (Soft Romantic v2)
+**Context:** Plan step 08 left two calls to the owner: whether the research's blurred "waiting
+next line" ships (H-010 kept "no ghosting"), and whether v2 replaces v1 or sits beside it.
+**Options:** Next line: (a) keep H-010, upcoming words stay hidden until sung; (b) show the next
+line blurred at low opacity below the current one. v1: (a) v2 is a new theme beside v1; (b) v2
+takes over the `soft-romantic` name.
+**Recommendation:** (a) and (a).
+**Decision:** Next line: "Nahi, H-010 hi rahe". No waiting next line; only the current line and
+the dimmed, blurred past line above it. v1 vs v2: "Saath mein, alag naam". v2 ships as a new
+theme `soft-romantic-v2`; v1 stays pixel-identical and stays the default until the owner prefers
+v2 (spec 08).
+**Decided:** 2026-09-27
+
+### H-015 — Soft Romantic v2 becomes the default theme
+**Status:** decided
+**Raised:** 2026-09-27
+**Needed-before:** shipping step 08 (spec 08 AC10)
+**Context:** The owner compared the v2 and v1 previews of `khidki_s2_em` (H-014 kept v1 as the
+default until then).
+**Decision:** "yes v2". `render` and `make` now default to `soft-romantic-v2`
+(`theme.DEFAULT_THEME`); v1 stays available as `--theme soft-romantic`.
+**Decided:** 2026-09-27

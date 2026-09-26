@@ -273,16 +273,30 @@ def _layer(kl: KaraokeLine, sprites: KSprites, n: int, theme: Theme,
     hit = cache.layers.get(kl.layout.line)
     if hit is not None and hit[0] == tkey:
         return hit[1], hit[2]
-    if scale != 1.0 or dy != 0.0:   # about the block centre; premultiplied: no dark fringes
-        top, bottom = _block(kl.layout)
+    img, pos = transformed(img, x0, y0, kl.layout, scale, dy, level, theme)
+    cache.layers[kl.layout.line] = (tkey, img, pos)
+    return img, pos
+
+
+def transformed(img: Image.Image, x0: int, y0: int, lay: LineLayout, scale: float, dy: float,
+                level: int, theme: Theme, blur: float = 0.0
+                ) -> tuple[Image.Image, tuple[int, int]]:
+    """A line image scaled about its block centre, shifted by dy, blurred, then faded to `level`,
+    and its new top-left. Scale and blur run premultiplied: no dark fringes. Untouched at rest."""
+    if scale != 1.0 or dy != 0.0 or blur > 0:
+        top, bottom = _block(lay)
         cx, cy = theme.center_x, (top + bottom) / 2
-        size = (max(1, round(img.width * scale)), max(1, round(img.height * scale)))
-        img = img.convert("RGBa").resize(size, Image.BICUBIC).convert("RGBA")
-        x0, y0 = round(cx + (x0 - cx) * scale), round(cy + dy + (y0 - cy) * scale)
+        img = img.convert("RGBa")
+        if scale != 1.0 or dy != 0.0:
+            size = (max(1, round(img.width * scale)), max(1, round(img.height * scale)))
+            img = img.resize(size, Image.BICUBIC)
+            x0, y0 = round(cx + (x0 - cx) * scale), round(cy + dy + (y0 - cy) * scale)
+        if blur > 0:
+            img = img.filter(ImageFilter.GaussianBlur(blur))
+        img = img.convert("RGBA")
     if level < LEVELS:
         img = img.copy()
         img.putalpha(img.getchannel("A").point(_LUTS[level]))
-    cache.layers[kl.layout.line] = (tkey, img, (x0, y0))
     return img, (x0, y0)
 
 

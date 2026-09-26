@@ -26,12 +26,13 @@ Package installed with `pip install -e .`; always use `venv/Scripts/python`.
 python -m lyric_engine.cli align songs/<song> [--variant NAME] [--fresh] [--overwrite]
 python -m lyric_engine.cli clip songs/<full-song> --from 0:27 --to 0:57 [--out songs/<clip>]
 python -m lyric_engine.cli make songs/<song> [--theme NAME]   # align if needed, then render
-python -m lyric_engine.cli render songs/<song> [--theme soft-romantic|pop-karaoke]
+python -m lyric_engine.cli render songs/<song> [--theme soft-romantic|soft-romantic-v2|pop-karaoke]
                                [--codec prores|png|qtrle] [--allow-flagged]
 python -m lyric_engine.cli validate songs/<song>/words.json --song songs/<song>
 python -m lyric_engine.cli bakeoff songs/<song> [--fresh]   # compare aligner variants
 ```
 
+- `--theme` default: `soft-romantic-v2` (owner preferred it, spec 08); v1 is `soft-romantic`.
 - All tests: `venv/Scripts/python -m unittest discover -s tests -t .`
 - One module / class / test: `venv/Scripts/python -m unittest tests.test_timing`,
   `... tests.test_timing.EmphasisTest`, or `... tests.test_render -k Emphasis`.
@@ -56,7 +57,8 @@ A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`
   flag rules, validator. The only thing align and render share.
 - `theme.py` (all look numbers; `THEMES`, and `motion` picks the renderer), `layout.py`
   (fonts with cmap fallback, balanced wrap), `render/` (`timeline` → `frames`, or `karaoke`
-  for Pop Karaoke → one-pass `encode` → `check`): `words.json` → `render/<theme>/overlay.mov`
+  for Pop Karaoke, or `focus` for Soft Romantic v2: v1's word frames plus a past-line stack
+  → one-pass `encode` → `check`): `words.json` → `render/<theme>/overlay.mov`
   (alpha) + `overlay_green.mp4` + `preview.mp4` (with audio, review).
   Never calls the alignment API, so hand-edit + re-render stays free.
 - `workflow.py`: `clip` (cut an aligned song at whole-line boundaries into a new song folder,

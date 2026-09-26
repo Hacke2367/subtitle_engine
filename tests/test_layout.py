@@ -16,7 +16,7 @@ from PIL import ImageFont
 from lyric_engine.layout import (
     FontSet, LayoutError, LineLayout, WordBox, font_set, layout_line, word_mask,
 )
-from lyric_engine.theme import FONTS, POP_KARAOKE, SOFT_ROMANTIC as THEME
+from lyric_engine.theme import FONTS, POP_KARAOKE, SOFT_ROMANTIC as THEME, SOFT_ROMANTIC_V2
 
 # songs/khidki/lyrics.txt is gitignored; its 8 lines, verbatim
 KHIDKI = [
@@ -31,7 +31,7 @@ KHIDKI = [
 ]
 LONG_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai afsos ye hai"
 # Longest line Pop Karaoke's wide font still fits in 3 rows with a 2x word (it shrinks to 64 px)
-LONG_FOR = {"soft-romantic": LONG_LINE,
+LONG_FOR = {"soft-romantic": LONG_LINE, "soft-romantic-v2": LONG_LINE,
             "pop-karaoke": "Mere saamne waali khidki mein ek chaand ka tukda rehta hai"}
 FALLBACK_LINE = "dil😊 kuchh🥰 ❤\ufe0f कुछ दिल Öl saaf"
 NO_FONT = "\ufdd0"  # a noncharacter: never assigned, in none of the theme's five fonts
@@ -246,7 +246,7 @@ class EmphasisLayoutTest(unittest.TestCase):
                 replace(THEME, emphasis_scale=scale)
 
     def test_marked_word_is_scale_times_the_line_size_even_when_shrunk(self):
-        for scale, base in product((1.5, 2.0), (THEME, POP_KARAOKE)):   # both themes (spec 07)
+        for scale, base in product((1.5, 2.0), (THEME, SOFT_ROMANTIC_V2, POP_KARAOKE)):
             theme = replace(base, emphasis_scale=scale)
             for line in ("Jis roz se dekha hai usko", LONG_FOR[base.name]):
                 words = indexed(line)
@@ -261,7 +261,7 @@ class EmphasisLayoutTest(unittest.TestCase):
                 self.assertTrue(all(b.h == fonts.ascent + fonts.descent for b in plain))
 
     def test_rows_share_a_baseline_and_nothing_overlaps(self):
-        for scale, base in product((1.5, 2.0), (THEME, POP_KARAOKE)):   # both themes (spec 07)
+        for scale, base in product((1.5, 2.0), (THEME, SOFT_ROMANTIC_V2, POP_KARAOKE)):
             theme = replace(base, emphasis_scale=scale)
             for line in [*KHIDKI, LONG_FOR[base.name]]:
                 words = indexed(line)

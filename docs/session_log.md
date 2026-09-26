@@ -2,6 +2,18 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-27 (13): step 08 merged (PR #7)
+**Did:** owner said "merge pr, kuch changes nhi karna hai" → merge recorded, PR #7 squash-merged into `dev`.
+**Decisions:** none new. Owner confirmed the ElevenLabs key is rotated (dropped from the waiting list).
+**Open:** nothing on step 08. No CHANGELOG in this repo (as before).
+**Next:** `/start_work` step 09 Lofi Minimal → `/spec`.
+
+## 2026-09-27 (12): step 08 Soft Romantic v2 built and shipped for review (PR #7), handoff
+**Did:** `/start_work` step 08 → spec (owner "yes", incl. §7) → plan → build: `render/focus.py` (v1's word frames via shared `timeline.word_plans`; past line moves up, dims 40%, shrinks 85%, blurs 6 px via shared `karaoke.transformed`; glow breath on words ≥ 1 s; safe zone x 60-960). v1 + Pop Karaoke frames byte-identical to `dev`. Gate green (203 tests, alpha proof); `khidki_s2`, `khidki_s2_em`, full `khidki_full` pass with no notes (full song 235.6 s). Owner preferred v2 → CLI default flipped.
+**Decisions:** H-014 (no waiting next line; v2 beside v1), H-015 (v2 is the default), D-019 (hand-over rule; sync reads the word's ink rect).
+**Open:** PR #7 waits for the owner's "merge". Optional: split `render/check.py` (~330) / `render/karaoke.py` (~310), past the ~300-line guideline.
+**Next:** `/merge_pr 7` on the owner's word → `/start_work` step 09 (Lofi Minimal) → `/spec`.
+
 ## 2026-09-27 (11): step 07 merged (PR #6)
 **Did:** owner said "merge" → AC10 (look) taken as approved; merge recorded, PR #6 squash-merged into `dev`.
 **Decisions:** none new.

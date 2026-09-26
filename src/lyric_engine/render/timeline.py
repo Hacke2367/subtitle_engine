@@ -68,24 +68,32 @@ def laid_out_lines(doc: dict, theme: Theme, layout_fn=None,
     return rows, skipped
 
 
+def word_plans(words: list[dict], lay: LineLayout, theme: Theme) -> list[WordPlan]:
+    """Each word's reveal and end frame: its own start/end minus the theme's lead, nothing else
+    (red line 1). Shared by every reveal-style theme."""
+    fps, lead = theme.fps, theme.lead_s
+    plan = []
+    for w, box in zip(words, lay.words):
+        if not _timed(w):
+            plan.append(WordPlan(box, None, None, w["text"]))
+            continue
+        reveal = max(0, _floor_frame(w["start"] - lead, fps))
+        plan.append(WordPlan(box, reveal, max(reveal, _floor_frame(w["end"] - lead, fps)),
+                             w["text"]))
+    return plan
+
+
 def plan_timeline(doc: dict, theme: Theme, n_frames: int, layout_fn=None,
                   emphasis: frozenset[int] = frozenset()) -> tuple[list[LinePlan], list[int]]:
     """Shown lines in time order (layout, visible span, per-word frames), and the lines skipped
     because none of their words has a time. Only a word's own start/end sets its frames.
     `emphasis`: indexes of *marked* words, laid out bigger (H-013)."""
-    fps, lead = theme.fps, theme.lead_s
+    fps = theme.fps
     rows, skipped = laid_out_lines(doc, theme, layout_fn, emphasis)
     plans = []
     for words, lay in rows:
         timed = [w for w in words if _timed(w)]
-        plan = []
-        for w, box in zip(words, lay.words):
-            if not _timed(w):
-                plan.append(WordPlan(box, None, None, w["text"]))
-                continue
-            reveal = max(0, _floor_frame(w["start"] - lead, fps))
-            plan.append(WordPlan(box, reveal, max(reveal, _floor_frame(w["end"] - lead, fps)),
-                                 w["text"]))
+        plan = word_plans(words, lay, theme)
         first = min(wp.reveal for wp in plan if wp.reveal is not None)
         natural = _ceil_frame(max(w["end"] for w in timed) + theme.hold_s, fps)
         plans.append(LinePlan(lay, first, natural, first, plan))
