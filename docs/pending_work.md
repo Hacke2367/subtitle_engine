@@ -3,7 +3,8 @@
 ## WIP
 
 - `feature/soft-romantic-render` (stacked on `feature/word-alignment`, D-011): step 03, status
-  Review, PR into `feature/word-alignment` (retarget to `dev` once PR #2 merges). The first real
+  Review, [PR #3](https://github.com/Hacke2367/subtitle_engine/pull/3) into `feature/word-alignment`
+  (retarget to `dev` once PR #2 merges). The first real
   overlay is at `songs/khidki/render/`: 900 frames, 33.7 s render, all checks pass, one note
   (word 10 "hai" sung back to back).
 - `feature/word-alignment`: step 02, Review,
