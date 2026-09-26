@@ -11,7 +11,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 02 | Word alignment → `words.json`          | `feature/word-alignment`        | Review ([PR #2](https://github.com/Hacke2367/subtitle_engine/pull/2)) |
 | 03 | Soft Romantic renderer                 | `feature/soft-romantic-render`  | Review ([PR #3](https://github.com/Hacke2367/subtitle_engine/pull/3), stacked on #2) |
 | 04 | Line anchors (`.lrc`) for alignment    | `feature/lrc-anchors`           | Deferred (optional, D-014) |
-| 05 | Workflow: `clip` + `make` commands     | `feature/workflow-clip-make`    | Review      |
+| 05 | Workflow: `clip` + `make` commands     | `feature/workflow-clip-make`    | Review ([PR #4](https://github.com/Hacke2367/subtitle_engine/pull/4), stacked on #3) |
 
 ## 01 — Alpha overlay proof in CapCut
 

@@ -4,7 +4,8 @@ Last updated: 2026-09-26 (handoff after steps 01–03)
 
 ## WIP
 
-- `feature/workflow-clip-make` (stacked on step 03, D-014): step 05, Review. `clip` + `make`
+- `feature/workflow-clip-make` (stacked on step 03, D-014): step 05, Review,
+  [PR #4](https://github.com/Hacke2367/subtitle_engine/pull/4). `clip` + `make`
   work: the 27–57 s clip is byte-identical to the hand-made one; stanza 2 (75–89 s) went
   clip → make with 22/22 words, 0 flagged, checks pass, 45 s.
 - `feature/soft-romantic-render`: step 03, Review,

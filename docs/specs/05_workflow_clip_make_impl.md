@@ -25,7 +25,7 @@
 | `line_spans(doc) -> dict[int, tuple[float, float] \| None]` | Per lyric line: (first start, last end) if every word is timed and unflagged, else None |
 | `plan_clip(doc, a, b, duration) -> ClipPlan(start, end, lines, warnings)` | Selects lines entirely inside [a, b]. Snaps per spec §4 with `PRE_PAD_S = 0.3` and `POST_PAD_S = 1.0`, never past half the gap to a neighbouring line. Raises `ClipError` for no line, a flagged line inside or crossing the window, or a bad range. |
 | `clip_song(source, a, b, out) -> ClipPlan` | Loads the source and runs `timing.validate` with lyrics and audio (refuse if stale or invalid). Refuses if `out` exists. `plan_clip`, then ffmpeg cut, then writes `lyrics.txt` (the source lines between the first and last selected line, verbatim, including blank lines) and `clip.json`. |
-| `make(song, *, codec=None, allow_flagged=False) -> int` | No `words.json` → `align.align_song(song)`, and a non-zero result returns early. `words.json` present → validate with lyrics and audio: stale or invalid → print why and return 2, otherwise print "using existing words.json". Then `render` through the CLI's `_render`. |
+| `ensure_aligned(song) -> int` (built as this instead of `make`; the CLI's `_make` = `ensure_aligned` then `_render`, which avoids a workflow↔cli import cycle) | No `words.json` → `align.align_song(song)`. `words.json` present → validate with lyrics and audio: stale or invalid → print why and return 2, otherwise print "using the existing alignment" and return 0. |
 
 ## 4. Hard Boundaries
 - [x] Clip lyrics are the source lines verbatim (red line 2). (The 27–57 s clip is byte-identical to the hand-made one.)
