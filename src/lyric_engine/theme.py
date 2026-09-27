@@ -6,6 +6,7 @@ songs/<song>/render/soft-romantic/preview.mp4 (spec docs/specs/03_soft_romantic_
 Pop Karaoke: start values from spec docs/specs/07_pop_karaoke_theme.md §4.5.
 Soft Romantic v2: v1's look plus spec docs/specs/08_soft_romantic_v2.md §4.4.
 Lofi Minimal / Lofi Typewriter: start values from spec docs/specs/09_lofi_minimal_theme.md §4.5.
+Cinematic: start values from spec docs/specs/10_cinematic_theme.md §4.5.
 """
 from __future__ import annotations
 
@@ -18,7 +19,7 @@ FONTS = Path("C:/Windows/Fonts")
 REPO_FONTS = Path(__file__).resolve().parents[2] / "fonts"   # bundled OFL fonts (D-018)
 EMPHASIS_MIN, EMPHASIS_MAX = 1.5, 2.0   # marked word size / line font size (H-013)
 KEY_HUE, KEY_HUE_TOL, KEY_SAT_MIN = 120, 15, 0.5   # colours the green-screen output would key out
-MOTIONS = ("reveal", "karaoke", "focus", "lofi")
+MOTIONS = ("reveal", "karaoke", "focus", "lofi", "cinematic")
 
 
 def _near_key_green(rgb: tuple[int, int, int]) -> bool:
@@ -70,7 +71,8 @@ class Theme:
     # "karaoke" = the line is shown ahead and colour fills each word as sung (Pop Karaoke);
     # "focus" = reveal, plus the finished line dims and blurs above the next (Soft Romantic v2);
     # "lofi" = one line shown ahead, dim; each word turns to the accent as sung, then settles
-    # (Lofi Minimal), or types in letter by letter (typewriter=True)
+    # (Lofi Minimal), or types in letter by letter (typewriter=True);
+    # "cinematic" = couplets; each word blurs into focus in the accent as sung, then settles
     motion: str = "reveal"
     center_x: int = 540           # rows are centred on this x
     safe_zone: tuple[int, int, int, int] | None = None   # x0, y0, x1, y1 every frame stays in
@@ -100,6 +102,11 @@ class Theme:
     typewriter: bool = False      # letters type in inside the word's own span; nothing shown ahead
     type_stagger_s: float = 0.06  # at most this between letters (less if the word is short)
     letter_fade_s: float = 0.1
+    # Cinematic only (spec 10): blur-in / blur-out, couplets. Reuses reveal_s (blur-in),
+    # accent_rgb (current), sung_in_s (to text_rgb), hold_s and fade_out_s (blur-out).
+    blur_px: float = 10.0         # blur-in start radius and blur-out end radius
+    couplet_gap: float = 0.5      # extra space between a couplet's two lines, × row pitch
+    couplet_max_gap_s: float = 4.0   # a pair sung further apart shows as two singles
     # Outputs
     alpha_codec: str = "prores"   # owner-confirmed in CapCut (H-010)
     key_green_hex: str = "0x00FF00"
@@ -116,14 +123,16 @@ class Theme:
             raise ValueError(f"theme {self.name}: motion {self.motion!r} is not one of {MOTIONS}")
         if self.motion == "karaoke" and (self.accent_rgb is None or self.stroke_rgb is None):
             raise ValueError(f"theme {self.name}: a karaoke theme needs accent_rgb and stroke_rgb")
-        if self.motion == "lofi" and self.accent_rgb is None:
-            raise ValueError(f"theme {self.name}: a lofi theme needs accent_rgb (current colour)")
+        if self.motion in ("lofi", "cinematic") and self.accent_rgb is None:
+            raise ValueError(f"theme {self.name}: a {self.motion} theme needs accent_rgb "
+                             "(current colour)")
         if (self.motion == "lofi" and not self.typewriter
                 and round(self.preroll_s * self.fps) <= math.ceil(self.enter_s * self.fps)):
             raise ValueError(f"theme {self.name}: preroll_s must be longer than enter_s, so a line "
                              "is at rest before its first word turns current")
-        if self.tracking < 0:
-            raise ValueError(f"theme {self.name}: tracking {self.tracking} is negative")
+        for name in ("tracking", "blur_px", "couplet_gap", "couplet_max_gap_s"):
+            if getattr(self, name) < 0:
+                raise ValueError(f"theme {self.name}: {name} {getattr(self, name)} is negative")
         for f in fields(self):   # styling rules: the green-screen output would key these out
             value = getattr(self, f.name)
             if f.name.endswith("_rgb") and value is not None and _near_key_green(value):
@@ -158,6 +167,16 @@ LOFI_MINIMAL = Theme(
 
 LOFI_TYPEWRITER = replace(LOFI_MINIMAL, name="lofi-typewriter", typewriter=True)
 
+# 800 px centred on 510 leaves ~50 px for shadow, blur and italic lean inside x 60-960
+# (plan 10 §2.13); ivory #EDE6D6, antique gold #C9A66B (research §7 palette 7)
+CINEMATIC = Theme(
+    "cinematic", motion="cinematic",
+    font=REPO_FONTS / "CormorantGaramond-MediumItalic.ttf", font_size=96, min_font_size=64,
+    max_width=800, center_x=510, safe_zone=(60, 380, 960, 1540),
+    text_rgb=(237, 230, 214), accent_rgb=(201, 166, 107),
+    shadow_rgb=(0, 0, 0), shadow_alpha=0.7, shadow_radius=8, shadow_offset=(0, 3),
+    reveal_s=0.5, sung_in_s=0.8, hold_s=2.0, fade_out_s=0.8, blur_px=10.0)
+
 THEMES = {t.name: t for t in (SOFT_ROMANTIC, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL,
-                              LOFI_TYPEWRITER)}
+                              LOFI_TYPEWRITER, CINEMATIC)}
 DEFAULT_THEME = SOFT_ROMANTIC_V2.name   # the owner preferred v2 over v1 (spec 08 AC10)

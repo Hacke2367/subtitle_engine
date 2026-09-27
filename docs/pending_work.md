@@ -1,25 +1,28 @@
 # Pending Work
 
-Last updated: 2026-09-27 (step 09 merged, PR #8)
+Last updated: 2026-09-27 (step 10 started)
 
 ## WIP
 
-None. Step 09 (Lofi Minimal + Lofi Typewriter) merged into `dev` ([PR #8](https://github.com/Hacke2367/subtitle_engine/pull/8)).
+Step 10 (Cinematic theme) on `feature/cinematic-theme` (from `dev` @ e884a60). Status: Review.
+Built per plan 10 §11 steps 1-8: `cinematic` renders `khidki_s2`, `khidki_s2_em`,
+`khidki_s2_lofi` with every check passing (~26 s vs Soft Romantic 20.9 s); the other five themes
+are byte-identical to `dev` (AC2). Waiting on: `/ship`, then the owner's look review (AC10).
 
 ## Current focus
 
 V1.1 styling. Five themes: Soft Romantic v2 (default, H-015), Soft Romantic v1, Pop Karaoke,
 Lofi Minimal and Lofi Typewriter (H-016) (`--theme`, outputs in `render/<theme>/`, D-018).
-Next: step 10, Cinematic (H-012, D-017).
+Now: step 10, Cinematic (H-012, D-017).
 
 ## Next up
 
-1. **Resume point:** `/start_work` step 10 (Cinematic, `feature/cinematic-theme`), then `/spec`.
-   Needs step 08's blur cache (merged). Nothing pending from the owner (H-012, D-017 cover it).
-2. Optional cleanup: `render/check.py` (≈354 lines), `render/karaoke.py` (≈310) and
-   `render/lofi.py` (≈307) are past the ~300-line split guideline; split only if the owner
+1. **Resume point:** owner reviews `songs/khidki_s2_em/render/cinematic/preview.mp4` (spec 10
+   AC10); look changes go in as `theme.py` values. Then `/ship` updates PR, owner merges.
+2. Optional cleanup: `render/check.py` (≈359 lines) and `render/karaoke.py` (≈310) are past
+   the ~300-line split guideline (`lofi.py` is 268 since step 10); split only if the owner
    wants it (e.g. a `chore/` branch).
-3. Steps 10–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
+3. Steps 11–13 follow in plan order (H-012, D-017), one branch each; step 14 (Devanagari
    shaping) only when a song needs it.
 4. Owner: try a different song end to end (spec 05 AC4), now with any theme.
 5. Step 04 (`.lrc` anchors) only if a real song drifts.
