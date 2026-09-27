@@ -2,7 +2,8 @@
 **Version:** 1.0.1 | **Component:** themes (`theme.py`), layout (couplet block), renderer (`render/`), render checks
 **Status:** Approved by owner 2026-09-27 ("yes"), including the §7 choices. v1.0.1: §4.6 and two
 §5 rows say how short words, neighbour blur and italic lean are met (plan §2.11-2.12); no change in
-scope.
+scope. AC10: the owner approved the look ("maine preview dekha mujhe acha laga") and asked to
+merge PR #9 (2026-09-27).
 **Plan step:** 10 (`docs/development_plan.md`) · **Branch:** `feature/cinematic-theme` · **Decisions:** H-017, H-012, H-013, H-010, H-009, D-017, D-018, D-020
 
 ## 1. Problem Statement
