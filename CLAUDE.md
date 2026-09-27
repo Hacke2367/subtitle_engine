@@ -33,14 +33,15 @@ python -m lyric_engine.cli bakeoff songs/<song> [--fresh]   # compare aligner va
 ```
 
 - `--theme`: `soft-romantic-v2` (default, spec 08), `soft-romantic` (v1), `pop-karaoke`,
-  `lofi-minimal`, `lofi-typewriter` (spec 09).
+  `lofi-minimal`, `lofi-typewriter` (spec 09), `cinematic` (spec 10).
 - All tests: `venv/Scripts/python -m unittest discover -s tests -t .`
 - One module / class / test: `venv/Scripts/python -m unittest tests.test_timing`,
   `... tests.test_timing.EmphasisTest`, or `... tests.test_render -k Emphasis`.
 - Gate (`/gate`, from `.claude/devsystem.json`): the unit tests, then
   `venv/Scripts/python scripts/alpha_proof.py`. No linter is configured.
 - Tests are offline and need no song files, but layout/render tests use the real fonts in
-  `C:/Windows/Fonts` and `fonts/` (bundled Poppins, OFL) and a short real ffmpeg encode.
+  `C:/Windows/Fonts` and `fonts/` (bundled Poppins and Cormorant Garamond, OFL) and a short
+  real ffmpeg encode.
 
 A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`,
 `render/<theme>/` (outputs + `report.md`, one folder per theme: D-018), `bakeoff/<variant>/`
@@ -60,7 +61,9 @@ A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`
   (fonts with cmap fallback, tracking, balanced wrap), `render/` (`timeline` → `frames`, or
   `karaoke` for Pop Karaoke, or `focus` for Soft Romantic v2: v1's word frames plus a past-line
   stack, or `lofi` for both lofi themes: one line, colour states or typewriter, checked by
-  `lofi_check` → one-pass `encode` → `check`): `words.json` → `render/<theme>/overlay.mov`
+  `lofi_check`, or `cinematic`: couplets per stanza, per-word blur-in, checked by
+  `cinematic_check`; lofi and cinematic share `lifecycle` (one block on screen at a time)
+  → one-pass `encode` → `check`): `words.json` → `render/<theme>/overlay.mov`
   (alpha) + `overlay_green.mp4` + `preview.mp4` (with audio, review).
   Never calls the alignment API, so hand-edit + re-render stays free.
 - `workflow.py`: `clip` (cut an aligned song at whole-line boundaries into a new song folder,

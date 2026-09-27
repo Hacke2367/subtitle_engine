@@ -58,7 +58,7 @@ def visible(lines, n):
 class ThemeTest(unittest.TestCase):
     def test_every_theme_is_offered(self):
         self.assertEqual(list(THEMES), ["soft-romantic", "soft-romantic-v2", "pop-karaoke",
-                                       "lofi-minimal", "lofi-typewriter"])
+                                       "lofi-minimal", "lofi-typewriter", "cinematic"])
         self.assertTrue(Path(THEME.font).is_file(), "Poppins must be bundled in fonts/")
 
     def test_key_green_colours_are_refused(self):  # AC8

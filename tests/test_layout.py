@@ -17,7 +17,8 @@ from lyric_engine.layout import (
     FontSet, LayoutError, LineLayout, WordBox, font_set, layout_line, word_mask,
 )
 from lyric_engine.theme import (
-    FONTS, LOFI_MINIMAL, LOFI_TYPEWRITER, POP_KARAOKE, SOFT_ROMANTIC as THEME, SOFT_ROMANTIC_V2,
+    CINEMATIC, FONTS, LOFI_MINIMAL, LOFI_TYPEWRITER, POP_KARAOKE, SOFT_ROMANTIC as THEME,
+    SOFT_ROMANTIC_V2,
 )
 
 # songs/khidki/lyrics.txt is gitignored; its 8 lines, verbatim
@@ -36,8 +37,8 @@ LONG_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai afsos ye
 # word (they shrink to their smallest size)
 MEDIUM_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai"
 LONG_FOR = {"soft-romantic": LONG_LINE, "soft-romantic-v2": LONG_LINE, "pop-karaoke": MEDIUM_LINE,
-            "lofi-minimal": MEDIUM_LINE, "lofi-typewriter": MEDIUM_LINE}
-ALL_THEMES = (THEME, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL, LOFI_TYPEWRITER)
+            "lofi-minimal": MEDIUM_LINE, "lofi-typewriter": MEDIUM_LINE, "cinematic": MEDIUM_LINE}
+ALL_THEMES = (THEME, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL, LOFI_TYPEWRITER, CINEMATIC)
 FALLBACK_LINE = "dil😊 kuchh🥰 ❤\ufe0f कुछ दिल Öl saaf"
 NO_FONT = "\ufdd0"  # a noncharacter: never assigned, in none of the theme's five fonts
 MISSING = Path("C:/no/such/font.ttf")
@@ -208,6 +209,15 @@ class LayoutLineTest(unittest.TestCase):
         self.assert_well_placed(layout, words)
         with self.assertRaisesRegex(LayoutError, "rows"):  # full size alone does not fit
             layout_line(words, 0, replace(THEME, min_font_size=THEME.font_size))
+
+    def test_size_lays_out_at_exactly_that_size(self):
+        """A Cinematic couplet shares one size (plan 10 §2.4); no size = today's ladder."""
+        words = indexed(KHIDKI[0])
+        free = layout_line(words, 0, THEME)
+        self.assertEqual(layout_line(words, 0, THEME, size=free.font_size), free)
+        self.assertEqual(layout_line(words, 0, THEME, size=60).font_size, 60)
+        with self.assertRaisesRegex(LayoutError, r"does not fit even at 84 px: .*rows"):
+            layout_line(indexed(LONG_LINE), 0, THEME, size=84)
 
     def test_rows_and_block_are_centred(self):
         for line in [*KHIDKI[:2], KHIDKI[4], LONG_LINE, FALLBACK_LINE]:

@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-27 (16): step 10 Cinematic built and merged (PR #9)
+**Did:** `/start_work` step 10 → spec (owner: couplets, words blur in as sung = H-017; "yes") → plan → build: `render/cinematic.py` (stanza couplets, per-word blur-in, gold→ivory), `render/cinematic_check.py` (reveal sync), life cycle moved to `render/lifecycle.py` (lofi byte-identical), `layout_line(size=)`, Cormorant Garamond Medium Italic bundled (static instance). Gate green (258 tests, alpha proof); other five themes byte-identical to `dev`; all checks pass with no notes on the three khidki songs (~26 s vs v1 20.9 s). Owner approved the preview → [PR #9](https://github.com/Hacke2367/subtitle_engine/pull/9) squash-merged.
+**Decisions:** H-017, D-021.
+**Open:** nothing on step 10. No CHANGELOG in this repo (as before).
+**Next:** `/start_work` step 11 beat detection → `/spec` (library and where beats live are the owner's calls).
+
 ## 2026-09-27 (15): step 09 merged (PR #8)
 **Did:** owner said "mrge karo" → AC11 (look) taken as approved; merge recorded, [PR #8](https://github.com/Hacke2367/subtitle_engine/pull/8) squash-merged into `dev`.
 **Decisions:** none new.

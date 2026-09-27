@@ -195,11 +195,13 @@ Item = tuple[int, str, float]  # (words.json "i", text, advance)
 
 
 def layout_line(words: list[tuple[int, str]], line: int, theme: Theme,
-                emphasis: frozenset[int] = frozenset()) -> LineLayout:
+                emphasis: frozenset[int] = frozenset(), size: int | None = None) -> LineLayout:
     """Wrap one lyric line into balanced, centred rows at the largest size, from font_size down
     to min_font_size in font_step steps, that gives ≤ max_rows rows of ≤ max_width px. Words whose
-    index is in `emphasis` take word_fonts(..., True) space."""
-    sizes = [*range(theme.font_size, theme.min_font_size, -theme.font_step), theme.min_font_size]
+    index is in `emphasis` take word_fonts(..., True) space. `size`: that size only (a Cinematic
+    couplet shares one size)."""
+    sizes = ([size] if size is not None else
+             [*range(theme.font_size, theme.min_font_size, -theme.font_step), theme.min_font_size])
     for size in sizes:
         fonts = font_set(theme, size)
         try:
@@ -212,12 +214,12 @@ def layout_line(words: list[tuple[int, str]], line: int, theme: Theme,
             rows = _balance(rows, fonts.space, theme.max_width)
             return LineLayout(line, size, _place(rows, theme, line, size, emphasis))
 
-    size = theme.min_font_size
+    size = sizes[-1]
     wide = [text for i, text in words
             if math.ceil(word_fonts(theme, size, i in emphasis).advance(text)) > theme.max_width]
     why = (f"the word {wide[0]!r} is wider than {theme.max_width} px" if wide
            else f"it needs more than {theme.max_rows} rows of {theme.max_width} px")
-    raise LayoutError(f"line {line + 1} does not fit even at {theme.min_font_size} px: {why}")
+    raise LayoutError(f"line {line + 1} does not fit even at {size} px: {why}")
 
 
 def _offsets(row: list[Item], space: float) -> list[int]:

@@ -230,3 +230,20 @@ sung; (b) words appear only when sung, as Soft Romantic. Typewriter: (a) a separ
 shows ahead in a dim upcoming state (this theme only; H-010 and H-014 still hold for Soft
 Romantic). The typewriter ships as a second theme, `lofi-typewriter`, picked with `--theme`.
 **Decided:** 2026-09-27
+
+### H-017 — Cinematic: couplets (sher), words appear as sung
+**Status:** decided
+**Raised:** 2026-09-27
+**Needed-before:** spec 10 (Cinematic)
+**Context:** Plan step 10 names a blur-in reveal but not what the screen holds. Research §9 says
+ghazal edits use "generous line spacing, poem-like centring", and the test song's four lines are
+two couplets. Lofi Minimal (H-016) shows its line ahead; Soft Romantic does not (H-010, H-014).
+**Options:** Layout: (a) couplets: a stanza's lines in pairs, the first stays while the second
+reveals below it, then both leave together; (b) one line at a time, as Lofi. Reveal: (a) a word is
+hidden until sung, then blurs into focus; (b) rack focus: the line shows ahead dim and blurred,
+each word pulls into focus as sung.
+**Recommendation:** (a) and (a).
+**Decision:** "Sher (couplet)" and "Jab gaaye jaayein". Lines of a stanza (blank lines in
+`lyrics.txt` split stanzas) show in pairs, 1+2, 3+4; a leftover line shows alone. No word shows
+before it is sung; each blurs in on its own time.
+**Decided:** 2026-09-27

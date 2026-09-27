@@ -280,3 +280,19 @@ letter of the primary font is one; any other run (fallback font, non-Latin) stay
 `khidki_s2_em` and `khidki_s2_lofi` pass with no notes. Whole non-Latin units keep emoji sequences
 and Devanagari from being pulled apart by tracking.
 **Supersedes:** —
+
+### D-021 — Cinematic: first ink on the reveal frame, couplet placement, shared life cycle (step 10)
+**Date:** 2026-09-27
+**Context:** Spec 10 (§4.2-4.4, AC4) asks for ink on the frame of `start − lead`, couplets that
+never move once shown, and Lofi Typewriter's block rules; plan 10 made them exact.
+**Decision:** A word's blur-in runs `p = (n − reveal + 1) / fi`, `fi = max(1, min(0.5 s, end −
+reveal))`, so it has ink on its reveal frame and is complete by its end frame (the other themes
+still start at opacity 0 on theirs). Both lines of a couplet are laid out at the smaller of their
+fitted sizes when the block starts; the block is centred on `anchor_y` and moved up only as far as
+`sprite_pad` (27 px) inside y 1540 needs; taller than the safe zone → two singles and a note.
+Every sprite and the block canvas are padded `sprite_pad + 3·blur_px`, so no blur is clipped. The
+one-at-a-time life cycle lives in `render/lifecycle.py`, called by Lofi and Cinematic. The font is
+a static wght-500 instance of Google Fonts' Cormorant Garamond Italic variable file (fontTools).
+**Why:** The check can read every word's first frame and complete frame; a couplet's first line
+stays still; one copy of the life-cycle arithmetic (Lofi frames byte-identical after the move).
+**Supersedes:** —

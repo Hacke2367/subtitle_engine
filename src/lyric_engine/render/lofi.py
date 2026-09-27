@@ -18,6 +18,7 @@ from ..layout import LineLayout, word_fonts
 from ..theme import Theme
 from .frames import _LUTS, LEVELS, _scaled, _solid, band_parts, checked_mask
 from .karaoke import ease_in_quad, ease_out_cubic, smoothstep, sprite_pad
+from .lifecycle import schedule
 from .timeline import WordPlan, _ceil_frame, _floor_frame, laid_out_lines, word_plans
 
 REST = (1.0, 0.0)   # line_state of a line at rest: (opacity, dy)
@@ -37,6 +38,13 @@ class LofiLine:
     leave: int = 0            # the exit fade starts here ...
     stop: int = 0             # ... and ends here (exclusive)
     notes: list[str] = field(default_factory=list)   # for the report: cuts, words typed whole
+
+    @property
+    def name(self) -> str:
+        return f"line {self.layout.line + 1}"
+
+    def label(self, wp: WordPlan) -> str:
+        return label(wp, self.layout)
 
 
 LSprites = dict[int, tuple[Image.Image, Image.Image, int, tuple[int, ...]]]
@@ -72,11 +80,8 @@ def plan_lofi(doc: dict, theme: Theme, n_frames: int, emphasis: frozenset[int] =
               layout_fn=None) -> tuple[list[LofiLine], list[int]]:
     """Shown lines in time order with their life cycle (spec §4.2, plan §5.1), and the lines
     skipped because none of their words has a time. At most one line is visible per frame."""
-    fps, tw = theme.fps, theme.typewriter
-    Ein = 0 if tw else _ceil_frame(theme.enter_s, fps)
-    P = 0 if tw else round(theme.preroll_s * fps)
-    H, X = _ceil_frame(theme.hold_s, fps), round(theme.fade_out_s * fps)
-    LF = _ceil_frame(theme.letter_fade_s, fps)
+    tw = theme.typewriter
+    LF = _ceil_frame(theme.letter_fade_s, theme.fps)
     rows, skipped = laid_out_lines(doc, theme, layout_fn, emphasis)
     lines = []
     for words, lay in rows:
@@ -97,51 +102,7 @@ def plan_lofi(doc: dict, theme: Theme, n_frames: int, emphasis: frozenset[int] =
                                 "characters)")
         lines.append(ll)
     lines.sort(key=lambda ll: (ll.first_cur, ll.layout.line))
-
-    for k, ll in enumerate(lines):
-        if k == 0:   # the first line: preroll ahead, or at rest from frame 0 when sung at once
-            if tw:
-                ll.enter = ll.rest = ll.first_cur
-            elif ll.first_cur - 1 - Ein < 0:
-                ll.enter = ll.rest = 0
-            else:
-                ll.enter = max(0, ll.first_cur - P)
-                ll.rest = ll.enter + Ein
-        E = ll.settled
-        if k + 1 == len(lines):
-            ll.stop = E + H + X
-            ll.leave = ll.stop - X
-            continue
-        # Frames between this line's last word and the next line's first current frame F; the
-        # frame F − 1 is kept clean for the next line (at rest, or alone): D-020.
-        nxt = lines[k + 1]
-        F = nxt.first_cur
-        A = F - 1 - E
-        if A >= X + Ein:   # hold, or leave early: as late as the next line's entrance allows
-            ll.stop = min(E + H + X, F - 1 - Ein)
-            ll.leave = ll.stop - X
-            nxt.enter = F if tw else max(F - P, ll.stop)
-            nxt.rest = F if tw else nxt.enter + Ein
-        elif A >= 2:       # too close for both: exit and entrance shrink in proportion
-            x = A if tw else min(A - 1, max(1, round(A * X / (X + Ein))))
-            ll.leave, ll.stop = E, E + x
-            nxt.enter = F if tw else ll.stop
-            nxt.rest = F if tw else F - 1
-        else:              # a cut: the old line goes and the next one is at rest on one frame
-            ll.leave = ll.stop = F
-            nxt.enter = nxt.rest = F
-            gap = F - ll.last_end
-            ll.notes.append(f"line {ll.layout.line + 1}: cut, not faded (the next line starts "
-                            + (f"{gap} frame(s) after" if gap > 0 else "before")
-                            + " its last word ends)")
-            ll.notes += [f"{label(wp, ll.layout)}: its last {wp.end - F + 1} frame(s) are not "
-                         "shown (sung back to back)"
-                         for wp in ll.words if wp.end is not None and wp.end >= F]
-    for ll in lines:
-        ll.stop = min(ll.stop, n_frames)
-        ll.rest = min(ll.rest, ll.stop)
-        ll.enter = min(ll.enter, ll.rest)
-        ll.leave = min(ll.leave, ll.stop)
+    schedule(lines, theme, n_frames, ahead=not tw)
     return lines, skipped
 
 

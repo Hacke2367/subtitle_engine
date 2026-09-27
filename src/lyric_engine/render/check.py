@@ -138,8 +138,8 @@ def _stream(cmd: list[str], frame_size: int, visit) -> tuple[int, str | None]:
 
 def check_outputs(result: RenderResult, lines: list, theme: Theme, n_frames: int) -> list[str]:
     """ffprobe checks of the three outputs, then the theme's frame checks on the decoded overlay:
-    the alpha sync check, plus the safe zone if set (reveal, focus), or the karaoke or lofi
-    checks."""
+    the alpha sync check, plus the safe zone if set (reveal, focus), or the karaoke, lofi or
+    cinematic checks."""
     out, size = result.outputs, (theme.width, theme.height)
     overlay = _probe(out["overlay"])
     fails = _video_failures("overlay.mov", overlay, size, theme.fps)
@@ -153,6 +153,9 @@ def check_outputs(result: RenderResult, lines: list, theme: Theme, n_frames: int
     if theme.motion == "lofi":   # here, not at the top: lofi_check imports this module
         from .lofi_check import lofi_checks
         return fails + lofi_checks(result, lines, theme, n_frames)
+    if theme.motion == "cinematic":   # the same: cinematic_check imports this module
+        from .cinematic_check import cinematic_checks
+        return fails + cinematic_checks(result, lines, theme, n_frames)
     check = _karaoke_checks if theme.motion == "karaoke" else _alpha_sync
     return fails + check(result, lines, theme, n_frames)
 
@@ -342,6 +345,8 @@ def write_report(result: RenderResult, doc: dict, *, codec: str, theme: Theme,
                     theme.motion == "lofi" and theme.typewriter else
                     f"colour-state check of {timed} timed word(s) on the overlay's colour and "
                     "alpha" if theme.motion == "lofi" else
+                    f"reveal check of {timed} timed word(s) on the overlay's colour and alpha" if
+                    theme.motion == "cinematic" else
                     f"sync check of {timed} timed word(s) on the overlay's alpha")
     frame_checks += "; safe-zone check of every frame." if theme.safe_zone else "."
     out += ["", "## Output check", "", f"ffprobe checks of all three outputs; {frame_checks}", ""]
