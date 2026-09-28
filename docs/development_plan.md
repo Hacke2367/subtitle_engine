@@ -19,7 +19,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 10 | Cinematic theme                        | `feature/cinematic-theme`       | Done ([PR #9](https://github.com/Hacke2367/subtitle_engine/pull/9)) |
 | 11 | Beat detection                         | `feature/beat-detection`        | Done ([PR #10](https://github.com/Hacke2367/subtitle_engine/pull/10)) |
 | 12 | Beat Pop theme                         | `feature/beat-pop-theme`        | Done ([PR #11](https://github.com/Hacke2367/subtitle_engine/pull/11)) |
-| 13 | Phonk Neon theme                       | `feature/phonk-neon-theme`      | In review (built; owner look pending) |
+| 13 | Phonk Neon theme                       | `feature/phonk-neon-theme`      | In review ([PR #12](https://github.com/Hacke2367/subtitle_engine/pull/12); owner look pending) |
 | 14 | Devanagari shaping                     | `feature/devanagari-shaping`    | Deferred (only when a song needs it) |
 
 Steps 08–14: the owner builds every researched style (H-012), in this order by default (D-017).

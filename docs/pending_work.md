@@ -6,7 +6,7 @@ Last updated: 2026-09-28 (step 13 built, owner look pending)
 
 Step 13 (Phonk Neon) built on `feature/phonk-neon-theme`: spec, plan and code in one run (H-020
 flow). Gate green; all checks pass on `khidki_s2`, `khidki_s2_em`, `khidki_full`. Waiting on the
-owner's look (AC10) before merge.
+owner's look (AC10) before merge ([PR #12](https://github.com/Hacke2367/subtitle_engine/pull/12)).
 
 ## Current focus
 
