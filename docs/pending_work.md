@@ -5,7 +5,7 @@ Last updated: 2026-09-29 (step 15 built, owner look pending)
 ## WIP
 
 Step 15 (Title card) built on `feature/title-card` in one run (H-020 flow, H-021 look). Waiting on
-the owner's look (AC8) before merge.
+the owner's look (AC8) before merge ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)). Look sheet: `songs/title_card_looks.png`.
 
 ## Current focus
 
