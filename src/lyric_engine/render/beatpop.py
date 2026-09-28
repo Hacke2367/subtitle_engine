@@ -83,10 +83,12 @@ def _frames(times, theme: Theme, n_frames: int) -> list[int]:
 
 
 def plan_beatpop(doc: dict, theme: Theme, n_frames: int, emphasis: frozenset[int] = frozenset(),
-                 beats=(), drops=(), layout_fn=None) -> tuple[Show, list[int]]:
+                 beats=(), drops=(), layout_fn=None, ahead: bool = False
+                 ) -> tuple[Show, list[int]]:
     """Shown lines in time order with their life cycle, the beat and drop frames (spec §4.2), and
     the lines skipped because none of their words has a time. `beats`, `drops`: seconds (drops
-    already snapped to beats). At most one line is visible per frame."""
+    already snapped to beats). At most one line is visible per frame. ahead: each line shows
+    before its first word (Phonk Neon, spec 13 §4.2), as lifecycle.schedule."""
     rows, skipped = laid_out_lines(doc, theme, layout_fn, emphasis)
     lines = []
     for words, lay in rows:
@@ -95,7 +97,7 @@ def plan_beatpop(doc: dict, theme: Theme, n_frames: int, emphasis: frozenset[int
         last = max(wp.end for wp in timed)
         lines.append(PopLine(lay, wps, min(wp.reveal for wp in timed), last, last))
     lines.sort(key=lambda pl: (pl.first_cur, pl.layout.line))
-    schedule(lines, theme, n_frames, ahead=False)
+    schedule(lines, theme, n_frames, ahead)
     show = Show(lines, _frames(beats, theme, n_frames), _frames(drops, theme, n_frames))
     for f in show.drops:
         if not any(pl.enter <= f < pl.stop for pl in lines):

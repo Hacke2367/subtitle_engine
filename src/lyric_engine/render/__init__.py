@@ -14,7 +14,7 @@ from pathlib import Path
 
 from .. import align, layout, timing
 from ..theme import SOFT_ROMANTIC, Theme
-from . import beatpop, cinematic, encode, focus, karaoke, lofi
+from . import beatpop, cinematic, encode, focus, karaoke, lofi, phonk
 from .check import REPORT, check_outputs, write_report
 from .encode import ALPHA_CODECS, OUTPUTS, RenderError, _encode, _ffmpeg_cmd, _remove
 from .frames import FadeCache, _frame_parts, build_sprites, compose_frame
@@ -76,8 +76,9 @@ def load_for_render(song_dir: Path, *,
 
 def load_beats_for_render(song_dir: Path, duration: float
                           ) -> tuple[list[float], list[float], list[str]]:
-    """Beat Pop's beat times (beats.json, computed once if missing: D-022), its drop times from
-    drops.txt snapped to the nearest beat (H-019), and report notes; or a RenderError."""
+    """Beat Pop's and Phonk Neon's beat times (beats.json, computed once if missing: D-022), the
+    drop times from drops.txt snapped to the nearest beat (H-019), and report notes; or a
+    RenderError."""
     from .. import beats   # here: numpy, and librosa only if beats.json must be computed
     try:
         found = beats.ensure_beats(song_dir)
@@ -92,7 +93,7 @@ def load_beats_for_render(song_dir: Path, duration: float
     notes = [f"beats: {doc['tempo_bpm']:g} BPM, {len(times)} beats "
              f"(beats.json {'reused' if found.reused else 'computed'})", *found.notes]
     if not times:
-        notes.append("no beats: no bump" + ("; drops used as written" if drops else ""))
+        notes.append("no beats: no bump or pulse" + ("; drops used as written" if drops else ""))
     notes += [f"drop {text} → {t:.2f} s" for (text, _), t in zip(drops, snapped)]
     return times, snapped, notes
 
@@ -124,13 +125,14 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
     elif theme.motion == "lofi":
         lines, skipped = lofi.plan_lofi(doc, theme, n, emphasis=emphasis)
         sprites, cache, parts = lofi.build_sprites(lines, theme), lofi.LofiCache(), lofi.frame_parts
-    elif theme.motion == "beatpop":
+    elif theme.motion in ("beatpop", "phonk"):
         beat_times, drop_times, notes = load_beats_for_render(song_dir, duration)
         lines, skipped = beatpop.plan_beatpop(doc, theme, n, emphasis=emphasis, beats=beat_times,
-                                              drops=drop_times)
+                                              drops=drop_times, ahead=theme.motion == "phonk")
         lines.notes[:0] = notes
-        sprites, cache, parts = (beatpop.build_sprites(lines, theme), beatpop.PopCache(),
-                                 beatpop.frame_parts)
+        mod, cache = ((phonk, phonk.NeonCache()) if theme.motion == "phonk"
+                      else (beatpop, beatpop.PopCache()))
+        sprites, parts = mod.build_sprites(lines, theme), mod.frame_parts
     elif theme.motion == "cinematic":
         lines, skipped = cinematic.plan_cinematic(doc, theme, n, emphasis=emphasis)
         sprites, cache, parts = (cinematic.build_sprites(lines, theme), cinematic.CinematicCache(),

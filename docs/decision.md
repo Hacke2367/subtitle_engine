@@ -346,3 +346,21 @@ plan gives (pops and pills included), ±4 px, where the planned rise is ≥ 6 px
 pill never touches a neighbour (17 px clear). A check that skipped every beat near a pop read 6
 of 32 beats on `khidki_s2`; the planned width reads 30 of 32.
 **Supersedes:** —
+
+### D-025 — Phonk Neon: no beat bump, dark rim over the glow, flicker, pulse and split math (step 13)
+**Date:** 2026-09-28
+**Context:** Spec 13 §4.4 and §7 left the exact look and the check reads to Claude; H-020 set the
+font, colour, drop effect and neon-sign lighting.
+**Decision:** Beats pulse the glow only (`bump_scale` 1.0): strength `0.55 + 0.45·(1 − d/9)²`,
+quantised to 1/32, one value per frame for every lit word. Flicker `(1, 0.2, 1, 0.5, 1)` from the
+reveal frame, cut to the word's span. Drop: Beat Pop's shake with a 1.06× peak, plus red/cyan
+copies of the cores at ∓`12·(1 − d/8)²` px. Layers: glow (wide 18 px + tight 6 px blur,
+screened, ×1.5), then a dark rim (the 4% stroke outline, 2 px blur, 85% black), then the split
+copies, then the cores (lit `#E1A5FF`, unlit `#582476`). The line comes in 0.5 s ahead with a
+0.2 s fade (Beat Pop's plan with `ahead=True`). Checks: light sync on the blue channel (lit vs
+unlit); pulse sync on the mean alpha around steadily lit words, away from any word that changes.
+**Why:** A soft black halo under the glow left lit words the least legible state on bright
+footage (light core on a light sky); the rim over the glow fixes that and keeps the bloom on dark
+footage. A bump would make Phonk a recoloured Beat Pop. The pulse read covers 26 of 32 beats on
+`khidki_s2`.
+**Supersedes:** —

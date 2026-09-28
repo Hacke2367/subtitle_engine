@@ -128,6 +128,9 @@ def _beats(song: Path, fresh: bool, bpm: float | None) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    # Notes carry "→" (drops); a piped Windows stdout is cp1252 and would crash after a render
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(errors="replace")
     parser = argparse.ArgumentParser(prog="lyric_engine")
     sub = parser.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("bakeoff", help="run every aligner variant and compare them")

@@ -281,3 +281,23 @@ word in white.
 **Decision:** "Line bump har beat", "Main times likhunga", "Gaate hi pop", "Mustard pill, kaala
 word".
 **Decided:** 2026-09-28
+
+### H-020 — Phonk Neon: Pirata One, purple, RGB split on drops, neon-sign word lighting; faster flow
+**Status:** decided
+**Raised:** 2026-09-28
+**Needed-before:** spec 13 (Phonk Neon)
+**Context:** Plan step 13 leaves the display face (blackletter or wide bold), the glow colour and
+the drop effect to the owner; words must still appear only at their own aligned time (red line 1)
+and keep the casing of `lyrics.txt` (red line 2). A look sheet (`songs/phonk_neon_looks.png`)
+showed three OFL faces, four colours and two drop effects. The owner also wanted a faster flow.
+**Options:** Font: (a) Pirata One (readable blackletter), (b) UnifrakturCook (heavy blackletter,
+"k" reads as "f"), (c) Russo One (wide bold). Colour: (a) purple `#BE46FF`, (b) hot pink, (c)
+cyan, (d) red. Drop: (a) RGB split + shake, (b) white flash + shake, (c) both + shake. Words:
+(a) the line shows as a dim unlit tube and each word flickers on and stays lit as sung, (b) each
+word flickers on as sung, nothing ahead, (c) the whole line lit, the sung word brighter.
+Flow: after these answers Claude writes spec, plan and code in one run with no approval stop
+between them; the owner approves the finished look.
+**Recommendation:** (a), (a), (a), (a); the one-run flow.
+**Decision:** "A Pirata One", "Purple", "RGB split + shake", "Neon sign: dim → jalta hai"; the
+one-run flow was stated and not objected to.
+**Decided:** 2026-09-28

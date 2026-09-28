@@ -34,15 +34,16 @@ python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json
 ```
 
 - `--theme`: `soft-romantic-v2` (default, spec 08), `soft-romantic` (v1), `pop-karaoke`,
-  `lofi-minimal`, `lofi-typewriter` (spec 09), `cinematic` (spec 10), `beat-pop` (spec 12).
+  `lofi-minimal`, `lofi-typewriter` (spec 09), `cinematic` (spec 10), `beat-pop` (spec 12),
+  `phonk-neon` (spec 13).
 - All tests: `venv/Scripts/python -m unittest discover -s tests -t .`
 - One module / class / test: `venv/Scripts/python -m unittest tests.test_timing`,
   `... tests.test_timing.EmphasisTest`, or `... tests.test_render -k Emphasis`.
 - Gate (`/gate`, from `.claude/devsystem.json`): the unit tests, then
   `venv/Scripts/python scripts/alpha_proof.py`. No linter is configured.
 - Tests are offline and need no song files, but layout/render tests use the real fonts in
-  `C:/Windows/Fonts` and `fonts/` (bundled Poppins and Cormorant Garamond, OFL) and a short
-  real ffmpeg encode.
+  `C:/Windows/Fonts` and `fonts/` (bundled Poppins, Cormorant Garamond, Anton, Pirata One; OFL)
+  and a short real ffmpeg encode.
 
 A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`,
 `render/<theme>/` (outputs + `report.md`, one folder per theme: D-018), `bakeoff/<variant>/`
@@ -68,8 +69,10 @@ owner-written drop times for Beat Pop) and, for a clip, `clip.json`.
   stack, or `lofi` for both lofi themes: one line, colour states or typewriter, checked by
   `lofi_check`, or `cinematic`: couplets per stanza, per-word blur-in, checked by
   `cinematic_check`, or `beatpop`: words pop in as sung on a pill, the line bumps on beats and
-  shakes on drops, checked by `beatpop_check`; lofi, cinematic and beatpop share `lifecycle`
-  (one block on screen at a time)
+  shakes on drops, checked by `beatpop_check`, or `phonk`: Beat Pop's plan with the line shown
+  ahead unlit, words flicker on as sung, glow pulses on beats, RGB split on drops, checked by
+  `phonk_check`; lofi, cinematic, beatpop and phonk share `lifecycle` (one block on screen at a
+  time)
   → one-pass `encode` → `check`): `words.json` → `render/<theme>/overlay.mov`
   (alpha) + `overlay_green.mp4` + `preview.mp4` (with audio, review).
   Never calls the alignment API, so hand-edit + re-render stays free.
