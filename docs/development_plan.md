@@ -21,7 +21,8 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 12 | Beat Pop theme                         | `feature/beat-pop-theme`        | Done ([PR #11](https://github.com/Hacke2367/subtitle_engine/pull/11)) |
 | 13 | Phonk Neon theme                       | `feature/phonk-neon-theme`      | Done ([PR #12](https://github.com/Hacke2367/subtitle_engine/pull/12)) |
 | 14 | Devanagari shaping                     | `feature/devanagari-shaping`    | Deferred (only when a song needs it) |
-| 15 | Title card ("Song \| Singer")          | `feature/title-card`            | Not started |
+| 15 | Title card ("Song \| Singer")          | `feature/title-card`            | Done ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)) |
+| 16 | Line breaks at sung pauses             | `feature/pause-line-breaks`     | Not started |
 
 Steps 08–14: the owner builds every researched style (H-012), in this order by default (D-017).
 The owner can reorder any step before it starts.
@@ -205,6 +206,17 @@ long it stays.
 **Done when:** the card renders on the test songs with every theme, every render check passes,
 and the owner approves the look.
 
+## 16 — Line breaks at sung pauses
+
+**Delivers:** a long lyric line that wraps into rows breaks where the singer pauses, not only
+where the width runs out (research §2, UIST 2023 guidelines). Opt-in per theme, so a theme that
+does not opt in stays pixel-identical.
+**Needs:** nothing new: `words.json` already has each word's start and end. The spec settles
+what counts as a pause and which themes opt in.
+**Done when:** on the test songs, rows break at the longest in-line gaps within the width limit,
+every render check passes, and the owner approves the look.
+
 ## Later candidates (not scheduled; the owner picks)
 
-- Line breaks by sung pauses instead of width only (research §2, UIST 2023 guidelines).
+- None left from the research roadmap. V2 (voice in, auto-styled subtitles out) runs as its own
+  track in the `feature/voice-subtitles` worktree.

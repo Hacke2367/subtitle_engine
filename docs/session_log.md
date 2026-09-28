@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-29 (20): step 15 title card built and merged (PR #13); parallel tracks set
+**Did:** owner picked the title card after merging step 13 → plan step 15 added → look questions (top, ~3 s, each theme's own look = H-021; `title.txt` stated, not objected) → spec + plan + build in one run: `render/card.py` (reader, card build, fade, frame wrapper with a lyric-clash log, checks), `card_*` theme values, `clip` copies `title.txt`, Beat Pop's width read starts below the card. No `title.txt` → all eight themes hash-identical to `dev`. Gate green.
+**Decisions:** H-021, D-026.
+**Open:** nothing on step 15; owner approved ("Merge karo") → PR #13 squash-merged. Owner set two parallel tracks: V2 agent in its own worktree, V1 here (pending_work.md).
+**Next:** V1: `/start_work` step 16 (line breaks at sung pauses) in a new session; V2 agent continues in its worktree.
+
 ## 2026-09-28 (19): step 13 Phonk Neon built and merged (PR #12), one-run flow
 **Did:** "continue" → `/start_work` step 13 → look sheet (`songs/phonk_neon_looks.png`) → owner picked Pirata One, purple, RGB split + shake, neon-sign lighting (H-020) → spec + plan + build in one run: `render/phonk.py` (Beat Pop's plan with `ahead`, flicker-on, beat glow pulse, drop split + shake, dark rim over the glow), `render/phonk_check.py` (light sync, pulse sync, safe zone), Pirata One bundled, CLI stdout fix. Old seven themes hash-identical to `dev`. Gate green (317 tests, alpha proof). All checks pass on `khidki_s2`, `khidki_s2_em`, `khidki_full` (257.4 s; 97 of 119 beats read).
 **Decisions:** H-020 (look + one-run flow), D-025.

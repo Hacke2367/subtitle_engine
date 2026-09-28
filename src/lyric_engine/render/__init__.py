@@ -15,6 +15,7 @@ from pathlib import Path
 from .. import align, layout, timing
 from ..theme import SOFT_ROMANTIC, Theme
 from . import beatpop, cinematic, encode, focus, karaoke, lofi, phonk
+from .card import build_card, card_checks, read_title, with_card
 from .check import REPORT, check_outputs, write_report
 from .encode import ALPHA_CODECS, OUTPUTS, RenderError, _encode, _ffmpeg_cmd, _remove
 from .frames import FadeCache, _frame_parts, build_sprites, compose_frame
@@ -115,6 +116,8 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
     except (RuntimeError, OSError) as exc:
         raise RenderError(str(exc)) from None
     n = _ceil_frame(duration, theme.fps)
+    title = read_title(song_dir)
+    card = build_card(title, theme, n) if title else None
     if theme.motion == "karaoke":
         lines, skipped = karaoke.plan_karaoke(doc, theme, n, emphasis=emphasis)
         sprites, cache, parts = (karaoke.build_sprites(lines, theme), karaoke.LineCache(),
@@ -146,13 +149,20 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
     outputs = {key: render_dir / name for key, name in OUTPUTS.items()}
     _remove([*outputs.values(), render_dir / REPORT])   # a failed run must not leave old results
     t1 = time.perf_counter()
+    frames = (parts(k, lines, sprites, theme, cache) for k in range(n))
     _encode(_ffmpeg_cmd(theme, codec, audio, outputs),
-            (parts(k, lines, sprites, theme, cache) for k in range(n)), outputs)
+            with_card(frames, card, theme) if card else frames, outputs)
     encode_s = time.perf_counter() - t1
     result = RenderResult(render_dir, outputs, n, 0.0, skipped, [], emphasis=[
         f'"{w["text"]}" (line {w["line"] + 1})' for w in doc["words"] if w["i"] in emphasis])
     t2 = time.perf_counter()
     result.checks = check_outputs(result, lines, theme, n)
+    if card:
+        result.checks += card_checks(result, card, theme)
+        result.notes.append(f'title card: "{" / ".join(card.lines)}", 0.0-'
+                            f"{card.stop / theme.fps:.1f} s (title.txt)")
+    elif title == []:
+        result.notes.append("title.txt has no text: no title card")
     check_s = time.perf_counter() - t2
     result.wall_s = time.perf_counter() - t0
     write_report(result, doc, codec=codec, theme=theme, encode_s=encode_s, check_s=check_s)

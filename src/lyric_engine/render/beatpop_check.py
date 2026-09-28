@@ -29,6 +29,7 @@ if TYPE_CHECKING:
 SOLID = 128                               # alpha that counts as ink for the pop reads
 POP_BEFORE_MAX, POP_ON_MIN = 0.02, 0.25   # solid pixels in the word's box / its ink at rest
 BEAT_TOL, BEAT_READ_MIN = 4, 6            # px: drawn vs planned line width; planned rise to read
+LINE_MARGIN = 100   # px above a line's top word box that its bump, shake and pad stay within
 _SOLID_LUT = [255 if v >= SOLID else 0 for v in range(256)]
 
 
@@ -54,7 +55,10 @@ def beatpop_checks(result: RenderResult, show: beatpop.Show, theme: Theme,
     wanted: dict[int, list[_Read]] = {}
     for r in reads:
         wanted.setdefault(r.frame, []).append(r)
-    widths_at = {m for b in beats for m in (b - 1, b, b + 1)}
+    # Widths are read from the line's own rows down, so a title card above (spec 15) is not in them
+    widths_at = {m: max(0, min(wp.box.y for wp in pl.words) - LINE_MARGIN)
+                 for b in beats for pl in show.lines if pl.enter <= b < pl.stop
+                 for m in (b - 1, b, b + 1)}
     size, zone = (theme.width, theme.height), theme.safe_zone
     values: dict[tuple[str, str], float] = {}
     widths: dict[int, int] = {}
@@ -74,7 +78,8 @@ def beatpop_checks(result: RenderResult, show: beatpop.Show, theme: Theme,
             return
         bbox = frame.point(_SAFE_LUT).getbbox()
         if k in widths_at:
-            widths[k] = bbox[2] - bbox[0] if bbox else 0
+            rows = frame.crop((0, widths_at[k], size[0], size[1])).point(_SAFE_LUT).getbbox()
+            widths[k] = rows[2] - rows[0] if rows else 0
         if zone is not None and bbox and (bbox[0] < zone[0] or bbox[1] < zone[1]
                                           or bbox[2] > zone[2] or bbox[3] > zone[3]):
             outside.append((k, bbox))

@@ -1,27 +1,38 @@
 # Pending Work
 
-Last updated: 2026-09-28 (step 13 merged, PR #12)
+Last updated: 2026-09-29 (step 15 merged, PR #13; parallel tracks set)
 
 ## WIP
 
-None. Step 13 (Phonk Neon) merged into `dev` ([PR #12](https://github.com/Hacke2367/subtitle_engine/pull/12)); the owner asked to merge.
+None on this checkout. Step 15 (Title card) merged into `dev` ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)); the owner asked to merge.
+
+**Parallel tracks (owner, 2026-09-29):**
+- **V1 track** (this checkout, `C:\subtitle_engine`): plan steps in order, next is 16.
+- **V2 track** (its own agent, worktree `.claude/worktrees/voice-subtitles`, branch
+  `feature/voice-subtitles`): voice in, auto-styled subtitles out. Branch has no commits yet and
+  sits on an old `dev` (a9073e6); fast-forward it first:
+  `git -C .claude/worktrees/voice-subtitles merge --ff-only dev`. V2's scope is not yet in
+  `project_context.md`; record it there (and an `H-` entry) on that branch before building.
+- Machine limit: 8 GB RAM. Never run both tracks' `/gate` or full-song renders at the same time;
+  take turns (a gate is ~2 min). Text/API work on one track while the other renders is fine.
+- Both tracks edit the tracking docs; when the second one merges, keep both sides' entries.
 
 ## Current focus
 
 V1.1 styling. Eight themes: Soft Romantic v2 (default, H-015), Soft Romantic v1, Pop Karaoke,
 Lofi Minimal, Lofi Typewriter (H-016), Cinematic (H-017), Beat Pop (H-019) and Phonk Neon
 (H-020) (`--theme`, outputs in `render/<theme>/`, D-018). Beat data: `beats` command,
-`drops.txt` (D-022, D-024). Working flow (H-020): owner answers the look questions up front,
-then spec → plan → build in one run; the owner judges the finished look.
+`drops.txt` (D-022, D-024). Title card from `title.txt` (step 15). Working flow (H-020): owner
+answers the look questions up front, then spec → plan → build in one run; the owner judges the
+finished look.
 
 ## Next up
 
-1. **Resume point:** step 15, Title card (`/start_work`, `feature/title-card`): a "Song | Singer"
-   card at the start of a short, with every theme. Owner-picked (2026-09-28). Flow as H-020: ask
-   the look questions up front (what the card shows, where its text comes from, how long it
-   stays, its look per theme), then spec → plan → build in one run.
+1. **Resume point (V1 track):** step 16, line breaks at sung pauses (`/start_work`,
+   `feature/pause-line-breaks`). Look questions up front (H-020 flow): what counts as a pause,
+   which themes opt in. Picked by plan order (the only research item left); the owner can swap it.
 2. Step 14 (Devanagari shaping) only when a song needs it. Remaining "Later candidates":
-   line breaks by sung pauses.
+   none (step 16 took the last one).
 3. Optional cleanup: `render/check.py` (≈369 lines) and `render/karaoke.py` (≈313) are past
    the ~300-line split guideline; split only if the owner wants it (a `chore/` branch).
 4. Owner: try a different song end to end (spec 05 AC4), now with any theme.
@@ -29,6 +40,7 @@ then spec → plan → build in one run; the owner judges the finished look.
 
 ## Waiting on the owner
 
+- Write `songs/<song>/title.txt` for the songs you post (e.g. `♪ Khidki | Kishore Kumar`).
 - Write your own drop times in `songs/<song>/drops.txt` (the ones in `khidki_full` are test
   values: 0:28.0, 1:30.8).
 - Optional: a beat-heavy test song (Punjabi / party / rap) in `songs/<name>/` (`audio.*` +

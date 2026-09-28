@@ -301,3 +301,17 @@ between them; the owner approves the finished look.
 **Decision:** "A Pirata One", "Purple", "RGB split + shake", "Neon sign: dim → jalta hai"; the
 one-run flow was stated and not objected to.
 **Decided:** 2026-09-28
+
+### H-021 — Title card: top of the frame for the first ~3 s, in each theme's own look
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** spec 15 (Title card)
+**Context:** The owner picked the title card as the next step after step 13. Claude stated the
+text source up front: `songs/<song>/title.txt`, drawn exactly as written (one or two lines, any
+separator, emoji or film name); no file, no card; `clip` copies it. Not objected to.
+**Options:** Placement: (a) top, fade in and out over the first ~3 s, (b) top, the whole video,
+(c) centre, during the intro before the first lyric line. Look: (a) each theme's own font, colours
+and legibility layer, smaller, (b) one common white sans card for every theme.
+**Recommendation:** (a), (a).
+**Decision:** "Upar, shuru ke ~3 s", "Har theme ka apna".
+**Decided:** 2026-09-29
