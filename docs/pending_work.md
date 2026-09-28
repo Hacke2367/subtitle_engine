@@ -1,11 +1,21 @@
 # Pending Work
 
-Last updated: 2026-09-29 (step 15 built, owner look pending)
+Last updated: 2026-09-29 (step 15 merged, PR #13; parallel tracks set)
 
 ## WIP
 
-Step 15 (Title card) built on `feature/title-card` in one run (H-020 flow, H-021 look). Waiting on
-the owner's look (AC8) before merge ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)). Look sheet: `songs/title_card_looks.png`.
+None on this checkout. Step 15 (Title card) merged into `dev` ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)); the owner asked to merge.
+
+**Parallel tracks (owner, 2026-09-29):**
+- **V1 track** (this checkout, `C:\subtitle_engine`): plan steps in order, next is 16.
+- **V2 track** (its own agent, worktree `.claude/worktrees/voice-subtitles`, branch
+  `feature/voice-subtitles`): voice in, auto-styled subtitles out. Branch has no commits yet and
+  sits on an old `dev` (a9073e6); fast-forward it first:
+  `git -C .claude/worktrees/voice-subtitles merge --ff-only dev`. V2's scope is not yet in
+  `project_context.md`; record it there (and an `H-` entry) on that branch before building.
+- Machine limit: 8 GB RAM. Never run both tracks' `/gate` or full-song renders at the same time;
+  take turns (a gate is ~2 min). Text/API work on one track while the other renders is fine.
+- Both tracks edit the tracking docs; when the second one merges, keep both sides' entries.
 
 ## Current focus
 
@@ -18,11 +28,11 @@ finished look.
 
 ## Next up
 
-1. **Resume point:** owner writes `songs/<song>/title.txt` (one or two lines, as they should
-   appear) and looks at the card in any theme's `preview.mp4`. Changes → `card_*` values in
-   `theme.py`; approval → merge the PR.
+1. **Resume point (V1 track):** step 16, line breaks at sung pauses (`/start_work`,
+   `feature/pause-line-breaks`). Look questions up front (H-020 flow): what counts as a pause,
+   which themes opt in. Picked by plan order (the only research item left); the owner can swap it.
 2. Step 14 (Devanagari shaping) only when a song needs it. Remaining "Later candidates":
-   line breaks by sung pauses.
+   none (step 16 took the last one).
 3. Optional cleanup: `render/check.py` (≈369 lines) and `render/karaoke.py` (≈313) are past
    the ~300-line split guideline; split only if the owner wants it (a `chore/` branch).
 4. Owner: try a different song end to end (spec 05 AC4), now with any theme.

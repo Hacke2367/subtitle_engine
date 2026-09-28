@@ -1,6 +1,7 @@
 # Spec: Title Card
 **Version:** 1.0.0 | **Component:** renderer (`render/`), themes (`theme.py`), `clip`
 **Status:** Owner choices made up front (H-021); spec, plan and build in one run (H-020 flow).
+AC8: the owner approved and asked to merge PR #13 ("Merge karo", 2026-09-29).
 **Plan step:** 15 (`docs/development_plan.md`) · **Branch:** `feature/title-card` · **Decisions:** H-021, H-020, D-018
 
 ## 1. Problem Statement
