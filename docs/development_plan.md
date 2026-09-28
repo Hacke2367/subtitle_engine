@@ -218,5 +218,4 @@ every render check passes, and the owner approves the look.
 
 ## Later candidates (not scheduled; the owner picks)
 
-- None left from the research roadmap. V2 (voice in, auto-styled subtitles out) runs as its own
-  track in the `feature/voice-subtitles` worktree.
+- None left from the research roadmap.
