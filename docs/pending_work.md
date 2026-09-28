@@ -5,7 +5,7 @@ Last updated: 2026-09-29 (step 17 built: owner reviews the room)
 ## WIP
 
 Step 17, Background layer + romantic room, on `feature/bg-romantic-room` (base `dev` @ fda0612):
-built and in review. `render|make songs/<song> --bg room` writes
+built and in review ([PR #16](https://github.com/Hacke2367/subtitle_engine/pull/16)). `render|make songs/<song> --bg room` writes
 `render/<theme>/final_room_dusk.mp4` (the room under the lyrics, with audio) next to the
 unchanged overlay outputs. Spec `docs/specs/17_bg_romantic_room.md`, plan `..._impl.md`, D-028 to
 D-031. All checks pass on `khidki_s2_em`, `khidki_s2`, `khidki_30s` (new 30 s clip) and
