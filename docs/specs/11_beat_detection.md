@@ -1,6 +1,8 @@
 # Spec: Beat Detection
 **Version:** 1.0.0 | **Component:** new beat stage (`beats.json`), command line, click-track preview
-**Status:** Approved by owner 2026-09-28 ("continue"), including the §7 choices.
+**Status:** Approved by owner 2026-09-28 ("continue"), including the §7 choices. AC10: the owner
+chose to merge on the objective check (plan as-built note) without listening first ("Merge + step 12
+shuru", 2026-09-28); the preview stays in `songs/khidki_full/` for a later listen.
 **Plan step:** 11 (`docs/development_plan.md`) · **Branch:** `feature/beat-detection` · **Decisions:** H-018, H-012, D-022 (amends D-001), D-017, D-002
 
 ## 1. Problem Statement
