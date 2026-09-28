@@ -67,6 +67,18 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def parse_time(text: str) -> float:
+    """27, 27.5, 0:27 or 1:05.5 -> seconds (clip --from/--to, drops.txt)."""
+    error = ValueError(f"not a time: {text!r} (use 27, 0:27 or 1:05.5)")
+    try:
+        parts = [float(p) for p in text.split(":")]
+    except ValueError:
+        raise error from None
+    if len(parts) > 2 or any(p < 0 or not math.isfinite(p) for p in parts):
+        raise error
+    return parts[0] * 60 + parts[1] if len(parts) == 2 else parts[0]
+
+
 def flag_summary(words: list[Word]) -> dict:
     total = len(words)
     flagged = sum(1 for w in words if w.flagged)

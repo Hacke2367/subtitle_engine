@@ -7,6 +7,7 @@ Pop Karaoke: start values from spec docs/specs/07_pop_karaoke_theme.md §4.5.
 Soft Romantic v2: v1's look plus spec docs/specs/08_soft_romantic_v2.md §4.4.
 Lofi Minimal / Lofi Typewriter: start values from spec docs/specs/09_lofi_minimal_theme.md §4.5.
 Cinematic: start values from spec docs/specs/10_cinematic_theme.md §4.5.
+Beat Pop: start values from spec docs/specs/12_beat_pop_theme.md §4.5, plan §2.12 / §3.1.
 """
 from __future__ import annotations
 
@@ -19,7 +20,7 @@ FONTS = Path("C:/Windows/Fonts")
 REPO_FONTS = Path(__file__).resolve().parents[2] / "fonts"   # bundled OFL fonts (D-018)
 EMPHASIS_MIN, EMPHASIS_MAX = 1.5, 2.0   # marked word size / line font size (H-013)
 KEY_HUE, KEY_HUE_TOL, KEY_SAT_MIN = 120, 15, 0.5   # colours the green-screen output would key out
-MOTIONS = ("reveal", "karaoke", "focus", "lofi", "cinematic")
+MOTIONS = ("reveal", "karaoke", "focus", "lofi", "cinematic", "beatpop")
 
 
 def _near_key_green(rgb: tuple[int, int, int]) -> bool:
@@ -72,7 +73,8 @@ class Theme:
     # "focus" = reveal, plus the finished line dims and blurs above the next (Soft Romantic v2);
     # "lofi" = one line shown ahead, dim; each word turns to the accent as sung, then settles
     # (Lofi Minimal), or types in letter by letter (typewriter=True);
-    # "cinematic" = couplets; each word blurs into focus in the accent as sung, then settles
+    # "cinematic" = couplets; each word blurs into focus in the accent as sung, then settles;
+    # "beatpop" = one line; each word pops in as sung on a pill, the line bumps on the beats
     motion: str = "reveal"
     center_x: int = 540           # rows are centred on this x
     safe_zone: tuple[int, int, int, int] | None = None   # x0, y0, x1, y1 every frame stays in
@@ -107,6 +109,18 @@ class Theme:
     blur_px: float = 10.0         # blur-in start radius and blur-out end radius
     couplet_gap: float = 0.5      # extra space between a couplet's two lines, × row pitch
     couplet_max_gap_s: float = 4.0   # a pair sung further apart shows as two singles
+    # Beat Pop only (spec 12): pill, pop, beat bump, drop shake, exit. Reuses reveal_s (pop),
+    # stroke_rgb / stroke_frac, hold_s and fade_out_s (exit).
+    pill_rgb: tuple[int, int, int] | None = None        # the pill behind the word being sung
+    pill_text_rgb: tuple[int, int, int] | None = None   # that word's colour on the pill
+    pill_pad: float = 0.08        # pill margin around the word's ink, × the word's size
+    pop_scale: float = 0.6        # a word pops in from this scale (easeOutBack to 1)
+    bump_scale: float = 1.05      # line scale on a beat frame ...
+    bump_s: float = 0.15          # ... back to 1 over this
+    drop_scale: float = 1.12      # line scale on a drop frame ...
+    shake_px: int = 14            # ... shaking this far at most ...
+    shake_s: float = 0.5          # ... both settling over this
+    exit_scale: float = 0.95      # a leaving line shrinks to this while it fades
     # Outputs
     alpha_codec: str = "prores"   # owner-confirmed in CapCut (H-010)
     key_green_hex: str = "0x00FF00"
@@ -130,7 +144,16 @@ class Theme:
                 and round(self.preroll_s * self.fps) <= math.ceil(self.enter_s * self.fps)):
             raise ValueError(f"theme {self.name}: preroll_s must be longer than enter_s, so a line "
                              "is at rest before its first word turns current")
-        for name in ("tracking", "blur_px", "couplet_gap", "couplet_max_gap_s"):
+        if self.motion == "beatpop":
+            if None in (self.stroke_rgb, self.pill_rgb, self.pill_text_rgb):
+                raise ValueError(f"theme {self.name}: a beatpop theme needs stroke_rgb, pill_rgb "
+                                 "and pill_text_rgb")
+            if not (0 < self.pop_scale <= 1 and 0 < self.exit_scale <= 1
+                    and self.bump_scale >= 1 and self.drop_scale >= 1):
+                raise ValueError(f"theme {self.name}: pop_scale and exit_scale must be in (0, 1], "
+                                 "bump_scale and drop_scale at least 1")
+        for name in ("tracking", "blur_px", "couplet_gap", "couplet_max_gap_s", "pill_pad",
+                     "bump_s", "shake_px", "shake_s"):
             if getattr(self, name) < 0:
                 raise ValueError(f"theme {self.name}: {name} {getattr(self, name)} is negative")
         for f in fields(self):   # styling rules: the green-screen output would key these out
@@ -177,6 +200,17 @@ CINEMATIC = Theme(
     shadow_rgb=(0, 0, 0), shadow_alpha=0.7, shadow_radius=8, shadow_offset=(0, 3),
     reveal_s=0.5, sung_in_s=0.8, hold_s=2.0, fade_out_s=0.8, blur_px=10.0)
 
+# 700 px about 510, anchor 0.60: the line at the drop's 1.12x plus the shake and a popping edge
+# word stays inside x 60-960, y 380-1540 (plan 12 §2.12); research §7 palette 6 (Punjabi hype)
+BEAT_POP = Theme(
+    "beat-pop", motion="beatpop",
+    font=REPO_FONTS / "Anton-Regular.ttf", font_size=110, min_font_size=64,
+    max_width=700, center_x=510, anchor_y=0.60, safe_zone=(60, 380, 960, 1540),
+    text_rgb=(255, 255, 255), stroke_rgb=(0, 0, 0), stroke_frac=0.05,
+    pill_rgb=(255, 193, 7), pill_text_rgb=(0, 0, 0),
+    shadow_rgb=(0, 0, 0), shadow_alpha=0.4, shadow_radius=4, shadow_offset=(0, 3),
+    reveal_s=0.25, hold_s=0.8, fade_out_s=0.2)
+
 THEMES = {t.name: t for t in (SOFT_ROMANTIC, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL,
-                              LOFI_TYPEWRITER, CINEMATIC)}
+                              LOFI_TYPEWRITER, CINEMATIC, BEAT_POP)}
 DEFAULT_THEME = SOFT_ROMANTIC_V2.name   # the owner preferred v2 over v1 (spec 08 AC10)

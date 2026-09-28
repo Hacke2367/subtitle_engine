@@ -279,18 +279,19 @@ def _layer(kl: KaraokeLine, sprites: KSprites, n: int, theme: Theme,
 
 
 def transformed(img: Image.Image, x0: int, y0: int, lay: LineLayout, scale: float, dy: float,
-                level: int, theme: Theme, blur: float = 0.0
+                level: int, theme: Theme, blur: float = 0.0, dx: float = 0.0
                 ) -> tuple[Image.Image, tuple[int, int]]:
-    """A line image scaled about its block centre, shifted by dy, blurred, then faded to `level`,
-    and its new top-left. Scale and blur run premultiplied: no dark fringes. Untouched at rest."""
-    if scale != 1.0 or dy != 0.0 or blur > 0:
+    """A line image scaled about its block centre, shifted by (dx, dy), blurred, then faded to
+    `level`, and its new top-left. Scale and blur run premultiplied: no dark fringes. Untouched
+    at rest."""
+    if scale != 1.0 or dx != 0.0 or dy != 0.0 or blur > 0:
         top, bottom = _block(lay)
         cx, cy = theme.center_x, (top + bottom) / 2
         img = img.convert("RGBa")
-        if scale != 1.0 or dy != 0.0:
+        if scale != 1.0 or dx != 0.0 or dy != 0.0:
             size = (max(1, round(img.width * scale)), max(1, round(img.height * scale)))
             img = img.resize(size, Image.BICUBIC)
-            x0, y0 = round(cx + (x0 - cx) * scale), round(cy + dy + (y0 - cy) * scale)
+            x0, y0 = round(cx + dx + (x0 - cx) * scale), round(cy + dy + (y0 - cy) * scale)
         if blur > 0:
             img = img.filter(ImageFilter.GaussianBlur(blur))
         img = img.convert("RGBA")

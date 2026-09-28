@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-28 (18): step 12 Beat Pop built and merged (PR #11)
+**Did:** `/start_work` step 12 → spec (owner: line bump on every beat, owner-written `drops.txt`, words pop as sung, mustard pill = H-019; "yes") → plan → build: `render/beatpop.py` (pop, pill, bump, shake, one line at a time via `lifecycle`), `render/beatpop_check.py` (pop / pill sync, planned-width beat sync, safe zone), `beats.read_drops` / `snap`, `timing.parse_time`, `transformed(dx=)`, Anton bundled. Other six themes byte-identical to `dev`. Gate green (301 tests, alpha proof). All checks pass on `khidki_s2`, `khidki_s2_em`, `khidki_full` (full song 324.5 s; 105 of 113 beats read).
+**Decisions:** H-019, D-024.
+**Open:** nothing on step 12; owner approved ("ok, merge karo") → PR #11 squash-merged. No CHANGELOG in this repo.
+**Next:** the owner will say how to speed up the work; by plan order, step 13 Phonk Neon.
+
 ## 2026-09-28 (17): step 11 beat detection built and merged (PR #10)
 **Did:** `/start_work` step 11 → spec (owner: librosa, own `beats.json` = H-018; "continue") → plan (spike: hop 256, −50 dBFS silence mask) → build: `beats.py` (ffmpeg decode, `beat_track`, silence mask, reuse/rebuild/hand-edit rules), `beats` command with `--fresh` / `--bpm`, click preview `beats_preview.m4a`, `align.song_audio`, `timing.is_num`. Gate green (283 tests, alpha proof). `khidki_full`: 143.55 BPM, 410 beats, 15.8 s; second run reused; a click on every beat in the preview.
 **Decisions:** H-018, D-022 (amends D-001), D-023.
