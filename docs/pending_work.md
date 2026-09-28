@@ -18,7 +18,7 @@ Lofi Minimal, Lofi Typewriter (H-016) and Cinematic (H-017) (`--theme`, outputs 
 ## Next up
 
 1. **Resume point:** owner plays `songs/khidki_full/beats_preview.m4a` (spec 11 AC10). Clicks on
-   the kick/snare → merge the step 11 PR (`/merge_pr`). Clicks at twice or half the beat → rerun
+   the kick/snare → merge [PR #10](https://github.com/Hacke2367/subtitle_engine/pull/10) (`/merge_pr 10`). Clicks at twice or half the beat → rerun
    `beats songs/khidki_full --bpm <N>` and listen again (detected 143.55 BPM; a slow song may
    really be ~72). Then `/start_work` step 12 (Beat Pop), which reads `beats.ensure_beats`.
 2. Optional cleanup: `render/check.py` (≈359 lines) and `render/karaoke.py` (≈310) are past
