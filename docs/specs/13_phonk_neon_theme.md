@@ -1,7 +1,7 @@
 # Spec: Phonk Neon Theme
 **Version:** 1.0.0 | **Component:** themes (`theme.py`), renderer (`render/`), render checks
 **Status:** Owner choices made up front (H-020); spec, plan and build run in one go (H-020 flow).
-The owner judges the finished look (AC10).
+AC10: the owner approved and asked to merge PR #12 ("Merge karo", 2026-09-28).
 **Plan step:** 13 (`docs/development_plan.md`) · **Branch:** `feature/phonk-neon-theme` · **Decisions:** H-020, H-019, H-018, H-016, H-013, H-012, H-009, D-018, D-021, D-022, D-024
 
 ## 1. Problem Statement

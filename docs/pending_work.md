@@ -1,12 +1,10 @@
 # Pending Work
 
-Last updated: 2026-09-28 (step 13 built, owner look pending)
+Last updated: 2026-09-28 (step 13 merged, PR #12)
 
 ## WIP
 
-Step 13 (Phonk Neon) built on `feature/phonk-neon-theme`: spec, plan and code in one run (H-020
-flow). Gate green; all checks pass on `khidki_s2`, `khidki_s2_em`, `khidki_full`. Waiting on the
-owner's look (AC10) before merge ([PR #12](https://github.com/Hacke2367/subtitle_engine/pull/12)).
+None. Step 13 (Phonk Neon) merged into `dev` ([PR #12](https://github.com/Hacke2367/subtitle_engine/pull/12)); the owner asked to merge.
 
 ## Current focus
 
@@ -18,11 +16,13 @@ then spec → plan → build in one run; the owner judges the finished look.
 
 ## Next up
 
-1. **Resume point:** owner watches `songs/khidki_full/render/phonk-neon/preview.mp4` (and
-   `khidki_s2`). Look changes → `theme.py` values on this branch; approval → merge PR.
-2. Step 14 (Devanagari shaping) only when a song needs it. After that the plan has no scheduled
-   step; "Later candidates" in `development_plan.md` are the owner's pick.
-3. Optional cleanup: `render/check.py` (≈367 lines) and `render/karaoke.py` (≈313) are past
+1. **Resume point:** step 15, Title card (`/start_work`, `feature/title-card`): a "Song | Singer"
+   card at the start of a short, with every theme. Owner-picked (2026-09-28). Flow as H-020: ask
+   the look questions up front (what the card shows, where its text comes from, how long it
+   stays, its look per theme), then spec → plan → build in one run.
+2. Step 14 (Devanagari shaping) only when a song needs it. Remaining "Later candidates":
+   line breaks by sung pauses.
+3. Optional cleanup: `render/check.py` (≈369 lines) and `render/karaoke.py` (≈313) are past
    the ~300-line split guideline; split only if the owner wants it (a `chore/` branch).
 4. Owner: try a different song end to end (spec 05 AC4), now with any theme.
 5. Step 04 (`.lrc` anchors) only if a real song drifts.
