@@ -19,8 +19,8 @@ Lofi Minimal, Lofi Typewriter (H-016), Cinematic (H-017) and Beat Pop (H-019, in
 ## Next up
 
 1. **Resume point:** owner watches `songs/khidki_full/render/beat-pop/preview.mp4` (spec 12
-   AC11; test drops in `songs/khidki_full/drops.txt`: 0:28.0, 1:30.8). Approved → merge the
-   step 12 PR; changes asked for become `theme.py` values. Then step 13 (Phonk Neon).
+   AC11; test drops in `songs/khidki_full/drops.txt`: 0:28.0, 1:30.8). Approved → merge [PR #11](https://github.com/Hacke2367/subtitle_engine/pull/11)
+   (`/merge_pr 11`); changes asked for become `theme.py` values. Then step 13 (Phonk Neon).
 2. Optional cleanup: `render/check.py` (≈359 lines) and `render/karaoke.py` (≈310) are past
    the ~300-line split guideline (`lofi.py` is 268 since step 10); split only if the owner
    wants it (e.g. a `chore/` branch).
