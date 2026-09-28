@@ -1,4 +1,4 @@
-# Development Plan: Kinetic Lyric Engine (V1, V1.1 styling)
+# Development Plan: Kinetic Lyric Engine (V1, V1.1 styling, backgrounds)
 
 Source of truth for WHAT and WHY: `docs/project_context.md`. This file orders the work.
 Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any code.
@@ -23,6 +23,13 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 14 | Devanagari shaping                     | `feature/devanagari-shaping`    | Deferred (only when a song needs it) |
 | 15 | Title card ("Song \| Singer")          | `feature/title-card`            | Done ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)) |
 | 16 | Line breaks at sung pauses             | `feature/pause-line-breaks`     | Optional (only if the owner asks) |
+| 17 | Background layer + romantic room       | `feature/bg-romantic-room`      | Next (H-023, H-025) |
+| 18 | Hip-hop truck background               | `feature/bg-hiphop-truck`       | Planned (H-026) |
+| 19 | Party baraat background                | `feature/bg-party-baraat`       | Planned (H-027) |
+| 20 | Sufi lamp background                   | `feature/bg-sufi-lamp`          | Planned (H-028) |
+| 21 | Motivational forge background          | `feature/bg-motivational-forge` | Planned (H-030) |
+| 22 | Journey train background               | `feature/bg-journey-train`      | Planned (H-031) |
+| 23 | Other moods of every background        | `feature/bg-moods`              | Planned (after each default is approved) |
 
 Steps 08–14: the owner builds every researched style (H-012), in this order by default (D-017).
 The owner can reorder any step before it starts.
@@ -216,6 +223,82 @@ what counts as a pause and which themes opt in.
 **Done when:** on the test songs, rows break at the longest in-line gaps within the width limit,
 every render check passes, and the owner approves the look.
 
+## Backgrounds (steps 17–23)
+
+The owner's north star (H-022): the lyric styling itself is the content. Each background's
+direction is owner-approved in `docs/backgrounds/<world>.md`; its spec settles the details and the
+owner judges the look. The owner wants every approved background built, starting the session
+after 2026-09-29, in step order. Tools and prices: `docs/research/background_tools.md`; rejected
+prototypes and why: H-024.
+
+Rules for every background step:
+- The engine renders a finished short: background, the theme's overlay and the audio (scope
+  change, H-023). With no background chosen, every existing output stays byte-identical.
+- A background reads only the song's length, each word's time, the beats, `drops.txt` and the
+  `*marked*` words, never what the words mean, so any lyric works (owner's constraint).
+- The lyric area sits in the same place in every mood, inside the theme's lyric block; nothing
+  bright crosses the lyrics.
+- One art style across all backgrounds: hand-made, warm light, the same grain (H-027 note).
+- Default mood first; the other moods follow in step 23 once the owner approves the default.
+- Red lines hold: backgrounds never move a word's time or change its text.
+
+## 17 — Background layer + romantic room
+
+**Delivers:** a background layer under any theme, chosen per song (a world and a mood; names
+decided in the spec), with seeded variation per video, and a finished-video output with audio.
+First world: the romantic room's default mood (afternoon to dusk),
+`docs/backgrounds/romantic_room.md`.
+**Needs:** nothing new to install for a first cut (numpy, PIL, scipy); `moderngl` only if the
+look or render time needs it (research section 2). The spec settles how the lyrics catch the
+room's light and cast a shadow without changing the text.
+**Done when:** the room renders under Soft Romantic v2 on the Khidki songs, the finished video
+plays with audio, outputs without a background are byte-identical to `dev`, render time is
+measured, and the owner approves the look.
+
+## 18 — Hip-hop truck background
+
+**Delivers:** the truck world's default mood (night highway), `docs/backgrounds/hiphop_truck.md`.
+**Needs:** step 17; a hip-hop test song in `songs/` (owner); painted truck art (AI stills made
+once, or drawn: the spec decides).
+**Done when:** the truck bounces on the same beats as Beat Pop's bump, punchlines flash on marked
+words, drops bring smoke, every check passes, and the owner approves the look.
+
+## 19 — Party baraat background
+
+**Delivers:** the baraat world's default mood (baraat night), `docs/backgrounds/party_baraat.md`.
+**Needs:** step 17; a party test song in `songs/` (owner).
+**Done when:** lamps bounce on the beats, rockets on marked words and anaar fountains on drops
+stay clear of the lyrics, every check passes, and the owner approves the look.
+
+## 20 — Sufi lamp background
+
+**Delivers:** the lamp world's default mood (dargah night), `docs/backgrounds/sufi_chiraag.md`.
+**Needs:** step 17; a Sufi test song in `songs/` (owner).
+**Done when:** the moth closes on the flame line by line and enters it on the last line, the
+flame reacts to beats and marked words, every check passes, and the owner approves the look.
+
+## 21 — Motivational forge background
+
+**Delivers:** the forge world's default mood (forge at night),
+`docs/backgrounds/motivational_forge.md`.
+**Needs:** step 17; a motivational test song in `songs/` (owner).
+**Done when:** strikes land on the beats, the iron is finished on the last line, sparks stay
+below the lyrics, every check passes, and the owner approves the look.
+
+## 22 — Journey train background
+
+**Delivers:** the train world's default mood (Punjab fields), `docs/backgrounds/journey_train.md`.
+**Needs:** step 17; a journey test song in `songs/` (owner).
+**Done when:** a pole passes the door on every beat, the tunnel comes on a drop, the journey
+arrives on the last line, every check passes, and the owner approves the look.
+
+## 23 — Other moods of every background
+
+**Delivers:** the remaining moods listed in each `docs/backgrounds/<world>.md`, one at a time,
+after the owner approves that world's default mood.
+**Done when:** each mood renders on a fitting song and the owner approves it.
+
 ## Later candidates (not scheduled; the owner picks)
 
-- None left from the research roadmap.
+- Backgrounds for mother and family songs, patriotic songs (before 26 January 2027), and old
+  classics as a room mood (H-029).

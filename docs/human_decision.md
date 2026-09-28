@@ -315,3 +315,169 @@ and legibility layer, smaller, (b) one common white sans card for every theme.
 **Recommendation:** (a), (a).
 **Decision:** "Upar, shuru ke ~3 s", "Har theme ka apna".
 **Decided:** 2026-09-29
+
+### H-022 — North star: the lyric styling itself is the content
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** any work after V1 (styling variety, backgrounds)
+**Context:** With V1 complete, the owner stated what the channel is for. The shorts must be
+watchable for the lyric styling alone: the song plays, the words are so well made that people
+just watch. Money comes from ad revenue and sponsors, so the measures are followers and watch
+time. The owner wants variety in colours and fonts, and something other channels do not have.
+**Decision:** "hum apne lyrics style quality ke bharose ek content bana sake, aisa chaiye ki log
+addictive ho jaye ... jab wo screen pe play hoga background mein song chalega tou log just
+dekhe usko."
+**Decided:** 2026-09-29
+
+### H-023 — Backgrounds: engine-made scenes matched to the song's vibe (scope change: finished video)
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** spec for the background step
+**Context:** The owner wants a background that is not the usual image or stock video under a
+song ("sab log song lagake video upload kar rahe hai, apne ko kuch alag chaiye"). V1 only makes
+a transparent overlay; a background means the engine renders the finished short (background +
+text + audio), which `project_context.md` lists as out of scope for V1.
+**Options:** Claude first offered (a) an abstract audio-reactive background in the theme's
+palette, (b) the lyrics themselves as the background, (c) both, (d) overlay only. The owner
+turned these down for scenes that carry a vibe.
+**Decision:** "aisa background socho jo different types of song hai uspe suit ho sake, and songs
+ka apna ek vibe hota hai wo match ho sake. ex: ek silhouette type kuch, space type kuch, ek
+peaceful types, ek 90s type kuch, anything. agar tumhe uske liye custom code, koi tool use karna
+pade tou karenge: koi python library, koi ai generation tool etc"
+**Decided:** 2026-09-29
+
+### H-024 — Which background looks to build first
+**Status:** pending
+**Raised:** 2026-09-29
+**Needed-before:** spec for the background step
+**Context:** Two look sheets for H-023, review only, on `khidki_s2_em` with lyrics and audio,
+drawn with numpy and PIL (tool research: `docs/research/background_tools.md`).
+Sheet 1, `songs/_review/backgrounds/` (`bg_looks.py`): the owner's four example vibes as scenes.
+Owner's verdict: "background acha tou hai, and har type ke songs se category se match bhi hoga.
+but tumne tou wahi kiya jo maine example mein bola tha ... is type ke background tou most common
+hai. creativity banao ... user ki perspective se socho, ek artist ki perspective se socho."
+Sheet 2, `songs/_review/backgrounds/ideas/` (`bg_ideas.py`): backgrounds the song itself drives.
+Each reads every word's time and on-screen box (from `words.json` and the theme's layout), the
+beats and the `*marked*` words, which a stock background under a song cannot do.
+Found while making them: a scene's props must stay outside the theme's lyric block; Pop
+Karaoke's block (past line plus current line) is too tall to leave room for a cassette.
+**Options:** Sheet 1, scenes by vibe: (a) Silhouette, (b) Space, (c) Peaceful, (d) 90s VHS.
+Sheet 2, song-driven: (e) Lakeer: a pen of light underlines each word as it is sung, swoops to
+the next and circles a marked word; (f) Boond: each word falls into still water as a drop at
+its own place, held words keep dropping, the first marked word brings the moon out; (g) Rangoli:
+a rangoli drawn ring by ring on the beats around the lyric block, finished on the last word, a
+diya lit by each marked word.
+**Recommendation:** Song-driven first ((e)–(g)); sheet 1's scenes later as settings those
+behaviours run in.
+**Decision:** None of the seven: "mujhe ek bhi background acha nhi laga ... songs se match hona
+chaiye ... song ke vibe se. tou hum abhi romantic songs pe kaam karenge." Claude then proposed,
+for romantic songs, a sunlit empty room: warm wall, jaali and money-plant shadows, dust in the
+light, a dupatta on a chair; the lyrics sit in the sunlight and cast a faint shadow on the wall;
+the light moves from gold to rose to dusk over the song and a small lamp comes on at the last
+line. Owner: "mujhe tumhara ye idea kafi pasand aaya." Constraint: "background re-usable rahena
+chaiye, uspe kal ko mein koi bhi lyric laga pau."
+**Decided:** 2026-09-29
+
+### H-025 — Romantic room: one room with moods, or several backgrounds
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** spec for the room background
+**Context:** H-024 picked the sunlit room for romantic songs; the owner asked whether it covers
+every romantic vibe or needs more backgrounds, and it must take any lyric.
+**Options:** (a) one room with a set of moods (time of day, weather, light colour, props) picked
+per song like a theme; the lyric area on the wall stays in the same place in every mood;
+(b) separate backgrounds per vibe.
+**Recommendation:** (a) with six moods: morning (new love), golden afternoon to dusk (longing,
+the default), rainy evening (heartbreak), moonlit night (intimate), misty winter morning (calm
+love), festival night (wedding and celebration). The room only reads song length, word times and
+beats, never the words themselves, so any lyric fits. Small seeded changes per video (plant,
+curtain print, props) keep repeats fresh. Out of its range: fast party or dance romance, which
+stays with Beat Pop / Phonk Neon.
+**Decision:** (a), the six moods as recommended: "ok, tou chalo romantic type song ke liye
+background final hogya hai, isko ek .md file mein save kro." Saved as
+`docs/backgrounds/romantic_room.md`.
+**Decided:** 2026-09-29
+
+### H-026 — Hip-hop background: the truck's back, one truck with moods
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** spec for the truck background
+**Context:** Second song type after romantic (H-025). Claude proposed the back of a hand-painted
+truck on a highway: bars in the centre panel where a truck carries its painted line, the truck
+bouncing on the beats, a horn and headlight flash on punchlines, smoke on drops; five moods;
+alternatives were a Mumbai local's window at night and a rapper's notebook.
+**Decision:** "ok hip-hop final, save karo, next song type pe chalo." Saved as
+`docs/backgrounds/hiphop_truck.md`.
+**Decided:** 2026-09-29
+
+### H-027 — Party and dance background: the baraat's lights, one baraat with moods
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** spec for the baraat background
+**Context:** Third song type, picked by Claude because the romantic room leaves out fast party
+and dance songs. Claude proposed a night baraat: paper-cut silhouettes of light-bearers and the
+band, glowing lamps bouncing on the beats, a rocket on marked words, anaar fountains on drops,
+the lyrics in the open sky; five moods; alternatives were a fair's giant wheel and the view up
+from a shamiana dance floor. Claude also suggested one art style across all backgrounds (not
+objected to), and posting one genre family (romantic) on the channel first while the engine
+covers the rest (no answer yet).
+**Decision:** "ok party final, save karo, next song type pe chalo." Saved as
+`docs/backgrounds/party_baraat.md`.
+**Decided:** 2026-09-29
+
+### H-028 — Sufi and devotional background: the lamp in the niche, one lamp with moods
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** spec for the lamp background
+**Context:** Fourth song type, picked by Claude. Claude proposed one world for both Sufi and
+devotional songs: a clay lamp in an arched niche of an old wall, incense smoke, a golden moth
+circling closer line by line and entering the flame on the last line; the lyrics lit by the
+flame; no images of gods, holy books or saints; five moods; alternatives were a dervish's whirl
+seen from above and a white cloth taking on colour line by line.
+**Decision:** "ok, i like thats save it." Saved as `docs/backgrounds/sufi_chiraag.md`.
+**Decided:** 2026-09-29
+
+### H-029 — Song types still without a background
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** the next background discussion
+**Context:** Four worlds are approved (H-025 to H-028), none built. Several other song types are
+already covered by those worlds' moods: romantic heartbreak and lofi / slowed songs (room: rainy
+evening, moonlit night), indie and acoustic (room), ghazal (lamp or the room at night), phonk
+(truck, night highway), Holi and festival songs (baraat, room).
+**Options:** Still without a world: (a) motivational (gym, sport, struggle), (b) journey:
+friendship, travel and life songs, (c) mother and family, including vidaai, (d) patriotic,
+seasonal (26 January, 15 August); optional (e) old classics as an "old times" mood of the room.
+**Recommendation:** Build the romantic room's default mood first and design the rest after it,
+since the first build will teach things every design needs (look, text integration, render
+time). Then design order (b), (a), (c), with (d) before 26 January 2027.
+**Decision:** Design every type before building: "nhi baki ke types bhi final karte hai. abhi
+sirf motivational and safar ke background ko batao, baki ke 3 pending mein daal do." Now: (a)
+and (b). Waiting: (c) mother and family, (d) patriotic, (e) old classics.
+**Decided:** 2026-09-29
+
+### H-030 — Motivational background: the blacksmith's forge, one forge with moods
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** spec for the forge background
+**Context:** Fifth song type (H-029). Claude proposed a blacksmith's forge in the dark: a hammer
+(only its shadow) strikes the red-hot iron on every beat with a burst of sparks, the iron takes
+shape line by line and is quenched in steam on the last line ("tap ke hi sona kundan banta hai");
+five moods; alternatives were a stepwell climbed one step per beat and a 4 AM study desk.
+**Decision:** The owner left the pick to Claude: "ok, tumhe jo best lagta hai usko save kardo
+and next session ki tayri hum in sabhi ko next session mein banyenge." Claude's pick: the forge.
+Saved as `docs/backgrounds/motivational_forge.md`.
+**Decided:** 2026-09-29
+
+### H-031 — Journey background: the train's open door, one train with moods
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** spec for the train background
+**Context:** Sixth song type (H-029): friendship, travel and life songs. Claude proposed the view
+from a moving train's open door: poles passing on every beat, birds rising on marked words, a
+tunnel and a river bridge on a drop, the sea on the last line; five moods; alternatives were
+kite flying from a rooftop ("kai po che") and a painted travel journal.
+**Decision:** Left to Claude, as in H-030. Claude's pick: the train door. Saved as
+`docs/backgrounds/journey_train.md`. The owner also said all the approved backgrounds are to be
+built from the next session on.
+**Decided:** 2026-09-29

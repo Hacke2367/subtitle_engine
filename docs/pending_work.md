@@ -1,13 +1,22 @@
 # Pending Work
 
-Last updated: 2026-09-29 (V1 complete)
+Last updated: 2026-09-29 (background directions approved; building starts next session)
 
 ## WIP
 
-None. **V1 is complete (owner, 2026-09-29):** V1 core plus the V1.1 themes, beat detection and the
+None. The channel's north star and the six approved background directions are merged into `dev`
+([PR #15](https://github.com/Hacke2367/subtitle_engine/pull/15), docs only).
+
+**V1 is complete (owner, 2026-09-29):** V1 core plus the V1.1 themes, beat detection and the
 title card are merged into `dev`; step 15 was the last ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)).
 
 ## Current focus
+
+Post-V1 (H-022 onward): engine-made backgrounds, one world per song type, each with moods.
+Six directions approved, none built: romantic room, hip-hop truck, party baraat, Sufi lamp,
+motivational forge, journey train (`docs/backgrounds/`). Plan steps 17–23 build them; the owner
+wants them built from the next session on. Not designed yet (H-029): mother and family,
+patriotic, old classics.
 
 V1 complete; proving it on more songs. Eight themes: Soft Romantic v2 (default, H-015), Soft Romantic v1, Pop Karaoke,
 Lofi Minimal, Lofi Typewriter (H-016), Cinematic (H-017), Beat Pop (H-019) and Phonk Neon
@@ -18,8 +27,15 @@ finished look.
 
 ## Next up
 
-1. **Resume point:** the owner tries a different song end to end (`align` → `clip` → `make`,
-   spec 05 AC4). V1 has only been proven on Khidki; any bug found there is the next work.
+1. **Resume point:** plan step 17, Background layer + romantic room (status Next, branch
+   `feature/bg-romantic-room`): `/start_work` step 17 → spec. No owner answer is pending for it.
+   Read first: `docs/backgrounds/romantic_room.md`,
+   `docs/research/background_tools.md`, H-022 to H-031 in `docs/human_decision.md`, and the
+   plan's Backgrounds section. The spec settles the world and mood names, the finished-video
+   output, and how the lyrics catch the room's light without changing the text. Then steps
+   18–22 in order, each needing its test song.
+   Still open from V1: the owner tries a different song end to end (`align` → `clip` → `make`,
+   spec 05 AC4); a bug found there comes first.
 2. Step 14 (Devanagari shaping) only when a song needs it. Step 16 (line breaks at sung
    pauses) only if the owner asks; it is outside the original V1 scope.
 3. Optional cleanup: `render/check.py` (≈369 lines) and `render/karaoke.py` (≈313) are past
@@ -28,6 +44,9 @@ finished look.
 5. Step 04 (`.lrc` anchors) only if a real song drifts.
 
 ## Waiting on the owner
+
+- For steps 18–22: one test song per type in `songs/<name>/` (`audio.*` + `lyrics.txt`):
+  hip-hop, party/dance, Sufi, motivational, journey. The Khidki songs cover step 17.
 
 - Write `songs/<song>/title.txt` for the songs you post (e.g. `♪ Khidki | Kishore Kumar`).
 - Write your own drop times in `songs/<song>/drops.txt` (the ones in `khidki_full` are test

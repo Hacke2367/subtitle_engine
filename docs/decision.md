@@ -381,3 +381,16 @@ line's top word box down, so the card never counts as line width.
 Pop Karaoke's past line, y 501, on `khidki_s2_em`, after the card is gone); a clash on another
 song is a check failure, not a silent overlap. Pixel-identical frames without `title.txt`.
 **Supersedes:** —
+
+### D-027 — Where background directions and prototypes live
+**Date:** 2026-09-29
+**Context:** The owner approved a background direction per song type (H-025 to H-031) and asked
+for each to be saved as a .md file; the look prototypes shown on the way were rejected (H-024).
+**Decision:** One file per world in `docs/backgrounds/<world>.md`, each with the same sections
+(principles, the viewer's-eye walkthrough, moods, reuse rules, avoid list, build order, notes
+for the spec); alternatives go in the H- entry, not the file. Tool research in
+`docs/research/background_tools.md`. The rejected prototypes (`bg_looks.py`, `bg_ideas.py` and
+their videos) stay in the gitignored `songs/_review/backgrounds/`, review only.
+**Why:** The direction files are what each background step's spec starts from, so they are
+tracked; the prototypes were never product code and the owner turned them down.
+**Supersedes:** —
