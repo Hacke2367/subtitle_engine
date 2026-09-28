@@ -19,8 +19,9 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 10 | Cinematic theme                        | `feature/cinematic-theme`       | Done ([PR #9](https://github.com/Hacke2367/subtitle_engine/pull/9)) |
 | 11 | Beat detection                         | `feature/beat-detection`        | Done ([PR #10](https://github.com/Hacke2367/subtitle_engine/pull/10)) |
 | 12 | Beat Pop theme                         | `feature/beat-pop-theme`        | Done ([PR #11](https://github.com/Hacke2367/subtitle_engine/pull/11)) |
-| 13 | Phonk Neon theme                       | `feature/phonk-neon-theme`      | Not started |
+| 13 | Phonk Neon theme                       | `feature/phonk-neon-theme`      | Done ([PR #12](https://github.com/Hacke2367/subtitle_engine/pull/12)) |
 | 14 | Devanagari shaping                     | `feature/devanagari-shaping`    | Deferred (only when a song needs it) |
+| 15 | Title card ("Song \| Singer")          | `feature/title-card`            | Not started |
 
 Steps 08–14: the owner builds every researched style (H-012), in this order by default (D-017).
 The owner can reorder any step before it starts.
@@ -195,7 +196,15 @@ Devanagari wrong today; Latin Hinglish is unaffected. Route in its spec: libass 
 **Done when:** हिन्दी, क्ष and दृष्टि render with correct conjuncts and matra order, matching a
 browser rendering of the same text.
 
+## 15 — Title card
+
+**Delivers:** a "Song | Singer" card at the start of a short (research §9), usable with every
+theme. Picked by the owner after step 13 (2026-09-28).
+**Needs:** nothing new; the spec settles what the card shows, where the text comes from, and how
+long it stays.
+**Done when:** the card renders on the test songs with every theme, every render check passes,
+and the owner approves the look.
+
 ## Later candidates (not scheduled; the owner picks)
 
-- Title / credit card "Song | Singer" at the start of a short (research §9).
 - Line breaks by sung pauses instead of width only (research §2, UIST 2023 guidelines).

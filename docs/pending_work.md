@@ -1,37 +1,34 @@
 # Pending Work
 
-Last updated: 2026-09-28 (step 12 merged, PR #11)
+Last updated: 2026-09-28 (step 13 merged, PR #12)
 
 ## WIP
 
-None. Step 12 (Beat Pop) merged into `dev` ([PR #11](https://github.com/Hacke2367/subtitle_engine/pull/11)); the owner approved and asked to merge.
+None. Step 13 (Phonk Neon) merged into `dev` ([PR #12](https://github.com/Hacke2367/subtitle_engine/pull/12)); the owner asked to merge.
 
 ## Current focus
 
-V1.1 styling. Seven themes: Soft Romantic v2 (default, H-015), Soft Romantic v1, Pop Karaoke,
-Lofi Minimal, Lofi Typewriter (H-016), Cinematic (H-017) and Beat Pop (H-019) (`--theme`,
-outputs in `render/<theme>/`, D-018). Beat data: `beats` command, `drops.txt` (D-022, D-024).
-The owner wants to speed up the work from the next session and will say how first.
+V1.1 styling. Eight themes: Soft Romantic v2 (default, H-015), Soft Romantic v1, Pop Karaoke,
+Lofi Minimal, Lofi Typewriter (H-016), Cinematic (H-017), Beat Pop (H-019) and Phonk Neon
+(H-020) (`--theme`, outputs in `render/<theme>/`, D-018). Beat data: `beats` command,
+`drops.txt` (D-022, D-024). Working flow (H-020): owner answers the look questions up front,
+then spec → plan → build in one run; the owner judges the finished look.
 
 ## Next up
 
-1. **Resume point:** ask for / follow the owner's direction on speeding up the work (their first
-   message next session). By plan order the next step is 13, Phonk Neon (`/start_work`,
-   `feature/phonk-neon-theme`): saturated text with a same-hue glow pulsing on beats, and white
-   flash, shake or RGB split on drops (research §3 shortlist 6). Its spec needs owner calls: the
-   display font (blackletter vs wide bold; casing must stay as written), the drop effect, and the
-   glow colour. It reuses step 12's beat motion (`beatpop.accent`, `drops.txt`).
-2. Optional cleanup: `render/check.py` (≈359 lines) and `render/karaoke.py` (≈310) are past
-   the ~300-line split guideline (`lofi.py` is 268 since step 10); split only if the owner
-   wants it (e.g. a `chore/` branch).
-3. Step 13 (Phonk Neon) follows in plan order (H-012, D-017), one branch each; step 14 (Devanagari
-   shaping) only when a song needs it.
+1. **Resume point:** step 15, Title card (`/start_work`, `feature/title-card`): a "Song | Singer"
+   card at the start of a short, with every theme. Owner-picked (2026-09-28). Flow as H-020: ask
+   the look questions up front (what the card shows, where its text comes from, how long it
+   stays, its look per theme), then spec → plan → build in one run.
+2. Step 14 (Devanagari shaping) only when a song needs it. Remaining "Later candidates":
+   line breaks by sung pauses.
+3. Optional cleanup: `render/check.py` (≈369 lines) and `render/karaoke.py` (≈313) are past
+   the ~300-line split guideline; split only if the owner wants it (a `chore/` branch).
 4. Owner: try a different song end to end (spec 05 AC4), now with any theme.
 5. Step 04 (`.lrc` anchors) only if a real song drifts.
 
 ## Waiting on the owner
 
-- Tell Claude how you want to speed up the work (next session).
 - Write your own drop times in `songs/<song>/drops.txt` (the ones in `khidki_full` are test
   values: 0:28.0, 1:30.8).
 - Optional: a beat-heavy test song (Punjabi / party / rap) in `songs/<name>/` (`audio.*` +

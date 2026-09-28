@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-28 (19): step 13 Phonk Neon built and merged (PR #12), one-run flow
+**Did:** "continue" → `/start_work` step 13 → look sheet (`songs/phonk_neon_looks.png`) → owner picked Pirata One, purple, RGB split + shake, neon-sign lighting (H-020) → spec + plan + build in one run: `render/phonk.py` (Beat Pop's plan with `ahead`, flicker-on, beat glow pulse, drop split + shake, dark rim over the glow), `render/phonk_check.py` (light sync, pulse sync, safe zone), Pirata One bundled, CLI stdout fix. Old seven themes hash-identical to `dev`. Gate green (317 tests, alpha proof). All checks pass on `khidki_s2`, `khidki_s2_em`, `khidki_full` (257.4 s; 97 of 119 beats read).
+**Decisions:** H-020 (look + one-run flow), D-025.
+**Open:** nothing on step 13; owner approved ("Merge karo") → PR #12 squash-merged. Owner picked the title card next (plan step 15).
+**Next:** `/start_work` step 15 Title card, look questions up front (H-020 flow).
+
 ## 2026-09-28 (18): step 12 Beat Pop built and merged (PR #11)
 **Did:** `/start_work` step 12 → spec (owner: line bump on every beat, owner-written `drops.txt`, words pop as sung, mustard pill = H-019; "yes") → plan → build: `render/beatpop.py` (pop, pill, bump, shake, one line at a time via `lifecycle`), `render/beatpop_check.py` (pop / pill sync, planned-width beat sync, safe zone), `beats.read_drops` / `snap`, `timing.parse_time`, `transformed(dx=)`, Anton bundled. Other six themes byte-identical to `dev`. Gate green (301 tests, alpha proof). All checks pass on `khidki_s2`, `khidki_s2_em`, `khidki_full` (full song 324.5 s; 105 of 113 beats read).
 **Decisions:** H-019, D-024.

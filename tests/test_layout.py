@@ -17,7 +17,7 @@ from lyric_engine.layout import (
     FontSet, LayoutError, LineLayout, WordBox, font_set, layout_line, word_mask,
 )
 from lyric_engine.theme import (
-    BEAT_POP, CINEMATIC, FONTS, LOFI_MINIMAL, LOFI_TYPEWRITER, POP_KARAOKE,
+    BEAT_POP, CINEMATIC, FONTS, LOFI_MINIMAL, LOFI_TYPEWRITER, PHONK_NEON, POP_KARAOKE,
     SOFT_ROMANTIC as THEME, SOFT_ROMANTIC_V2,
 )
 
@@ -38,9 +38,9 @@ LONG_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai afsos ye
 MEDIUM_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai"
 LONG_FOR = {"soft-romantic": LONG_LINE, "soft-romantic-v2": LONG_LINE, "pop-karaoke": MEDIUM_LINE,
             "lofi-minimal": MEDIUM_LINE, "lofi-typewriter": MEDIUM_LINE, "cinematic": MEDIUM_LINE,
-            "beat-pop": MEDIUM_LINE}
+            "beat-pop": MEDIUM_LINE, "phonk-neon": MEDIUM_LINE}
 ALL_THEMES = (THEME, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL, LOFI_TYPEWRITER, CINEMATIC,
-              BEAT_POP)
+              BEAT_POP, PHONK_NEON)
 FALLBACK_LINE = "dil😊 kuchh🥰 ❤\ufe0f कुछ दिल Öl saaf"
 NO_FONT = "\ufdd0"  # a noncharacter: never assigned, in none of the theme's five fonts
 MISSING = Path("C:/no/such/font.ttf")

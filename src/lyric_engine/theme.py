@@ -8,6 +8,7 @@ Soft Romantic v2: v1's look plus spec docs/specs/08_soft_romantic_v2.md §4.4.
 Lofi Minimal / Lofi Typewriter: start values from spec docs/specs/09_lofi_minimal_theme.md §4.5.
 Cinematic: start values from spec docs/specs/10_cinematic_theme.md §4.5.
 Beat Pop: start values from spec docs/specs/12_beat_pop_theme.md §4.5, plan §2.12 / §3.1.
+Phonk Neon: start values from spec docs/specs/13_phonk_neon_theme.md §4.4, plan §2.8.
 """
 from __future__ import annotations
 
@@ -20,7 +21,7 @@ FONTS = Path("C:/Windows/Fonts")
 REPO_FONTS = Path(__file__).resolve().parents[2] / "fonts"   # bundled OFL fonts (D-018)
 EMPHASIS_MIN, EMPHASIS_MAX = 1.5, 2.0   # marked word size / line font size (H-013)
 KEY_HUE, KEY_HUE_TOL, KEY_SAT_MIN = 120, 15, 0.5   # colours the green-screen output would key out
-MOTIONS = ("reveal", "karaoke", "focus", "lofi", "cinematic", "beatpop")
+MOTIONS = ("reveal", "karaoke", "focus", "lofi", "cinematic", "beatpop", "phonk")
 
 
 def _near_key_green(rgb: tuple[int, int, int]) -> bool:
@@ -74,7 +75,8 @@ class Theme:
     # "lofi" = one line shown ahead, dim; each word turns to the accent as sung, then settles
     # (Lofi Minimal), or types in letter by letter (typewriter=True);
     # "cinematic" = couplets; each word blurs into focus in the accent as sung, then settles;
-    # "beatpop" = one line; each word pops in as sung on a pill, the line bumps on the beats
+    # "beatpop" = one line; each word pops in as sung on a pill, the line bumps on the beats;
+    # "phonk" = one line shown ahead unlit; each word flickers on as sung, glow pulses on beats
     motion: str = "reveal"
     center_x: int = 540           # rows are centred on this x
     safe_zone: tuple[int, int, int, int] | None = None   # x0, y0, x1, y1 every frame stays in
@@ -121,6 +123,16 @@ class Theme:
     shake_px: int = 14            # ... shaking this far at most ...
     shake_s: float = 0.5          # ... both settling over this
     exit_scale: float = 0.95      # a leaving line shrinks to this while it fades
+    # Phonk Neon only (spec 13): unlit tube, beat pulse, drop split. Reuses text_rgb (lit core),
+    # glow_*, stroke_frac + shadow_* (the dark rim over the glow), preroll_s / enter_s,
+    # drop_scale / shake_*, hold_s, fade_out_s.
+    unlit_rgb: tuple[int, int, int] | None = None       # a word not sung yet (no glow)
+    pulse_low: float = 0.55       # glow strength at rest; 1.0 on a beat frame ...
+    pulse_s: float = 0.3          # ... back to rest over this
+    split_px: int = 12            # drop: red copy this far left, cyan this far right ...
+    split_s: float = 0.25         # ... closing over this
+    split_left_rgb: tuple[int, int, int] = (255, 30, 60)
+    split_right_rgb: tuple[int, int, int] = (0, 225, 255)
     # Outputs
     alpha_codec: str = "prores"   # owner-confirmed in CapCut (H-010)
     key_green_hex: str = "0x00FF00"
@@ -140,7 +152,7 @@ class Theme:
         if self.motion in ("lofi", "cinematic") and self.accent_rgb is None:
             raise ValueError(f"theme {self.name}: a {self.motion} theme needs accent_rgb "
                              "(current colour)")
-        if (self.motion == "lofi" and not self.typewriter
+        if ((self.motion == "phonk" or self.motion == "lofi" and not self.typewriter)
                 and round(self.preroll_s * self.fps) <= math.ceil(self.enter_s * self.fps)):
             raise ValueError(f"theme {self.name}: preroll_s must be longer than enter_s, so a line "
                              "is at rest before its first word turns current")
@@ -152,8 +164,14 @@ class Theme:
                     and self.bump_scale >= 1 and self.drop_scale >= 1):
                 raise ValueError(f"theme {self.name}: pop_scale and exit_scale must be in (0, 1], "
                                  "bump_scale and drop_scale at least 1")
+        if self.motion == "phonk":
+            if self.unlit_rgb is None:
+                raise ValueError(f"theme {self.name}: a phonk theme needs unlit_rgb")
+            if not (0 <= self.pulse_low <= 1 and self.bump_scale >= 1 and self.drop_scale >= 1):
+                raise ValueError(f"theme {self.name}: pulse_low must be in [0, 1], bump_scale and "
+                                 "drop_scale at least 1")
         for name in ("tracking", "blur_px", "couplet_gap", "couplet_max_gap_s", "pill_pad",
-                     "bump_s", "shake_px", "shake_s"):
+                     "bump_s", "shake_px", "shake_s", "pulse_s", "split_px", "split_s"):
             if getattr(self, name) < 0:
                 raise ValueError(f"theme {self.name}: {name} {getattr(self, name)} is negative")
         for f in fields(self):   # styling rules: the green-screen output would key these out
@@ -211,6 +229,18 @@ BEAT_POP = Theme(
     shadow_rgb=(0, 0, 0), shadow_alpha=0.4, shadow_radius=4, shadow_offset=(0, 3),
     reveal_s=0.25, hold_s=0.8, fade_out_s=0.2)
 
+# Beat Pop's box (700 px about 510, anchor 0.60): its worst side keeps the 1.06x drop, the shake,
+# the split and the glow (≤ 31 px past a glyph) inside x 60-960 (plan 13 §2.8); H-020 look
+PHONK_NEON = Theme(
+    "phonk-neon", motion="phonk",
+    font=REPO_FONTS / "PirataOne-Regular.ttf", font_size=100, min_font_size=64,
+    max_width=700, center_x=510, anchor_y=0.60, safe_zone=(60, 380, 960, 1540),
+    text_rgb=(225, 165, 255), unlit_rgb=(88, 36, 118), glow_rgb=(190, 70, 255),
+    glow_radius=18, glow_boost=1.5, stroke_frac=0.04,
+    shadow_rgb=(0, 0, 0), shadow_alpha=0.85, shadow_radius=2, shadow_offset=(0, 1),
+    preroll_s=0.5, enter_s=0.2, hold_s=0.8, fade_out_s=0.25,
+    bump_scale=1.0, drop_scale=1.06)
+
 THEMES = {t.name: t for t in (SOFT_ROMANTIC, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL,
-                              LOFI_TYPEWRITER, CINEMATIC, BEAT_POP)}
+                              LOFI_TYPEWRITER, CINEMATIC, BEAT_POP, PHONK_NEON)}
 DEFAULT_THEME = SOFT_ROMANTIC_V2.name   # the owner preferred v2 over v1 (spec 08 AC10)

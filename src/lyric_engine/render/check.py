@@ -159,6 +159,9 @@ def check_outputs(result: RenderResult, lines: list, theme: Theme, n_frames: int
     if theme.motion == "beatpop":     # the same: beatpop_check imports this module
         from .beatpop_check import beatpop_checks
         return fails + beatpop_checks(result, lines, theme, n_frames)
+    if theme.motion == "phonk":       # the same: phonk_check imports this module
+        from .phonk_check import phonk_checks
+        return fails + phonk_checks(result, lines, theme, n_frames)
     check = _karaoke_checks if theme.motion == "karaoke" else _alpha_sync
     return fails + check(result, lines, theme, n_frames)
 
@@ -352,6 +355,8 @@ def write_report(result: RenderResult, doc: dict, *, codec: str, theme: Theme,
                     theme.motion == "cinematic" else
                     f"pop and pill check of {timed} timed word(s) and beat check of the line's "
                     "size, on the overlay's alpha" if theme.motion == "beatpop" else
+                    f"light check of {timed} timed word(s) and beat check of the glow, on the "
+                    "overlay's colour and alpha" if theme.motion == "phonk" else
                     f"sync check of {timed} timed word(s) on the overlay's alpha")
     frame_checks += "; safe-zone check of every frame." if theme.safe_zone else "."
     out += ["", "## Output check", "", f"ffprobe checks of all three outputs; {frame_checks}", ""]
