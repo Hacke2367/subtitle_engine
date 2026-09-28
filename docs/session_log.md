@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-29 (21): north star and six background directions approved (docs only)
+**Did:** owner set the channel's north star (H-022). Two look sheets of backgrounds prototyped in `songs/_review/backgrounds/` (review only) and rejected as common (H-024). Then, song type by song type, one world with moods each: romantic room, hip-hop truck, party baraat, Sufi lamp, motivational forge, journey train, saved in `docs/backgrounds/`. Tool research in `docs/research/background_tools.md`. Plan steps 17–23 added. CLAUDE.md: owner rule to say so whenever Claude has a better idea.
+**Decisions:** H-022 to H-031, D-027.
+**Open:** docs PR from `docs/channel-north-star` waits for the owner's merge. Not designed yet: mother and family, patriotic, old classics (H-029). Claude's build-first suggestion was declined; test songs per type are needed for steps 18–22.
+**Next:** plan step 17, Background layer + romantic room: `/start_work` step 17 → spec, reading `docs/backgrounds/romantic_room.md` first.
+
 ## 2026-09-29 (20): step 15 title card built and merged (PR #13)
 **Did:** owner picked the title card after merging step 13 → plan step 15 added → look questions (top, ~3 s, each theme's own look = H-021; `title.txt` stated, not objected) → spec + plan + build in one run: `render/card.py` (reader, card build, fade, frame wrapper with a lyric-clash log, checks), `card_*` theme values, `clip` copies `title.txt`, Beat Pop's width read starts below the card. No `title.txt` → all eight themes hash-identical to `dev`. Gate green.
 **Decisions:** H-021, D-026.

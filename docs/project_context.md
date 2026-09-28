@@ -107,6 +107,13 @@ is sung, by eye and ear, with no visible drift across the whole song. And produc
 far less effort than hand-animating in CapCut. Retention / view duration on published shorts
 is the eventual signal, not a V1 gate.
 
+## North star (owner, 2026-09-29, H-022)
+
+The lyric styling itself is the content: the song plays and the words are made well enough
+that people watch for them alone. The channel earns through ad revenue and sponsors, so the
+measures are followers and watch time. Post-V1 work (colour and font variety, engine-made
+backgrounds matched to the song's vibe: H-023) is judged against this.
+
 ## Red lines
 
 1. **Never guess a timing.** If a word cannot be aligned, flag it and report it. Never

@@ -15,6 +15,7 @@ word-synced, transparent 9:16 lyric overlay for CapCut.
 - `docs/decision.md` — Claude's reversible defaults (`D-`).
 - `docs/specs/NN_*.md` (spec, WHAT) and `NN_*_impl.md` (plan, HOW) per plan step.
 - `docs/research/lyric_aesthetics.md` — styling research behind the V1.1+ theme steps.
+- `docs/backgrounds/*.md` — owner-approved background direction per song type (H-023 onward).
 - `docs/reference/project_context.pdf` — the original Gemini blueprint. Much of it is
   deliberately out of V1 scope (see project_context.md); do not build from it directly.
 
@@ -121,3 +122,5 @@ Invariants that span files (tests and runtime asserts depend on them):
 - Owner-facing replies in Hinglish; docs and code in English.
 - Ask only questions whose answer changes what gets built; state assumptions and let the
   owner object.
+- Owner rule: whenever you have a better idea than the owner's, say so plainly, with the reason,
+  before building theirs. Their examples are a starting point, not the limit.
