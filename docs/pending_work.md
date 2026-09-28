@@ -4,10 +4,10 @@ Last updated: 2026-09-29 (background directions approved; building starts next s
 
 ## WIP
 
-Branch `docs/channel-north-star` (docs only, no code): the channel's north star and the six
-approved background directions, in a pull request against `dev` for the owner to merge.
+None. The channel's north star and the six approved background directions are merged into `dev`
+([PR #15](https://github.com/Hacke2367/subtitle_engine/pull/15), docs only).
 
-V1 itself: **V1 is complete (owner, 2026-09-29):** V1 core plus the V1.1 themes, beat detection and the
+**V1 is complete (owner, 2026-09-29):** V1 core plus the V1.1 themes, beat detection and the
 title card are merged into `dev`; step 15 was the last ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)).
 
 ## Current focus
@@ -27,9 +27,9 @@ finished look.
 
 ## Next up
 
-1. **Resume point:** plan step 17, Background layer + romantic room (status Next). First the
-   owner merges the docs PR from `docs/channel-north-star` (it holds the direction docs), then
-   `/start_work` step 17 → spec. Read first: `docs/backgrounds/romantic_room.md`,
+1. **Resume point:** plan step 17, Background layer + romantic room (status Next, branch
+   `feature/bg-romantic-room`): `/start_work` step 17 → spec. No owner answer is pending for it.
+   Read first: `docs/backgrounds/romantic_room.md`,
    `docs/research/background_tools.md`, H-022 to H-031 in `docs/human_decision.md`, and the
    plan's Backgrounds section. The spec settles the world and mood names, the finished-video
    output, and how the lyrics catch the room's light without changing the text. Then steps
