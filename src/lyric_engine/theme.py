@@ -133,6 +133,15 @@ class Theme:
     split_s: float = 0.25         # ... closing over this
     split_left_rgb: tuple[int, int, int] = (255, 30, 60)
     split_right_rgb: tuple[int, int, int] = (0, 225, 255)
+    # Title card (spec 15, H-021): songs/<song>/title.txt at the top for the first card_s, in the
+    # theme's font, text_rgb, shadow and stroke; card_glow > 0 adds its glow at that strength
+    card_scale: float = 0.5       # card size × font_size ...
+    card_min_size: int = 28       # ... shrunk down to this for a wide line, then refused
+    card_top: int = 420           # the first row's box top
+    card_s: float = 3.0           # gone by this
+    card_in_s: float = 0.3
+    card_out_s: float = 0.5
+    card_glow: float = 0.0
     # Outputs
     alpha_codec: str = "prores"   # owner-confirmed in CapCut (H-010)
     key_green_hex: str = "0x00FF00"
@@ -171,7 +180,8 @@ class Theme:
                 raise ValueError(f"theme {self.name}: pulse_low must be in [0, 1], bump_scale and "
                                  "drop_scale at least 1")
         for name in ("tracking", "blur_px", "couplet_gap", "couplet_max_gap_s", "pill_pad",
-                     "bump_s", "shake_px", "shake_s", "pulse_s", "split_px", "split_s"):
+                     "bump_s", "shake_px", "shake_s", "pulse_s", "split_px", "split_s",
+                     "card_glow"):
             if getattr(self, name) < 0:
                 raise ValueError(f"theme {self.name}: {name} {getattr(self, name)} is negative")
         for f in fields(self):   # styling rules: the green-screen output would key these out
@@ -239,7 +249,7 @@ PHONK_NEON = Theme(
     glow_radius=18, glow_boost=1.5, stroke_frac=0.04,
     shadow_rgb=(0, 0, 0), shadow_alpha=0.85, shadow_radius=2, shadow_offset=(0, 1),
     preroll_s=0.5, enter_s=0.2, hold_s=0.8, fade_out_s=0.25,
-    bump_scale=1.0, drop_scale=1.06)
+    bump_scale=1.0, drop_scale=1.06, card_glow=0.55)
 
 THEMES = {t.name: t for t in (SOFT_ROMANTIC, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL,
                               LOFI_TYPEWRITER, CINEMATIC, BEAT_POP, PHONK_NEON)}

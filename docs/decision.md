@@ -364,3 +364,20 @@ footage (light core on a light sky); the rim over the glow fixes that and keeps 
 footage. A bump would make Phonk a recoloured Beat Pop. The pulse read covers 26 of 32 beats on
 `khidki_s2`.
 **Supersedes:** —
+
+### D-026 — Title card: numbers, layer order, clash check; Beat Pop reads widths below it (step 15)
+**Date:** 2026-09-29
+**Context:** Spec 15 left the card's size, place and checks to Claude; H-021 set top, ~3 s, each
+theme's own look.
+**Decision:** Card size 0.5 × the theme's `font_size` (shrunk by `font_step` to 28 px for a wide
+line), first row's box top at y 420, rows at the theme's row pitch, centred on `center_x`, kept
+inside the safe zone (or the layout box) minus the layer pad. Fade in 0.3 s from frame 0, gone at
+3.0 s after a 0.5 s fade out. Layers: glow (Phonk Neon only, at `pulse_low`), shadow of the
+stroke outline (or the glyph), stroke (if `stroke_rgb`), glyph in `text_rgb`: the theme's resting
+word look, no sung-state accent. Any lyric ink (alpha ≥ 16) under the card's rectangle while it
+shows fails the render check. Beat Pop's beat check reads the line width from 100 px above the
+line's top word box down, so the card never counts as line width.
+**Why:** At y 420 the card clears every theme's lyrics on the test songs (highest lyric ink:
+Pop Karaoke's past line, y 501, on `khidki_s2_em`, after the card is gone); a clash on another
+song is a check failure, not a silent overlap. Pixel-identical frames without `title.txt`.
+**Supersedes:** —

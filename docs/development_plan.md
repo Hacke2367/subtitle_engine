@@ -21,7 +21,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 12 | Beat Pop theme                         | `feature/beat-pop-theme`        | Done ([PR #11](https://github.com/Hacke2367/subtitle_engine/pull/11)) |
 | 13 | Phonk Neon theme                       | `feature/phonk-neon-theme`      | Done ([PR #12](https://github.com/Hacke2367/subtitle_engine/pull/12)) |
 | 14 | Devanagari shaping                     | `feature/devanagari-shaping`    | Deferred (only when a song needs it) |
-| 15 | Title card ("Song \| Singer")          | `feature/title-card`            | Not started |
+| 15 | Title card ("Song \| Singer")          | `feature/title-card`            | In review (built; owner look pending) |
 
 Steps 08–14: the owner builds every researched style (H-012), in this order by default (D-017).
 The owner can reorder any step before it starts.

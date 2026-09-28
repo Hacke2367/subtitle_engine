@@ -15,6 +15,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from . import align, timing
+from .render.card import TITLE_FILE
 
 PRE_PAD_S = 0.3     # at most this much audio before the first selected word, when snapping
 POST_PAD_S = 1.0    # at most this much after the last one (the line holds on screen meanwhile)
@@ -123,6 +124,8 @@ def clip_song(source: Path, a: float, b: float, out: Path) -> ClipPlan:
         raise ClipError(str(exc)) from None
     lines = source_lines[plan.lines[0]:plan.lines[-1] + 1]   # verbatim, stanza breaks kept
     (out / "lyrics.txt").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+    if (source / TITLE_FILE).exists():   # the title card (spec 15) comes along as written
+        shutil.copyfile(source / TITLE_FILE, out / TITLE_FILE)
     (out / "clip.json").write_text(json.dumps({
         "source": str(source), "requested": [a, b], "start_s": plan.start, "end_s": plan.end,
         "lines": [n + 1 for n in plan.lines], "warnings": plan.warnings}, indent=2) + "\n",

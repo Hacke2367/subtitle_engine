@@ -48,7 +48,8 @@ python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json
 A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`,
 `render/<theme>/` (outputs + `report.md`, one folder per theme: D-018), `bakeoff/<variant>/`
 (`raw.json` aligner cache), `beats.json` + `beats_preview.m4a` (step 11), `drops.txt` (optional,
-owner-written drop times for Beat Pop) and, for a clip, `clip.json`.
+owner-written drop times for Beat Pop and Phonk Neon), `title.txt` (optional, the title card's
+one or two lines, drawn as written; `clip` copies it) and, for a clip, `clip.json`.
 
 ## Architecture rule
 
@@ -73,7 +74,8 @@ owner-written drop times for Beat Pop) and, for a clip, `clip.json`.
   ahead unlit, words flicker on as sung, glow pulses on beats, RGB split on drops, checked by
   `phonk_check`; lofi, cinematic, beatpop and phonk share `lifecycle` (one block on screen at a
   time)
-  → one-pass `encode` → `check`): `words.json` → `render/<theme>/overlay.mov`
+  → `card` (title card on the first ~3 s, only with `title.txt`) → one-pass `encode` →
+  `check`): `words.json` → `render/<theme>/overlay.mov`
   (alpha) + `overlay_green.mp4` + `preview.mp4` (with audio, review).
   Never calls the alignment API, so hand-edit + re-render stays free.
 - `workflow.py`: `clip` (cut an aligned song at whole-line boundaries into a new song folder,
