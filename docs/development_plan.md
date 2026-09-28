@@ -18,7 +18,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 09 | Lofi Minimal theme                     | `feature/lofi-minimal-theme`    | Done ([PR #8](https://github.com/Hacke2367/subtitle_engine/pull/8)) |
 | 10 | Cinematic theme                        | `feature/cinematic-theme`       | Done ([PR #9](https://github.com/Hacke2367/subtitle_engine/pull/9)) |
 | 11 | Beat detection                         | `feature/beat-detection`        | Done ([PR #10](https://github.com/Hacke2367/subtitle_engine/pull/10)) |
-| 12 | Beat Pop theme                         | `feature/beat-pop-theme`        | Review ([PR #11](https://github.com/Hacke2367/subtitle_engine/pull/11), AC11 look pending) |
+| 12 | Beat Pop theme                         | `feature/beat-pop-theme`        | Done ([PR #11](https://github.com/Hacke2367/subtitle_engine/pull/11)) |
 | 13 | Phonk Neon theme                       | `feature/phonk-neon-theme`      | Not started |
 | 14 | Devanagari shaping                     | `feature/devanagari-shaping`    | Deferred (only when a song needs it) |
 

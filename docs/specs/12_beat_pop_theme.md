@@ -1,6 +1,7 @@
 # Spec: Beat Pop Theme
 **Version:** 1.0.0 | **Component:** themes (`theme.py`), renderer (`render/`), render checks, drops input (`drops.txt`)
-**Status:** Approved by owner 2026-09-28 ("yes"), including the §7 choices.
+**Status:** Approved by owner 2026-09-28 ("yes"), including the §7 choices. AC11: the owner
+approved and asked to merge PR #11 ("ok, merge karo", 2026-09-28).
 **Plan step:** 12 (`docs/development_plan.md`) · **Branch:** `feature/beat-pop-theme` · **Decisions:** H-019, H-018, H-013, H-012, H-010, H-009, D-017, D-018, D-021, D-022
 
 ## 1. Problem Statement
