@@ -218,7 +218,7 @@ def validate(doc: dict, lyrics_path: Path | None = None,
     header = {
         "song": isinstance(doc.get("song"), str),
         "audio.file": isinstance(audio.get("file"), str),
-        "audio.duration_s": _is_num(duration),
+        "audio.duration_s": is_num(duration),
         "audio.sha256": isinstance(audio.get("sha256"), str),
         "lyrics.file": isinstance(lyrics.get("file"), str),
         "lyrics.sha256": isinstance(lyrics.get("sha256"), str),
@@ -270,8 +270,8 @@ def validate(doc: dict, lyrics_path: Path | None = None,
         start, end = w["start"], w["end"]
         if flagged is not False:  # flagged (or "flagged" invalid, reported above): times optional
             errors += [label + f'"{key}" must be a number or null' for key in ("start", "end")
-                       if w[key] is not None and not _is_num(w[key])]
-        elif not (_is_num(start) and _is_num(end)):
+                       if w[key] is not None and not is_num(w[key])]
+        elif not (is_num(start) and is_num(end)):
             errors.append(label + "not flagged, so it needs a numeric start and end: add both "
                                   "times, or set flagged back to true")
         else:
@@ -284,7 +284,7 @@ def validate(doc: dict, lyrics_path: Path | None = None,
             if prev is not None and start < prev[1]:
                 errors.append(label + f"start {start} is before word {prev[0]}'s start {prev[1]}")
             prev = (n, start)
-        if w["score"] is not None and not _is_num(w["score"]):
+        if w["score"] is not None and not is_num(w["score"]):
             errors.append(label + '"score" must be a number or null')
 
     for what, path, section in (("lyrics", lyrics_path, lyrics), ("audio", audio_path, audio)):
@@ -317,7 +317,7 @@ def _tokens(lines: list[str]) -> list[tuple[str, int]]:
     return [(token, n) for n, line in enumerate(lines) for token in line.split()]
 
 
-def _is_num(x) -> bool:
+def is_num(x) -> bool:
     """A finite JSON number. (bool is an int subclass in Python, but never a time.)"""
     try:
         return isinstance(x, (int, float)) and not isinstance(x, bool) and math.isfinite(x)

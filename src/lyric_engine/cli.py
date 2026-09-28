@@ -7,6 +7,7 @@
                                       [--allow-flagged]
     python -m lyric_engine.cli clip songs/<full-song> --from 0:27 --to 0:57 [--out songs/<clip>]
     python -m lyric_engine.cli make songs/<song> [--theme NAME] [--codec ...] [--allow-flagged]
+    python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]
 """
 from __future__ import annotations
 
@@ -87,6 +88,48 @@ def _make(song: Path, codec: str | None, allow_flagged: bool, theme: str) -> int
     return code if code != 0 else _render(song, codec, allow_flagged, theme)
 
 
+def _bpm(text: str) -> float:
+    from .beats import MAX_BPM, MIN_BPM   # plain constants; librosa loads only inside beats' functions
+    try:
+        bpm = float(text)
+    except ValueError:
+        bpm = None
+    if bpm is None or not MIN_BPM <= bpm <= MAX_BPM:
+        raise argparse.ArgumentTypeError(f"not a tempo: {text!r} (use a BPM between {MIN_BPM} and {MAX_BPM})")
+    return bpm
+
+
+def _beats(song: Path, fresh: bool, bpm: float | None) -> int:
+    from . import beats
+    preview_error = None
+    try:
+        result = beats.ensure_beats(song, fresh=fresh, bpm=bpm)
+        preview = song / beats.PREVIEW_FILE
+        if not result.reused or not preview.exists():
+            try:
+                beats.write_preview(result.audio, result.doc, preview)
+            except RuntimeError as exc:   # beats.json is saved; only the review file failed
+                preview_error = exc
+    except beats.BeatsError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    except ModuleNotFoundError as exc:
+        print(f"error: {exc.name} is not installed: pip install -r requirements.txt", file=sys.stderr)
+        return 2
+    times = result.doc["beats"]
+    print(f"beats.json: {result.path} ({'reused' if result.reused else 'computed'})")
+    if preview_error is None:
+        print(f"preview: {preview}")
+    print(f"tempo: {result.doc['tempo_bpm']:g} BPM  beats: {len(times)}"
+          + (f"  first: {times[0]:.3f} s  last: {times[-1]:.3f} s" if times else ""))
+    for note in result.notes:
+        print(f"note: {note}")
+    if preview_error is not None:
+        print(f"error: {preview_error}", file=sys.stderr)
+        return 1
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="lyric_engine")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -119,6 +162,10 @@ def main(argv: list[str] | None = None) -> int:
     m.add_argument("--theme", choices=list(THEMES), default=DEFAULT_THEME)
     m.add_argument("--codec", choices=["prores", "png", "qtrle"])
     m.add_argument("--allow-flagged", action="store_true")
+    bt = sub.add_parser("beats", help="tempo + beat times → beats.json, and a click-track preview")
+    bt.add_argument("song_dir", type=Path)
+    bt.add_argument("--fresh", action="store_true", help="detect again, replacing beats.json")
+    bt.add_argument("--bpm", type=_bpm, help="tempo hint when detection lands on half or double")
     args = parser.parse_args(argv)
 
     try:
@@ -133,6 +180,8 @@ def main(argv: list[str] | None = None) -> int:
             return _clip(args.song_dir, args.start, args.end, args.out)
         if args.cmd == "make":
             return _make(args.song_dir, args.codec, args.allow_flagged, args.theme)
+        if args.cmd == "beats":
+            return _beats(args.song_dir, args.fresh, args.bpm)
         return _validate(args.words_json, args.song)
     except (timing.LyricsError, FileNotFoundError) as exc:
         print(f"error: {exc}", file=sys.stderr)

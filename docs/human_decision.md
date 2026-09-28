@@ -247,3 +247,18 @@ each word pulls into focus as sung.
 `lyrics.txt` split stanzas) show in pairs, 1+2, 3+4; a leftover line shows alone. No word shows
 before it is sung; each blurs in on its own time.
 **Decided:** 2026-09-27
+
+### H-018 — Beat detection: librosa, beats in their own `beats.json`
+**Status:** decided
+**Raised:** 2026-09-27
+**Needed-before:** spec 11 (beat detection)
+**Context:** Plan step 11 leaves the library and the storage open. `aubio` has no Windows wheel
+on PyPI (source only, needs an MSVC build) and is GPL-3.0. D-001 makes `words.json` the only
+contract between stages.
+**Options:** Library: (a) `librosa` (wheels for every dependency; beats, onsets, tempo; no
+downbeats), (b) `beat_this` (neural, torch, beats + downbeats, GitHub install, weights licence to
+check), (c) try both and keep the better, (d) own numpy code. Storage: (a) a separate
+`songs/<song>/beats.json`, (b) inside `words.json`.
+**Recommendation:** (a) and (a).
+**Decision:** "librosa (Recommended)" and "Alag beats.json (Recommended)".
+**Decided:** 2026-09-27
