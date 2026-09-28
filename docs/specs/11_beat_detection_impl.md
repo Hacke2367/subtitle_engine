@@ -15,6 +15,12 @@
 >   143.55 BPM, 410 beats; second run `(reused)`. `tests.test_beats` 25 tests, 14 s; a disabled
 >   silence mask fails `test_silent_gap`, hop 512 fails `test_click_track`. Gate: 283 tests OK,
 >   alpha proof passes.
+> - AC10 objective proxy (2026-09-28, scratchpad script): HPSS percussive part, kick (30-150 Hz) and
+>   snare (150-5000 Hz) band flux, delayed by `n_fft // (2 * hop)` frames as librosa's centred
+>   onset envelope is. On `khidki_full`, 84 % of beats have a drum onset within 50 ms (random: 42 %),
+>   with a median of 23 ms. Even/odd beat drum strength ratio 1.00, so 143.55 BPM is not double time.
+>   Without the delay the same measure reads the beats as 46 ms late: an artefact of the window, not
+>   of the beats.
 
 Numbers below come from a spike on this laptop (2026-09-28, scratchpad, not committed): librosa
 0.11.0 installed into `venv/`, synthetic click tracks and `songs/khidki_full` (172 s mp3).
