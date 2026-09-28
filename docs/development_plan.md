@@ -22,7 +22,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 13 | Phonk Neon theme                       | `feature/phonk-neon-theme`      | Done ([PR #12](https://github.com/Hacke2367/subtitle_engine/pull/12)) |
 | 14 | Devanagari shaping                     | `feature/devanagari-shaping`    | Deferred (only when a song needs it) |
 | 15 | Title card ("Song \| Singer")          | `feature/title-card`            | Done ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)) |
-| 16 | Line breaks at sung pauses             | `feature/pause-line-breaks`     | Not started |
+| 16 | Line breaks at sung pauses             | `feature/pause-line-breaks`     | Optional (only if the owner asks) |
 
 Steps 08–14: the owner builds every researched style (H-012), in this order by default (D-017).
 The owner can reorder any step before it starts.
