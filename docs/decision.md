@@ -394,3 +394,56 @@ their videos) stay in the gitignored `songs/_review/backgrounds/`, review only.
 **Why:** The direction files are what each background step's spec starts from, so they are
 tracked; the prototypes were never product code and the owner turned them down.
 **Supersedes:** —
+
+### D-028 — Backgrounds: one ffmpeg process, overlay stacked above the finished frame (step 17)
+**Date:** 2026-09-29
+**Context:** Spec 17 adds a finished short (`final_<world>_<mood>.mp4`) next to the overlay's three
+outputs, which must stay exactly as they are without and with `--bg` (spec 17 AC2, AC3).
+**Decision:** With `--bg`, every frame piped to ffmpeg is 1080×3840 RGBA: the theme's overlay
+bytes, untouched, above the finished frame. The graph splits and crops; the top half runs through
+today's three chains, the bottom half to H.264 (crf 18, AAC 192k, faststart, no `-shortest`).
+Without `--bg` the command string is the same as before.
+**Why:** Keeps CLAUDE.md's one-process design and makes AC3 hold by construction (verified: the
+overlay's frame hashes equal `dev`'s). A second ffmpeg process would add a second writer, error
+path and cleanup for no gain.
+**Supersedes:** —
+
+### D-029 — Backgrounds: light at half size, full size in 8-bit PIL ops (step 17)
+**Date:** 2026-09-29
+**Context:** The 10-minute target for a 60 s short (spec 17 AC10); a first float32 pipeline took
+about 250 ms per frame for the room alone.
+**Decision:** Every light term (ambient, the jaali patch with leaves and curtain, dust, steam,
+the lamp) and the lyrics' shadows are summed at 540×960 in float; the sum is clipped at 1,
+upscaled once as RGBA and multiplied by the full-size albedo with `ImageChops.multiply`; the
+tinted overlay goes on with `alpha_composite`. Blurs use `scipy.ndimage` (already installed; PIL
+cannot blur float images). numpy and scipy are now direct requirements.
+**Why:** Light is soft, so half size shows nothing; the 8-bit C ops cut the room to about 100 ms
+per frame (145 ms measured inside a real render), about 0.19 s per frame with the overlay and all
+four encodes. `moderngl` stays the fallback if a later world needs more.
+**Supersedes:** —
+
+### D-030 — Backgrounds: the lyrics' shadow blocks light; legibility measured around the text (step 17)
+**Date:** 2026-09-29
+**Context:** Spec 17 §4.4 (lyrics cast a shadow without changing the text) and §4.5 (legibility).
+**Decision:** The overlay's alpha, shifted away from each light and softened, removes a share of
+that light (sun 70%, lamp 70%), so the shadow is the wall's own colour, lengthens and fades with
+the sun, and is cast by the lamp at the end. The text's RGB is multiplied by a tint in [0.9, 1]
+per channel; its alpha is never touched. Legibility: 99th-percentile background luminance around
+the text (ink box + 24 px, inside the lyric area) against the lit text colour, at least 3:1, on
+every frame with text.
+**Why:** No extra shadow rules per light, and red line 2 holds by construction. The first rule,
+over the whole lyric area, failed on the lamp's glow at the bottom-left corner where no lyric sits,
+which would have banned the ending; the spec was changed before any approval.
+**Supersedes:** —
+
+### D-031 — Backgrounds: props drawn by code, seeded by the folder name (step 17)
+**Date:** 2026-09-29
+**Context:** `docs/backgrounds/romantic_room.md` left props open (AI stills, CC0 art or code).
+**Decision:** Everything is drawn by code (PIL at 2× with soft form shading and a contact shadow
+on the wall); the room's story is mostly light and shadow (the jaali's chakri pattern, a money
+plant vine, a sheer curtain). The seed is `zlib.crc32(folder name)`; it picks the plant's side,
+the curtain's print, the prop (chai glass with steam, radio, letter) and the dupatta's colour.
+The wall, window and jaali never change.
+**Why:** Free, the same hand-made look in every world, and re-rendering a song keeps its room.
+AI stills stay the fallback if the owner finds the drawn props weak.
+**Supersedes:** —

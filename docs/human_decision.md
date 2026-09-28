@@ -347,7 +347,7 @@ pade tou karenge: koi python library, koi ai generation tool etc"
 **Decided:** 2026-09-29
 
 ### H-024 — Which background looks to build first
-**Status:** pending
+**Status:** decided
 **Raised:** 2026-09-29
 **Needed-before:** spec for the background step
 **Context:** Two look sheets for H-023, review only, on `khidki_s2_em` with lyrics and audio,

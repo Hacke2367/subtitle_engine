@@ -4,9 +4,10 @@
     python -m lyric_engine.cli align songs/<song> [--variant NAME] [--fresh] [--overwrite]
     python -m lyric_engine.cli validate songs/<song>/words.json [--song songs/<song>]
     python -m lyric_engine.cli render songs/<song> [--theme NAME] [--codec prores|png|qtrle]
-                                      [--allow-flagged]
+                                      [--allow-flagged] [--bg WORLD[:MOOD]]
     python -m lyric_engine.cli clip songs/<full-song> --from 0:27 --to 0:57 [--out songs/<clip>]
     python -m lyric_engine.cli make songs/<song> [--theme NAME] [--codec ...] [--allow-flagged]
+                                    [--bg WORLD[:MOOD]]
     python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]
 """
 from __future__ import annotations
@@ -34,11 +35,12 @@ def _validate(path: Path, song: Path | None) -> int:
     return 0 if not errors else 1
 
 
-def _render(song: Path, codec: str | None, allow_flagged: bool, theme: str) -> int:
+def _render(song: Path, codec: str | None, allow_flagged: bool, theme: str,
+            bg: tuple[str, str] | None = None) -> int:
     from . import layout, render   # lazy: fonts/Pillow only when rendering
     try:
         result = render.render(song, codec=codec, allow_flagged=allow_flagged,
-                               theme=THEMES[theme])
+                               theme=THEMES[theme], bg=bg)
     except (render.RenderError, layout.LayoutError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
@@ -79,10 +81,19 @@ def _clip(song: Path, start: float, end: float, out: Path | None) -> int:
     return 0
 
 
-def _make(song: Path, codec: str | None, allow_flagged: bool, theme: str) -> int:
+def _make(song: Path, codec: str | None, allow_flagged: bool, theme: str,
+          bg: tuple[str, str] | None = None) -> int:
     from . import workflow
     code = workflow.ensure_aligned(song)
-    return code if code != 0 else _render(song, codec, allow_flagged, theme)
+    return code if code != 0 else _render(song, codec, allow_flagged, theme, bg)
+
+
+def _bg(text: str) -> tuple[str, str]:
+    from .background import parse_bg   # names only; numpy loads when a render draws one
+    try:
+        return parse_bg(text)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(str(exc)) from None
 
 
 def _bpm(text: str) -> float:
@@ -152,6 +163,8 @@ def main(argv: list[str] | None = None) -> int:
                    help="alpha codec for overlay.mov (default: theme's, provisional until CapCut test)")
     r.add_argument("--allow-flagged", action="store_true",
                    help="render despite flagged words; untimed ones are shown static, never animated")
+    r.add_argument("--bg", type=_bg, metavar="WORLD[:MOOD]",
+                   help="also write a finished short on an engine-made background (room = room:dusk)")
     c = sub.add_parser("clip", help="cut whole lyric lines of an aligned song into a new song folder")
     c.add_argument("song_dir", type=Path, help="an aligned full song (has words.json)")
     c.add_argument("--from", dest="start", type=_seconds, required=True, help="e.g. 27 or 0:27")
@@ -162,6 +175,7 @@ def main(argv: list[str] | None = None) -> int:
     m.add_argument("--theme", choices=list(THEMES), default=DEFAULT_THEME)
     m.add_argument("--codec", choices=["prores", "png", "qtrle"])
     m.add_argument("--allow-flagged", action="store_true")
+    m.add_argument("--bg", type=_bg, metavar="WORLD[:MOOD]")
     bt = sub.add_parser("beats", help="tempo + beat times → beats.json, and a click-track preview")
     bt.add_argument("song_dir", type=Path)
     bt.add_argument("--fresh", action="store_true", help="detect again, replacing beats.json")
@@ -175,11 +189,11 @@ def main(argv: list[str] | None = None) -> int:
             return align.align_song(args.song_dir, variant=args.variant, fresh=args.fresh,
                                     overwrite=args.overwrite)
         if args.cmd == "render":
-            return _render(args.song_dir, args.codec, args.allow_flagged, args.theme)
+            return _render(args.song_dir, args.codec, args.allow_flagged, args.theme, args.bg)
         if args.cmd == "clip":
             return _clip(args.song_dir, args.start, args.end, args.out)
         if args.cmd == "make":
-            return _make(args.song_dir, args.codec, args.allow_flagged, args.theme)
+            return _make(args.song_dir, args.codec, args.allow_flagged, args.theme, args.bg)
         if args.cmd == "beats":
             return _beats(args.song_dir, args.fresh, args.bpm)
         return _validate(args.words_json, args.song)

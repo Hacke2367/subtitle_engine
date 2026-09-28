@@ -56,13 +56,17 @@ creators is a future vision, not V1.
   mobile (Chroma Key)
 - Auto-wrap / max words per line so text fits 9:16
 - Font fallback for characters the theme font lacks (the blueprint's "Tofu" problem)
+- **Post-V1 (H-023, scope change):** engine-made backgrounds, one world per song type with moods
+  (`docs/backgrounds/`), and a finished short (background + lyrics + audio) written next to the
+  overlay outputs, which stay as they are. First: the romantic room (spec 17).
 
 **Out of scope (V1):**
 - Transcription (audio without lyrics); spoken / voiceover content
 - `.ass` or any subtitle-file output (CapCut cannot read styled subtitles)
 - AI stylist / LLM auto-tagging; the custom tag markup (`<glow>`, `<shake>`, `<glitch>`, ...)
 - Themes beyond the V1.1 list above
-- Finished video export (background + audio + text in one file)
+- Finished video export (background + audio + text in one file): V1 only; added after V1 by
+  H-023 (see In scope)
 - SaaS, multi-user, web UI, YouTube-channel marketing
 - Fast preview mode (nice-to-have only; owner accepts up to ~10 min render per song)
 

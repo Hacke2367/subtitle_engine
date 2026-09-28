@@ -1,11 +1,16 @@
 # Pending Work
 
-Last updated: 2026-09-29 (background directions approved; building starts next session)
+Last updated: 2026-09-29 (step 17 built: owner reviews the room)
 
 ## WIP
 
-None. The channel's north star and the six approved background directions are merged into `dev`
-([PR #15](https://github.com/Hacke2367/subtitle_engine/pull/15), docs only).
+Step 17, Background layer + romantic room, on `feature/bg-romantic-room` (base `dev` @ fda0612):
+built and in review. `render|make songs/<song> --bg room` writes
+`render/<theme>/final_room_dusk.mp4` (the room under the lyrics, with audio) next to the
+unchanged overlay outputs. Spec `docs/specs/17_bg_romantic_room.md`, plan `..._impl.md`, D-028 to
+D-031. All checks pass on `khidki_s2_em`, `khidki_s2`, `khidki_30s` (new 30 s clip) and
+`khidki_full`; the eight themes without `--bg` are hash-identical to `dev`. Render time with the
+room: 14 s → 76 s, 30 s → 149 s, full song (2:52) → 765 s. H-024's status corrected to decided.
 
 **V1 is complete (owner, 2026-09-29):** V1 core plus the V1.1 themes, beat detection and the
 title card are merged into `dev`; step 15 was the last ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)).
@@ -13,7 +18,7 @@ title card are merged into `dev`; step 15 was the last ([PR #13](https://github.
 ## Current focus
 
 Post-V1 (H-022 onward): engine-made backgrounds, one world per song type, each with moods.
-Six directions approved, none built: romantic room, hip-hop truck, party baraat, Sufi lamp,
+Six directions approved; the romantic room is built (step 17, in review), the rest not yet: hip-hop truck, party baraat, Sufi lamp,
 motivational forge, journey train (`docs/backgrounds/`). Plan steps 17–23 build them; the owner
 wants them built from the next session on. Not designed yet (H-029): mother and family,
 patriotic, old classics.
@@ -27,13 +32,10 @@ finished look.
 
 ## Next up
 
-1. **Resume point:** plan step 17, Background layer + romantic room (status Next, branch
-   `feature/bg-romantic-room`): `/start_work` step 17 → spec. No owner answer is pending for it.
-   Read first: `docs/backgrounds/romantic_room.md`,
-   `docs/research/background_tools.md`, H-022 to H-031 in `docs/human_decision.md`, and the
-   plan's Backgrounds section. The spec settles the world and mood names, the finished-video
-   output, and how the lyrics catch the room's light without changing the text. Then steps
-   18–22 in order, each needing its test song.
+1. **Resume point:** the owner watches `songs/khidki_s2_em/render/soft-romantic-v2/final_room_dusk.mp4`
+   and `songs/khidki_full/render/soft-romantic-v2/final_room_dusk.mp4` (spec 17 AC11) and says
+   what to change; look numbers are in `background/room.py` (`DUSK`), the art in `room_art.py`.
+   Approved → merge the PR, then step 18 (hip-hop truck; needs a hip-hop test song).
    Still open from V1: the owner tries a different song end to end (`align` → `clip` → `make`,
    spec 05 AC4); a bug found there comes first.
 2. Step 14 (Devanagari shaping) only when a song needs it. Step 16 (line breaks at sung

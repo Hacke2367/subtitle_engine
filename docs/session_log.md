@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-29 (22): step 17 built, the romantic room under the lyrics (in review)
+**Did:** "continue" → `/start_work` step 17 → spec + plan + build in one run (H-020 flow): `background/` package (`--bg room` = `room:dusk`; song facts only, seed from the folder name; `paint` shared art tools; `room` arc gold → rose → dusk skylight, gusts on marked words, lamp at the last line; `room_art` chakri jaali patch, money plant vine, sheer curtain, table, lamp, prop, chair + dupatta; `compose` text shadows block the light, bounded tint, alpha untouched, legibility log), stacked ffmpeg input with a fourth output `final_<world>_<mood>.mp4`, `--bg` on render/make, 18 new tests. Gate green (344 tests, alpha proof). Checks pass on four Khidki songs; eight themes hash-identical to `dev` without `--bg`; overlay outputs identical with it.
+**Decisions:** D-028 to D-031; spec's legibility rule moved from the whole lyric area to around the text (lamp glow at the bottom-left). H-024 status corrected to decided.
+**Open:** owner judges the look (AC11). Render time: 30 s clip 149 s, full song 765 s.
+**Next:** owner feedback on the room → tune `DUSK` / art → merge → step 18.
+
 ## 2026-09-29 (21): north star and six background directions approved (docs only)
 **Did:** owner set the channel's north star (H-022). Two look sheets of backgrounds prototyped in `songs/_review/backgrounds/` (review only) and rejected as common (H-024). Then, song type by song type, one world with moods each: romantic room, hip-hop truck, party baraat, Sufi lamp, motivational forge, journey train, saved in `docs/backgrounds/`. Tool research in `docs/research/background_tools.md`. Plan steps 17–23 added. CLAUDE.md: owner rule to say so whenever Claude has a better idea.
 **Decisions:** H-022 to H-031, D-027.

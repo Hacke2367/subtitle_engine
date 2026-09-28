@@ -23,7 +23,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 14 | Devanagari shaping                     | `feature/devanagari-shaping`    | Deferred (only when a song needs it) |
 | 15 | Title card ("Song \| Singer")          | `feature/title-card`            | Done ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)) |
 | 16 | Line breaks at sung pauses             | `feature/pause-line-breaks`     | Optional (only if the owner asks) |
-| 17 | Background layer + romantic room       | `feature/bg-romantic-room`      | Next (H-023, H-025) |
+| 17 | Background layer + romantic room       | `feature/bg-romantic-room`      | Review (owner judges the look) |
 | 18 | Hip-hop truck background               | `feature/bg-hiphop-truck`       | Planned (H-026) |
 | 19 | Party baraat background                | `feature/bg-party-baraat`       | Planned (H-027) |
 | 20 | Sufi lamp background                   | `feature/bg-sufi-lamp`          | Planned (H-028) |

@@ -101,10 +101,11 @@ def load_beats_for_render(song_dir: Path, duration: float
 
 # --- Render ----------------------------------------------------------------------------------
 def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = False,
-           theme: Theme = SOFT_ROMANTIC) -> RenderResult:
+           theme: Theme = SOFT_ROMANTIC, bg: tuple[str, str] | None = None) -> RenderResult:
     """songs/<song>/words.json -> render/<theme>/overlay.mov, overlay_green.mp4, preview.mp4,
-    report.md (D-018: each theme in its own folder). Raises RenderError (or layout.LayoutError
-    for a line that cannot be laid out)."""
+    report.md (D-018: each theme in its own folder); with bg = (world, mood) also the finished
+    short final_<world>_<mood>.mp4 (spec 17). Raises RenderError (or layout.LayoutError for a
+    line that cannot be laid out)."""
     t0 = time.perf_counter()
     song_dir = Path(song_dir)
     codec = codec or theme.alpha_codec
@@ -147,11 +148,21 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
     render_dir = song_dir / "render" / theme.name
     render_dir.mkdir(parents=True, exist_ok=True)
     outputs = {key: render_dir / name for key, name in OUTPUTS.items()}
+    scene = None
+    if bg:   # here: numpy and the world's art load only for a background
+        from .. import background
+        from ..background.compose import Legibility, final_checks, with_background
+        scene = background.build_scene(bg, background.song_facts(
+            doc, emphasis, duration, n, theme.fps, song_dir.name))
+        outputs["final"] = render_dir / f"final_{bg[0]}_{bg[1]}.mp4"
+        legibility = Legibility()
     _remove([*outputs.values(), render_dir / REPORT])   # a failed run must not leave old results
     t1 = time.perf_counter()
     frames = (parts(k, lines, sprites, theme, cache) for k in range(n))
-    _encode(_ffmpeg_cmd(theme, codec, audio, outputs),
-            with_card(frames, card, theme) if card else frames, outputs)
+    frames = with_card(frames, card, theme) if card else frames
+    if scene:
+        frames = with_background(frames, scene, theme, legibility)
+    _encode(_ffmpeg_cmd(theme, codec, audio, outputs), frames, outputs)
     encode_s = time.perf_counter() - t1
     result = RenderResult(render_dir, outputs, n, 0.0, skipped, [], emphasis=[
         f'"{w["text"]}" (line {w["line"] + 1})' for w in doc["words"] if w["i"] in emphasis])
@@ -163,7 +174,16 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
                             f"{card.stop / theme.fps:.1f} s (title.txt)")
     elif title == []:
         result.notes.append("title.txt has no text: no title card")
+    extra = []
+    if scene:
+        result.checks += final_checks(outputs["final"], n, theme, legibility)
+        note = background.fit_note(bg[0], theme.name)
+        result.notes += [note] if note else []
+        result.notes += [f"background: marked but untimed, no gust: {label}"
+                         for label in scene.facts.untimed_marks]
+        extra = background.report_lines(bg, scene, theme.name, legibility)
     check_s = time.perf_counter() - t2
     result.wall_s = time.perf_counter() - t0
-    write_report(result, doc, codec=codec, theme=theme, encode_s=encode_s, check_s=check_s)
+    write_report(result, doc, codec=codec, theme=theme, encode_s=encode_s, check_s=check_s,
+                 extra=extra)
     return result
