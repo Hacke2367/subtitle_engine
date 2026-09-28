@@ -15,7 +15,7 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 
 | ID    | Title                                              | Status |
 |-------|----------------------------------------------------|--------|
-| D-001 | `words.json` is the only contract between stages    | Active |
+| D-001 | `words.json` is the only contract between stages    | Amended by D-022 |
 | D-002 | `songs/` is gitignored except the example lyrics    | Active |
 | D-003 | Keep the existing venv (Python 3.10.11)             | Active |
 | D-004 | Gate commands empty until the first tested module   | Active |
@@ -35,6 +35,9 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-018 | Theme outputs in `render/<theme>/`; Poppins bundled | Active |
 | D-019 | v2 hand-over rule and sync readability (step 08)    | Active |
 | D-020 | Lofi line timing on frames; tracking units (step 09) | Active |
+| D-021 | Cinematic: first ink, couplet placement, life cycle | Active |
+| D-022 | Beats live in `beats.json` beside `words.json`      | Active |
+| D-023 | Beat detection numbers: ffmpeg decode, hop 256, -50 dBFS | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -295,4 +298,32 @@ one-at-a-time life cycle lives in `render/lifecycle.py`, called by Lofi and Cine
 a static wght-500 instance of Google Fonts' Cormorant Garamond Italic variable file (fontTools).
 **Why:** The check can read every word's first frame and complete frame; a couplet's first line
 stays still; one copy of the life-cycle arithmetic (Lofi frames byte-identical after the move).
+**Supersedes:** —
+
+### D-022 — Beats live in `beats.json` beside `words.json` (step 11)
+**Date:** 2026-09-27
+**Context:** H-018: beat data is a new input for the beat themes (steps 12-13), stored beside
+`words.json`, not inside it. D-001 said `words.json` is the only contract between stages.
+**Decision:** Two contracts. `words.json` (lyrics → timings, owned by `timing.py`, may hold hand
+corrections) and `beats.json` (audio → beat and onset times, computed locally, a cache that can
+always be rebuilt). Rendering never calls the alignment API (D-001 unchanged there); computing
+beats is local and free, so a render may compute a missing `beats.json` once and reuse it.
+**Why:** Re-aligning must not wipe beats, recomputing beats must never touch a hand-corrected
+`words.json`, and the `words.json` validator stays as it is.
+**Supersedes:** amends D-001 (the "only contract" part).
+
+### D-023 — Beat detection numbers: ffmpeg decode, hop 256, −50 dBFS silence (step 11)
+**Date:** 2026-09-28
+**Context:** Spec 11 left the silence threshold, the frame size and the preview format to the plan;
+plan 11 (§2.2-2.5, §2.9) fixed them from a spike on this laptop.
+**Decision:** Audio is decoded by ffmpeg to mono float32 at 22 050 Hz (every `AUDIO_EXTS` format).
+`beat_track` runs at `hop_length` 256; `--bpm` passes a fixed tempo (`bpm=`), not a prior. A run of
+RMS frames (2048 samples) below −50 dBFS longer than two beat periods loses every beat inside it.
+A file is stale only on changed audio or an older `version`; detector settings never invalidate it,
+so a `--bpm` fix and hand edits survive renders. The preview is the original audio plus 1.5 kHz
+clicks, AAC in `beats_preview.m4a`.
+**Why:** Hop 512 read a 120 BPM click track as 117.45 BPM and dropped its first and last click; 256
+gave 120.19 with every click within 19 ms (1.3 s on a full song). librosa keeps the pulse going
+through a dead stop (6 beats in 3.5 s of silence); −50 dBFS is near-digital silence, and
+`khidki_full`'s quietest 1 % of frames sit at −32 dBFS, so real music is untouched.
 **Supersedes:** —

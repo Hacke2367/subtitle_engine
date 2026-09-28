@@ -30,6 +30,7 @@ python -m lyric_engine.cli render songs/<song> [--theme NAME] [--codec prores|pn
                                [--allow-flagged]
 python -m lyric_engine.cli validate songs/<song>/words.json --song songs/<song>
 python -m lyric_engine.cli bakeoff songs/<song> [--fresh]   # compare aligner variants
+python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json + click preview
 ```
 
 - `--theme`: `soft-romantic-v2` (default, spec 08), `soft-romantic` (v1), `pop-karaoke`,
@@ -45,7 +46,8 @@ python -m lyric_engine.cli bakeoff songs/<song> [--fresh]   # compare aligner va
 
 A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`,
 `render/<theme>/` (outputs + `report.md`, one folder per theme: D-018), `bakeoff/<variant>/`
-(`raw.json` aligner cache) and, for a clip, `clip.json`.
+(`raw.json` aligner cache), `beats.json` + `beats_preview.m4a` (step 11) and, for a clip,
+`clip.json`.
 
 ## Architecture rule
 
@@ -57,6 +59,9 @@ A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`
   (review only, not product output). Never renders the overlay.
 - `timing.py`: owns the `words.json` format, lyrics reader (incl. `*word*` emphasis markers),
   flag rules, validator. The only thing align and render share.
+- `beats.py`: audio → `beats.json` (tempo + beat times, librosa, imported lazily; D-022, the
+  second contract). `ensure_beats` reuses a file valid for the audio (hand edits kept), else
+  detects and saves. Never reads `lyrics.txt` / `words.json`; beats are decoration only.
 - `theme.py` (all look numbers; `THEMES`, and `motion` picks the renderer), `layout.py`
   (fonts with cmap fallback, tracking, balanced wrap), `render/` (`timeline` → `frames`, or
   `karaoke` for Pop Karaoke, or `focus` for Soft Romantic v2: v1's word frames plus a past-line

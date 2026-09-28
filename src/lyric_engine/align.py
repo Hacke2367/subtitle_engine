@@ -49,14 +49,19 @@ class RunResult:
     review_error: str | None = None   # words.json is fine, but the report/preview failed
 
 
-def song_paths(song_dir: Path) -> tuple[Path, Path]:
+def song_audio(song_dir: Path) -> Path:
     audio = [p for p in sorted(song_dir.glob("audio.*")) if p.suffix.lower() in AUDIO_EXTS]
     if len(audio) != 1:
         raise FileNotFoundError(f"{song_dir}: expected exactly one audio.<ext> file, found {len(audio)}")
+    return audio[0]
+
+
+def song_paths(song_dir: Path) -> tuple[Path, Path]:
+    audio = song_audio(song_dir)
     lyrics = song_dir / "lyrics.txt"
     if not lyrics.exists():
         raise FileNotFoundError(f"{song_dir}: lyrics.txt not found")
-    return audio[0], lyrics
+    return audio, lyrics
 
 
 def probe_duration(audio: Path) -> float:

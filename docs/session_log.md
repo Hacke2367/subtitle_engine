@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-28 (17): step 11 beat detection built and merged (PR #10)
+**Did:** `/start_work` step 11 → spec (owner: librosa, own `beats.json` = H-018; "continue") → plan (spike: hop 256, −50 dBFS silence mask) → build: `beats.py` (ffmpeg decode, `beat_track`, silence mask, reuse/rebuild/hand-edit rules), `beats` command with `--fresh` / `--bpm`, click preview `beats_preview.m4a`, `align.song_audio`, `timing.is_num`. Gate green (283 tests, alpha proof). `khidki_full`: 143.55 BPM, 410 beats, 15.8 s; second run reused; a click on every beat in the preview.
+**Decisions:** H-018, D-022 (amends D-001), D-023.
+**Open:** AC10 by ear optional: owner merged on the objective check (84 % of beats within 50 ms of a kick/snare hit; even/odd drum ratio 1.00, so not double time) → PR #10 squash-merged. No CHANGELOG in this repo.
+**Next:** `/start_work` step 12 Beat Pop → `/spec`; owner adds a beat-heavy test song.
+
 ## 2026-09-27 (16): step 10 Cinematic built and merged (PR #9)
 **Did:** `/start_work` step 10 → spec (owner: couplets, words blur in as sung = H-017; "yes") → plan → build: `render/cinematic.py` (stanza couplets, per-word blur-in, gold→ivory), `render/cinematic_check.py` (reveal sync), life cycle moved to `render/lifecycle.py` (lofi byte-identical), `layout_line(size=)`, Cormorant Garamond Medium Italic bundled (static instance). Gate green (258 tests, alpha proof); other five themes byte-identical to `dev`; all checks pass with no notes on the three khidki songs (~26 s vs v1 20.9 s). Owner approved the preview → [PR #9](https://github.com/Hacke2367/subtitle_engine/pull/9) squash-merged.
 **Decisions:** H-017, D-021.
