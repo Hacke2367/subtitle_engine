@@ -38,6 +38,7 @@ Owner decisions and open questions live in `docs/human_decision.md`.
 | D-021 | Cinematic: first ink, couplet placement, life cycle | Active |
 | D-022 | Beats live in `beats.json` beside `words.json`      | Active |
 | D-023 | Beat detection numbers: ffmpeg decode, hop 256, -50 dBFS | Active |
+| D-024 | Beat Pop: bump/shake math, pill geometry, width check | Active |
 
 ### D-001 — `words.json` is the only contract between stages
 **Date:** 2026-09-26
@@ -326,4 +327,22 @@ clicks, AAC in `beats_preview.m4a`.
 gave 120.19 with every click within 19 ms (1.3 s on a full song). librosa keeps the pulse going
 through a dead stop (6 beats in 3.5 s of silence); −50 dBFS is near-digital silence, and
 `khidki_full`'s quietest 1 % of frames sit at −32 dBFS, so real music is untouched.
+**Supersedes:** —
+
+### D-024 — Beat Pop: bump and shake math, pill geometry, planned-width beat check (step 12)
+**Date:** 2026-09-28
+**Context:** Spec 12 (§4.2, §4.5, §4.7) sets the pop, pill, bump and shake in words; plan 12 and
+the build made them exact.
+**Decision:** Beats and drops take the words' lead (frame `floor((t − lead)·fps)`). Bump: peak
+`bump_scale` on the beat frame, `1 + 0.05·(1 − d/5)²` after. Drop: peak `drop_scale` and a fixed
+8-step shake table, both × `(1 − d/15)²`. Line scale is `max(bump, drop)`, not their product (a
+drop sits on a beat). The pill spans the font's cap top to descender bottom, ± `pill_pad`·size
+(9 px at 110 px), corner radius 0.2 × its height, drawn at 4× and reduced. A sung word has no
+stroke or shadow (the pill is its legibility layer, and a stroke stuck out of the round ends).
+Layout box 700 px about x 510, `anchor_y` 0.60, `min_font_size` 64 (a 2x word in a 58-character
+line needs it). The beat check compares the drawn line width on b − 1, b, b + 1 with the width the
+plan gives (pops and pills included), ±4 px, where the planned rise is ≥ 6 px.
+**Why:** Peaks land on the beat and the drop, the drop never outgrows the safe-zone margin, and the
+pill never touches a neighbour (17 px clear). A check that skipped every beat near a pop read 6
+of 32 beats on `khidki_s2`; the planned width reads 30 of 32.
 **Supersedes:** —

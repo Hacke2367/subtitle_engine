@@ -262,3 +262,22 @@ check), (c) try both and keep the better, (d) own numpy code. Storage: (a) a sep
 **Recommendation:** (a) and (a).
 **Decision:** "librosa (Recommended)" and "Alag beats.json (Recommended)".
 **Decided:** 2026-09-27
+
+### H-019 — Beat Pop: line bump on every beat, owner-written drops, words pop as sung, mustard pill
+**Status:** decided
+**Raised:** 2026-09-28
+**Needed-before:** spec 12 (Beat Pop)
+**Context:** Plan step 12 names word pops, a highlight pill and an optional shake on drops, and
+says pops "land on the beat". Red line 1 keeps every word on its own aligned time, so beats can
+only drive decoration. `beats.json` (step 11) has beats, no drops.
+**Options:** Beat motion: (a) the on-screen line bumps ~5% on every beat, pill with it, (b) the
+same on every other beat, (c) only the pill pulses, (d) nothing, beats only for drops. Drops:
+(a) the owner writes times in `songs/<song>/drops.txt`, each snapped to the nearest beat,
+(b) auto-detected from loudness, (c) no shake in this step. Words: (a) each pops in
+(`easeOutBack`) as sung, nothing shown ahead, (b) the line shows ahead dim and each word pops to
+full as sung. Pill: (a) mustard `#FFC107` with the sung word in black, (b) red `#E53935` with the
+word in white.
+**Recommendation:** (a), (a), (a), (a).
+**Decision:** "Line bump har beat", "Main times likhunga", "Gaate hi pop", "Mustard pill, kaala
+word".
+**Decided:** 2026-09-28

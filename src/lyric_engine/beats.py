@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import math
+from bisect import bisect_left
 import subprocess
 from dataclasses import dataclass
 from datetime import datetime
@@ -22,6 +23,7 @@ from . import align, timing
 
 BEATS_FILE = "beats.json"
 PREVIEW_FILE = "beats_preview.m4a"
+DROPS_FILE = "drops.txt"      # owner-written drop times (H-019), read at render time
 BEATS_VERSION = 1              # bump when a field is added; older files are rebuilt
 SR = 22050                     # decode rate, mono float32 from ffmpeg (plan §2.2)
 HOP = 256                      # 11.6 ms frames; 512 read 120 BPM as 117 (plan §2.3)
@@ -224,3 +226,41 @@ def write_preview(audio: Path, doc: dict, out: Path) -> Path:
         tail = " | ".join(proc.stderr.decode("utf-8", "replace").strip().splitlines()[-5:])
         raise RuntimeError(f"ffmpeg preview failed for {Path(out).name}: {tail}")
     return Path(out)
+
+
+def read_drops(path: Path, duration: float) -> list[tuple[str, float]]:
+    """The owner's drop times from drops.txt, as (text as written, seconds), in time order.
+
+    One time per line in the clip format (45, 0:45, 1:05.5); blank lines and text after "#" are
+    ignored. No file = no drops. A line that is not a time, or is after the song's end, raises.
+    """
+    path = Path(path)
+    if not path.exists():
+        return []
+    drops = []
+    for k, line in enumerate(path.read_text(encoding="utf-8-sig").splitlines(), start=1):
+        text = line.split("#", 1)[0].strip()
+        if not text:
+            continue
+        try:
+            t = timing.parse_time(text)
+        except ValueError:
+            raise BeatsError(f"{path}, line {k}: not a time: {text!r} "
+                             "(use 45, 0:45 or 1:05.5)") from None
+        if t > duration:
+            raise BeatsError(f"{path}, line {k}: {text} is after the song's end ({duration:.2f} s)")
+        drops.append((text, t))
+    return sorted(drops, key=lambda d: d[1])
+
+
+def snap(times: list[float], beat_times: list[float]) -> list[float]:
+    """Each time moved to the nearest beat (a tie goes to the earlier one); unchanged when there
+    are no beats."""
+    if not beat_times:
+        return list(times)
+    out = []
+    for t in times:
+        i = bisect_left(beat_times, t)
+        near = [beat_times[j] for j in (i - 1, i) if 0 <= j < len(beat_times)]
+        out.append(min(near, key=lambda b: (abs(b - t), b)))
+    return out

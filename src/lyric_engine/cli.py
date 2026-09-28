@@ -58,12 +58,9 @@ def _render(song: Path, codec: str | None, allow_flagged: bool, theme: str) -> i
 def _seconds(text: str) -> float:
     """27, 27.5, 0:27 or 1:05.5 -> seconds."""
     try:
-        parts = [float(p) for p in text.split(":")]
-    except ValueError:
-        raise argparse.ArgumentTypeError(f"not a time: {text!r} (use 27, 0:27 or 1:05.5)") from None
-    if len(parts) > 2 or any(p < 0 for p in parts):
-        raise argparse.ArgumentTypeError(f"not a time: {text!r} (use 27, 0:27 or 1:05.5)")
-    return parts[0] * 60 + parts[1] if len(parts) == 2 else parts[0]
+        return timing.parse_time(text)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(str(exc)) from None
 
 
 def _clip(song: Path, start: float, end: float, out: Path | None) -> int:

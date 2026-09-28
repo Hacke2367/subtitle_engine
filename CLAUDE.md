@@ -34,7 +34,7 @@ python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json
 ```
 
 - `--theme`: `soft-romantic-v2` (default, spec 08), `soft-romantic` (v1), `pop-karaoke`,
-  `lofi-minimal`, `lofi-typewriter` (spec 09), `cinematic` (spec 10).
+  `lofi-minimal`, `lofi-typewriter` (spec 09), `cinematic` (spec 10), `beat-pop` (spec 12).
 - All tests: `venv/Scripts/python -m unittest discover -s tests -t .`
 - One module / class / test: `venv/Scripts/python -m unittest tests.test_timing`,
   `... tests.test_timing.EmphasisTest`, or `... tests.test_render -k Emphasis`.
@@ -46,8 +46,8 @@ python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json
 
 A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`,
 `render/<theme>/` (outputs + `report.md`, one folder per theme: D-018), `bakeoff/<variant>/`
-(`raw.json` aligner cache), `beats.json` + `beats_preview.m4a` (step 11) and, for a clip,
-`clip.json`.
+(`raw.json` aligner cache), `beats.json` + `beats_preview.m4a` (step 11), `drops.txt` (optional,
+owner-written drop times for Beat Pop) and, for a clip, `clip.json`.
 
 ## Architecture rule
 
@@ -67,7 +67,9 @@ A song folder: `songs/<song>/` holds `audio.wav|mp3`, `lyrics.txt`, `words.json`
   `karaoke` for Pop Karaoke, or `focus` for Soft Romantic v2: v1's word frames plus a past-line
   stack, or `lofi` for both lofi themes: one line, colour states or typewriter, checked by
   `lofi_check`, or `cinematic`: couplets per stanza, per-word blur-in, checked by
-  `cinematic_check`; lofi and cinematic share `lifecycle` (one block on screen at a time)
+  `cinematic_check`, or `beatpop`: words pop in as sung on a pill, the line bumps on beats and
+  shakes on drops, checked by `beatpop_check`; lofi, cinematic and beatpop share `lifecycle`
+  (one block on screen at a time)
   → one-pass `encode` → `check`): `words.json` → `render/<theme>/overlay.mov`
   (alpha) + `overlay_green.mp4` + `preview.mp4` (with audio, review).
   Never calls the alignment API, so hand-edit + re-render stays free.
