@@ -447,3 +447,14 @@ The wall, window and jaali never change.
 **Why:** Free, the same hand-made look in every world, and re-rendering a song keeps its room.
 AI stills stay the fallback if the owner finds the drawn props weak.
 **Supersedes:** —
+
+### D-032 — `--bg` names a light look directly (step 17)
+**Date:** 2026-09-29
+**Context:** H-032 replaced the room (a world with six moods) with three romantic light looks.
+**Decision:** `--bg rain`, `--bg fog`, `--bg drive`. Each look is its own world with one
+default mood, so `parse_bg` and `WORLDS` keep their shape. Which song types each look fits lives
+in `docs/backgrounds/romantic_lights.md`, not in the name.
+**Why:** A look like rain also suits sad and lofi songs; naming it by the song type would lock it
+to romance.
+**Supersedes:** D-031 in part (the room's props and seeded picks go with the room).
+

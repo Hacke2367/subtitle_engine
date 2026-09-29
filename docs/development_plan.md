@@ -23,7 +23,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 14 | Devanagari shaping                     | `feature/devanagari-shaping`    | Deferred (only when a song needs it) |
 | 15 | Title card ("Song \| Singer")          | `feature/title-card`            | Done ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)) |
 | 16 | Line breaks at sung pauses             | `feature/pause-line-breaks`     | Optional (only if the owner asks) |
-| 17 | Background layer + romantic room       | `feature/bg-romantic-room`      | Review ([PR #16](https://github.com/Hacke2367/subtitle_engine/pull/16)) |
+| 17 | Background layer + romantic light looks | `feature/bg-romantic-room`      | Build (room rejected; rain, fog, drive: H-032) |
 | 18 | Hip-hop truck background               | `feature/bg-hiphop-truck`       | Planned (H-026) |
 | 19 | Party baraat background                | `feature/bg-party-baraat`       | Planned (H-027) |
 | 20 | Sufi lamp background                   | `feature/bg-sufi-lamp`          | Planned (H-028) |
@@ -241,19 +241,25 @@ Rules for every background step:
 - One art style across all backgrounds: hand-made, warm light, the same grain (H-027 note).
 - Default mood first; the other moods follow in step 23 once the owner approves the default.
 - Red lines hold: backgrounds never move a word's time or change its text.
+- H-032's rules hold for every background: the light is felt, never poking the eye; the whole
+  screen is used; real depth (far, mid, near); nothing festive or childish. Steps 18–22 were
+  designed before these rules; whether to redesign them is H-033 (pending).
+- A moving sample is shown to the owner before a background's pipeline work (H-032).
 
-## 17 — Background layer + romantic room
+## 17 — Background layer + romantic light looks
 
-**Delivers:** a background layer under any theme, chosen per song (a world and a mood; names
-decided in the spec), with seeded variation per video, and a finished-video output with audio.
-First world: the romantic room's default mood (afternoon to dusk),
-`docs/backgrounds/romantic_room.md`.
+**Delivers:** a background layer under any theme, chosen per render (`--bg`), with seeded
+variation per song and a finished-video output with audio. The first backgrounds are the three
+romantic light looks: rain, fog and drive (`docs/backgrounds/romantic_lights.md`, H-032). The
+first build's room was rejected (H-032); its pipeline is kept (PR #16).
 **Needs:** nothing new to install for a first cut (numpy, PIL, scipy); `moderngl` only if the
-look or render time needs it (research section 2). The spec settles how the lyrics catch the
-room's light and cast a shadow without changing the text.
-**Done when:** the room renders under Soft Romantic v2 on the Khidki songs, the finished video
-plays with audio, outputs without a background are byte-identical to `dev`, render time is
-measured, and the owner approves the look.
+look or render time needs it (research section 2).
+**Done when:**
+- a moving sample of each look is approved by the owner before its pipeline work;
+- each renders under its theme on the Khidki songs, and the finished video plays with audio;
+- outputs without a background are byte-identical to `dev`;
+- render time is measured;
+- the owner approves the finished looks.
 
 ## 18 — Hip-hop truck background
 

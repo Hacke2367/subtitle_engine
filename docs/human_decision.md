@@ -481,3 +481,43 @@ kite flying from a rooftop ("kai po che") and a painted travel journal.
 `docs/backgrounds/journey_train.md`. The owner also said all the approved backgrounds are to be
 built from the next session on.
 **Decided:** 2026-09-29
+
+### H-032 — Romantic backgrounds: the room is out; three light looks (rain, fog, drive)
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** the step 17 rebuild
+**Context:** The room was built (step 17, PR #16). The owner watched the finished short and
+rejected it: "ye aisa background tha jis mein 1 sec mein skip kardu". Claude's own read:
+- the frame was dim;
+- nothing moved in the first second;
+- the drawn props looked like clip-art;
+- and the process was wrong: the whole pipeline was built before the owner saw a 10-second
+  sample.
+The owner then asked for a rare motion background with great colours. Claude's first answer,
+flowing gradients, was a known pattern, and the owner called that out. The owner refined it:
+small lights that react to the beat or the words, and a look that depends on the song type.
+Mockups of lanterns, raindrops and fireworks as small lights were rejected ("ye diwali wagera
+wala look mat do kids wala"). Three full-frame light worlds followed
+(`songs/_review/backgrounds/lights2/`).
+**Decision:** Rules for every background: "pura frame dekho screen ka ... overall screen use Karo.
+Just remember one rule -- light feel hona chaiye na ki aankho ko chube", and, on the rain
+mockup, "depth nhi hai, jaihse lag raha hai sab surface level pe hi hai". Final pick: "ok, ab ek
+kaam karte hai ye 3 theme ko final karte hai, romantic type vibe ke liye". Saved as
+`docs/backgrounds/romantic_lights.md`; the room's file is marked rejected.
+**Decided:** 2026-09-29
+
+### H-033 — The other five backgrounds under H-032's rules
+**Status:** pending
+**Raised:** 2026-09-29
+**Needed-before:** step 18
+**Context:** The hip-hop truck, party baraat, Sufi lamp, motivational forge and journey train
+(H-026 to H-031) were designed the way the room was: painted scenes with props. The baraat also
+uses rockets and anaar fountains. H-032's rules point away from that: felt light, the whole
+screen, depth, nothing festive or childish.
+**Options:**
+- (a) Redesign each as a light world under H-032's rules before its step.
+- (b) Build them as designed.
+- (c) Decide per world when its step comes.
+**Recommendation:** (a), after the romantic looks are built, since seeing them move will show
+what works.
+

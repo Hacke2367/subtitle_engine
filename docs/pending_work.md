@@ -1,16 +1,16 @@
 # Pending Work
 
-Last updated: 2026-09-29 (step 17 built: owner reviews the room)
+Last updated: 2026-09-29 (room rejected; three romantic light looks approved, H-032)
 
 ## WIP
 
-Step 17, Background layer + romantic room, on `feature/bg-romantic-room` (base `dev` @ fda0612):
-built and in review ([PR #16](https://github.com/Hacke2367/subtitle_engine/pull/16)). `render|make songs/<song> --bg room` writes
-`render/<theme>/final_room_dusk.mp4` (the room under the lyrics, with audio) next to the
-unchanged overlay outputs. Spec `docs/specs/17_bg_romantic_room.md`, plan `..._impl.md`, D-028 to
-D-031. All checks pass on `khidki_s2_em`, `khidki_s2`, `khidki_30s` (new 30 s clip) and
-`khidki_full`; the eight themes without `--bg` are hash-identical to `dev`. Render time with the
-room: 14 s → 76 s, 30 s → 149 s, full song (2:52) → 765 s. H-024's status corrected to decided.
+Step 17 on `feature/bg-romantic-room` ([PR #16](https://github.com/Hacke2367/subtitle_engine/pull/16), not merged).
+The pipeline is built and kept: `--bg`, a finished short with audio, stacked encode, checks;
+D-028 to D-030. The room itself was rejected by the owner after it was built.
+
+The owner then approved three romantic light looks from stills (H-032,
+`docs/backgrounds/romantic_lights.md`): rain, fog and drive. Each gets a moving sample the owner
+approves before its pipeline work; rain comes first.
 
 **V1 is complete (owner, 2026-09-29):** V1 core plus the V1.1 themes, beat detection and the
 title card are merged into `dev`; step 15 was the last ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)).
@@ -18,7 +18,7 @@ title card are merged into `dev`; step 15 was the last ([PR #13](https://github.
 ## Current focus
 
 Post-V1 (H-022 onward): engine-made backgrounds, one world per song type, each with moods.
-Six directions approved; the romantic room is built (step 17, in review), the rest not yet: hip-hop truck, party baraat, Sufi lamp,
+Romantic: three light looks approved (rain, fog, drive; H-032), the room rejected. Designed before H-032's rules, not built: hip-hop truck, party baraat, Sufi lamp,
 motivational forge, journey train (`docs/backgrounds/`). Plan steps 17–23 build them; the owner
 wants them built from the next session on. Not designed yet (H-029): mother and family,
 patriotic, old classics.
@@ -32,10 +32,10 @@ finished look.
 
 ## Next up
 
-1. **Resume point:** the owner watches `songs/khidki_s2_em/render/soft-romantic-v2/final_room_dusk.mp4`
-   and `songs/khidki_full/render/soft-romantic-v2/final_room_dusk.mp4` (spec 17 AC11) and says
-   what to change; look numbers are in `background/room.py` (`DUSK`), the art in `room_art.py`.
-   Approved → merge the PR, then step 18 (hip-hop truck; needs a hip-hop test song).
+1. **Resume point:** the rain look's moving sample on `khidki_s2_em`
+   (`songs/_review/backgrounds/lights2/`). The owner approves it, then rain replaces the room
+   in `background/` (spec 17 revised), then fog, then drive. Open for the owner: H-033 (redesign
+   steps 18–22 under H-032's rules?), and `moderngl` if numpy is too slow in motion.
    Still open from V1: the owner tries a different song end to end (`align` → `clip` → `make`,
    spec 05 AC4); a bug found there comes first.
 2. Step 14 (Devanagari shaping) only when a song needs it. Step 16 (line breaks at sung
