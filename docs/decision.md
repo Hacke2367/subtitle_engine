@@ -458,3 +458,39 @@ in `docs/backgrounds/romantic_lights.md`, not in the name.
 to romance.
 **Supersedes:** D-031 in part (the room's props and seeded picks go with the room).
 
+
+### D-033 — Backgrounds: each look ported from its approved sample; the overlay laid over as it is (step 17)
+**Date:** 2026-09-29
+**Context:** The owner finalized rain, fog and milan from moving samples (H-034 to H-036); the
+room, its half-size light pipeline and its lit-text compose were rejected with it (H-032).
+**Decision:**
+- One module per look (`rain.py`, `fog.py`, `milan.py`), each a `Scene(facts)` with
+  `frame(k, ink)`, ported from its sample script with the sample's numbers; `paint.py` holds the
+  shared tools and the finishing pass (bloom, soft highlight shoulder, vignette and dark border,
+  grain).
+- Each look's stage keeps the sample's fixed seeds (the same place in every video); what varies
+  per song uses `crc32(folder name)`.
+- The overlay goes over the look as it is (`alpha_composite`: no shadow, no tint), so red line 2
+  holds by construction. Legibility keeps D-030's rule (3:1 around the text).
+- Each look calms a fixed patch behind the lyric block. Milan also dims its dots and their light
+  behind the text on screen that frame (at once where text appears, fading back over 0.8 s), and
+  its marked meetings sit 130 px below the lyrics under the word: the sample's "just above the
+  word" fell behind v2's past line (2.39:1 in the first engine render).
+- Milan's dots are a simulation stepped once per frame, so its frames must come in order.
+**Why:** The owner approves samples, so the engine must draw what they saw; a port keeps the
+numbers they judged. Laying the overlay over as it is removes the room's tint and shadow maths
+and their checks.
+**Supersedes:** D-029, D-030 (its shadow and tint; the legibility rule stays), D-031, and D-032 in
+part (`drive` became `milan`, H-036).
+
+### D-034 — Rain: a calmer patch behind the lyrics than the sample's (step 17)
+**Date:** 2026-09-29
+**Context:** The engine's rain render failed the legibility check: lyrics near the bright
+horizon mist fell to 2.4:1 (D-033's port kept the sample's patch: a third, centred 90 px above
+the lyric block).
+**Decision:** Rain's patch darkens by half at its centre, which sits 40 px below the lyric
+block's centre, with radii 680 × 420 px. Measured lowest contrast on `khidki_s2_em`: about
+3.2:1. The owner decides in H-039 whether to keep it or go back to the sample exactly.
+**Why:** Of the tried patches (ellipses and soft boxes, strength 0.45 to 0.55), this is the
+lightest that passes 3:1 with a margin; it changes only the area behind the text.
+**Supersedes:** —

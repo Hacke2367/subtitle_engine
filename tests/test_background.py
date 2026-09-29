@@ -1,9 +1,9 @@
-"""background/ (engine-made backgrounds; spec 17): --bg names, song facts, the room's arc, gusts,
-seed and picks, the compose step (text shadows and tint, alpha untouched), the legibility rule,
-the CLI, and a short end-to-end render with a finished short.
+"""background/ (engine-made backgrounds; spec 17, looks H-034 to H-036): --bg names, song facts,
+the shared art tools, each look's song reactions and determinism, the compose step (the overlay
+laid over as it is), the legibility rule, the CLI, and a short end-to-end render.
 
-The room tests build the real room (about a second); the render test uses a short real ffmpeg
-encode (qtrle).
+The look tests build real full-size scenes (about a second each); the render test uses a short
+real ffmpeg encode (qtrle).
 """
 from __future__ import annotations
 
@@ -19,195 +19,189 @@ from unittest import mock
 import numpy as np
 
 from lyric_engine import cli, render
-from lyric_engine.background import SongFacts, paint, parse_bg, seed_of, song_facts
-from lyric_engine.background.compose import (Legibility, compose_frame, final_checks,
+from lyric_engine.background import (SongFacts, build_scene, paint, parse_bg, seed_of, song_facts,
+                                     word_boxes)
+from lyric_engine.background.compose import (Legibility, compose_frame, drawn_ahead, final_checks,
                                              frame_contrast)
-from lyric_engine.background.room import DUSK, GOLD, ROSE, SKY, Room
 from lyric_engine.theme import SOFT_ROMANTIC_V2 as THEME
 from tests.test_render import make_song
 
 W, H = 1080, 1920
 
 
-def facts(name="khidki_s2_em", duration=14.0, last=10.0, marks=()) -> SongFacts:
-    return SongFacts(name, seed_of(name), duration, int(duration * 30), 30, last,
-                     tuple((s, f'"w{i}" (line 1)') for i, s in enumerate(marks)), ())
+def facts(words=(), name="khidki_s2_em", duration=14.0, last=10.0) -> SongFacts:
+    """words: ((start, marked, cx, cy), ...); the lyrics sit in LYRICS."""
+    words = tuple(sorted(words))
+    return SongFacts(name, seed_of(name), duration, int(duration * 30), 30, words,
+                     tuple(sorted({w[0] for w in words})) if words else (), last, (510.0, 1100.0), (),
+                     LYRICS)
 
 
-def bare(f: SongFacts, **attrs) -> Room:
-    """A Room without its art: enough for the arc, the lamp and the gusts."""
-    room = Room.__new__(Room)
-    room.facts, room.look = f, DUSK
-    room.gust_times = [s for s, _ in f.marks]
-    for key, value in attrs.items():
-        setattr(room, key, value)
-    return room
+LYRICS = (160, 1040, 900, 1160)
 
 
-def overlay(ink_box=None, rgb=(255, 243, 230)) -> bytes:
-    """A transparent frame, optionally with a solid block of text-coloured ink."""
-    ov = np.zeros((H, W, 4), np.uint8)
-    if ink_box:
-        x0, y0, x1, y1 = ink_box
-        ov[y0:y1, x0:x1, :3] = rgb
-        ov[y0:y1, x0:x1, 3] = 255
-    return ov.tobytes()
+def box(i, x, y, w=100, h=60, emphasis=False):
+    return SimpleNamespace(index=i, x=x, y=y, w=w, h=h, emphasis=emphasis)
 
 
 class ParseBgTest(unittest.TestCase):  # AC9
     def test_default_mood_and_explicit_mood(self):
-        self.assertEqual(parse_bg("room"), ("room", "dusk"))
-        self.assertEqual(parse_bg("room:dusk"), ("room", "dusk"))
+        self.assertEqual(parse_bg("rain"), ("rain", "evening"))
+        self.assertEqual(parse_bg("fog:moonlight"), ("fog", "moonlight"))
+        self.assertEqual(parse_bg("milan"), ("milan", "night"))
 
     def test_refusals_name_the_choices(self):
-        with self.assertRaisesRegex(ValueError, r"unknown background 'truck'; built: room"):
-            parse_bg("truck")
-        with self.assertRaisesRegex(ValueError, r"room:rain is designed but not built yet "
-                                                r"\(plan step 23\); built: dusk"):
-            parse_bg("room:rain")
-        with self.assertRaisesRegex(ValueError, r"unknown mood 'noon' for room; built: dusk"):
-            parse_bg("room:noon")
+        with self.assertRaisesRegex(ValueError, r"unknown background 'room'; built: rain"):
+            parse_bg("room")
+        with self.assertRaisesRegex(ValueError, r"unknown mood 'gold' for fog; built: moonlight"):
+            parse_bg("fog:gold")
 
 
 class CliTest(unittest.TestCase):  # AC9
-    def test_render_refuses_an_unbuilt_mood(self):
+    def test_render_refuses_an_unknown_look(self):
         err = io.StringIO()
         with redirect_stderr(err), self.assertRaises(SystemExit) as ctx:
-            cli.main(["render", "songs/x", "--bg", "room:rain"])
+            cli.main(["render", "songs/x", "--bg", "room"])
         self.assertEqual(ctx.exception.code, 2)
-        self.assertIn("not built yet", err.getvalue())
+        self.assertIn("unknown background", err.getvalue())
 
     def test_make_passes_the_background_through(self):
         with mock.patch("lyric_engine.workflow.ensure_aligned", return_value=0), \
                 mock.patch.object(cli, "_render", return_value=0) as rendered:
-            self.assertEqual(cli.main(["make", "songs/x", "--bg", "room"]), 0)
-        self.assertEqual(rendered.call_args.args[-1], ("room", "dusk"))
+            self.assertEqual(cli.main(["make", "songs/x", "--bg", "rain"]), 0)
+        self.assertEqual(rendered.call_args.args[-1], ("rain", "evening"))
 
 
 class SongFactsTest(unittest.TestCase):  # red line 1: only aligned times
-    def test_last_line_and_marks(self):
+    def test_words_marks_lines_and_places(self):
         doc = {"words": [
             {"i": 0, "text": "Jis", "line": 0, "start": 0.5, "end": 0.8},
             {"i": 1, "text": "dekha", "line": 0, "start": 1.0, "end": 1.5},
             {"i": 2, "text": "Dil", "line": 1, "start": None, "end": None},
             {"i": 3, "text": "thaam", "line": 1, "start": 3.2, "end": 3.6},
             {"i": 4, "text": "gaye", "line": 2, "start": None, "end": None}]}
-        f = song_facts(doc, frozenset({1, 2}), 5.0, 150, 30, "song")
-        self.assertEqual(f.last_line_s, 3.2)   # line 3 has no timed word: line 2 is the last shown
-        self.assertEqual(f.marks, ((1.0, '"dekha" (line 1)'),))
+        plan = [SimpleNamespace(words=[SimpleNamespace(box=box(0, 100, 1000)),
+                                       SimpleNamespace(box=box(1, 300, 1000))]),
+                SimpleNamespace(words=[SimpleNamespace(box=box(3, 200, 1100))])]
+        f = song_facts(doc, frozenset({1, 2}), 5.0, 150, 30, "song", word_boxes(plan))
+        self.assertEqual(f.last_line_s, 3.2)          # line 3 has no timed word: line 2 is last
+        self.assertEqual(f.line_starts, (0.5, 3.2))
+        self.assertEqual(f.marks, [(1.0, True, 350.0, 1030.0)])
         self.assertEqual(f.untimed_marks, ('"Dil" (line 2)',))
         self.assertEqual(f.seed, seed_of("song"))
+        self.assertEqual(f.lyric_box, (100, 1000, 400, 1160))
+        self.assertEqual(f.lyric_centre, (250.0, 1080.0 - 90))   # the words' block, raised a little
+
+    def test_word_boxes_reads_beat_pops_show(self):
+        show = SimpleNamespace(lines=[SimpleNamespace(words=[SimpleNamespace(box=box(5, 0, 0))])])
+        self.assertEqual(list(word_boxes(show)), [5])
 
 
-class RoomTestBase(unittest.TestCase):
-    room: Room
-
-    @classmethod
-    def setUpClass(cls):
-        cls.room = Room(facts(marks=(2.0,)), DUSK)
-
-
-class ArcTest(RoomTestBase):  # AC5
-    def test_keyframes_and_lamp(self):
-        r = self.room
-        sun, _, _, lamp, _ = r.arc(0.0)
-        np.testing.assert_allclose(sun, GOLD, atol=1e-6)
-        np.testing.assert_allclose(r.arc(7.0)[0], ROSE, atol=1e-6)   # 0.7 of the way
-        sun, sun_i, ambient, _, f = r.arc(10.0)
-        np.testing.assert_allclose(sun, SKY, atol=1e-6)
-        np.testing.assert_allclose(ambient, DUSK.ambient_keys[-1][1], atol=1e-6)
-        self.assertEqual(f, 1.0)
-        self.assertEqual(lamp, 0.0)
-        self.assertEqual(r.lamp_level(9.99), 0.0)
-        self.assertGreater(r.lamp_level(10.01), 0.0)
-        self.assertEqual(r.lamp_level(10.0 + DUSK.lamp_flicker_s + DUSK.lamp_ramp_s + 0.01), 1.0)
-        self.assertEqual(r.lamp_level(13.9), 1.0)   # the outro holds
-
-    def test_same_fractions_for_a_short_and_a_long_song(self):
-        long = bare(facts(duration=172.0, last=150.0))
-        for frac in (0.0, 0.25, 0.5, 0.7, 0.95, 1.0):
-            a, b = self.room.arc(10.0 * frac), long.arc(150.0 * frac)
-            for x, y in zip(a, b):
-                np.testing.assert_allclose(x, y, atol=1e-5)
-
-    def test_no_shown_line_means_no_lamp(self):
-        r = bare(facts(last=None))
-        self.assertEqual(r.lamp_level(13.0), 0.0)
-        self.assertAlmostEqual(r.fraction(7.0), 0.5)
-
-
-class GustTest(RoomTestBase):  # AC6
-    def test_envelope(self):
-        self.assertEqual(paint.envelope(1.0, [], 0.35, 1.6), 0.0)
-        self.assertEqual(paint.envelope(1.99, [2.0], 0.35, 1.6), 0.0)
-        self.assertAlmostEqual(paint.envelope(2.35, [2.0], 0.35, 1.6), 1.0)
-        self.assertEqual(paint.envelope(3.6, [2.0], 0.35, 1.6), 0.0)
-
-    def test_overlapping_gusts_never_add_up(self):
+class PaintTest(unittest.TestCase):
+    def test_envelope_never_adds_up(self):
+        self.assertEqual(paint.envelope(1.0, [], 0.3, 1.5), 0.0)
+        self.assertAlmostEqual(paint.envelope(2.3, [2.0], 0.3, 1.5), 1.0)
         for t in np.arange(0.0, 3.0, 0.01):
-            self.assertLessEqual(paint.envelope(t, [0.0, 0.2, 0.4], 0.35, 1.6), 1.0)
+            self.assertLessEqual(paint.envelope(t, [0.0, 0.2, 0.4], 0.3, 1.5), 1.0)
 
-    def test_room_gusts_at_marked_words_only(self):
-        self.assertEqual(self.room.gust(1.9), 0.0)
-        self.assertGreater(self.room.gust(2.3), 0.9)
-        self.assertEqual(bare(facts()).gust(2.3), 0.0)
-
-
-class SeedTest(RoomTestBase):  # AC8
-    def test_stable_seed_and_identical_frames(self):
-        self.assertEqual(seed_of("khidki_s2_em"), 573687872)   # crc32: the same on every machine
-        again = Room(facts(marks=(2.0,)), DUSK)
-        self.assertEqual(again.picks, self.room.picks)
-        np.testing.assert_array_equal(again.albedo, self.room.albedo)
-        for k in (0, 65, 330):
-            a, b = self.room.light(k), again.light(k)
-            np.testing.assert_array_equal(a.sun, b.sun)
-            np.testing.assert_array_equal(a.air, b.air)
-
-    def test_two_test_folders_differ(self):
-        other = Room(facts(name="khidki_s2"), DUSK)
-        self.assertNotEqual(other.picks, self.room.picks)
-        self.assertIn("dupatta", self.room.picks.describe())
+    def test_finish_makes_a_frame(self):
+        x = paint.gradient([(0.0, "#000000"), (1.0, "#ffffff")])
+        out = paint.finish(x * 2, bloom=0.2, bloom_sigma=6, knee=0.5, soft=0.45, vig=paint.vignette(0.2))
+        self.assertEqual((out.shape, out.dtype), ((H, W, 3), np.uint8))
+        self.assertLess(out[H - 5, W // 2].mean(), 250)       # the shoulder: nothing burns to white
 
 
-class ComposeTest(RoomTestBase):  # AC4, red line 2
-    def test_text_is_the_overlay_tinted_and_the_rest_is_the_room(self):
-        k, box = 60, (400, 900, 600, 980)
-        empty = np.frombuffer(compose_frame(overlay(), self.room, k, THEME.text_rgb, Legibility()),
-                              np.uint8).reshape(H, W, 4)
-        lit = np.frombuffer(compose_frame(overlay(box), self.room, k, THEME.text_rgb, Legibility()),
+class LookTestBase(unittest.TestCase):
+    WORD = (6.0, False, 700.0, 1100.0)
+    MARK = (6.0, True, 700.0, 1100.0)
+
+
+class RainTest(LookTestBase):  # H-034
+    def test_a_word_lands_a_bloom_below_it(self):
+        k = int(6.6 * 30)
+        with_word = build_scene(("rain", "evening"), facts([self.WORD])).frame(k).astype(int)
+        without = build_scene(("rain", "evening"), facts([])).frame(k).astype(int)
+        diff = np.abs(with_word - without).max(axis=2)
+        self.assertGreater(diff[1560:1760, 560:840].max(), 15)   # the ground below the word
+        self.assertEqual(diff[:1300].max(), 0)                   # and nowhere else
+        self.assertEqual(diff[:, :450].max(), 0)
+
+    def test_the_same_song_draws_the_same_frame(self):
+        a = build_scene(("rain", "evening"), facts([self.WORD])).frame(90)
+        b = build_scene(("rain", "evening"), facts([self.WORD])).frame(90)
+        np.testing.assert_array_equal(a, b)
+
+
+class FogTest(LookTestBase):  # H-035
+    def test_a_word_brightens_the_rays(self):
+        k = int(6.3 * 30)
+        with_word = build_scene(("fog", "moonlight"), facts([self.WORD])).frame(k).astype(int)
+        without = build_scene(("fog", "moonlight"), facts([])).frame(k).astype(int)
+        top = (slice(0, 700), slice(0, W))
+        self.assertGreater(with_word[top].mean(), without[top].mean() + 0.5)
+
+
+class MilanTest(LookTestBase):  # H-036
+    def test_a_marked_word_brings_a_meeting_near_it(self):
+        scene = build_scene(("milan", "night"), facts([self.MARK]))
+        scene.frame(int(6.2 * 30))
+        marked = [b for b in scene.blooms if b[3]]
+        self.assertEqual(len(marked), 1)
+        t, x, y, _ = marked[0]
+        self.assertAlmostEqual(t, 6.0, delta=1 / 30 + 1e-6)
+        self.assertEqual((x, y), (700.0, LYRICS[3] + 130.0))   # under the word, below the lyrics
+
+    def test_dots_dim_behind_the_text(self):
+        calm, plain = (build_scene(("milan", "night"), facts([])) for _ in range(2))
+        ink = (300, 900, 800, 1100)
+        box = (slice(900, 1100), slice(300, 800))
+        bright = []
+        for k in range(1, 400, 20):    # 13 s of drifting dots, a frame every 2/3 s
+            self.assertLess(calm.frame(k, ink)[box].max(), 140, f"frame {k}")
+            bright.append(plain.frame(k, None)[box].max())
+        self.assertGreater(max(bright), 140)       # without text there, dots pass bright
+
+    def test_frames_come_in_order(self):
+        scene = build_scene(("milan", "night"), facts([]))
+        scene.frame(5)
+        with self.assertRaisesRegex(ValueError, "in order"):
+            scene.frame(3)
+
+
+class ComposeTest(unittest.TestCase):  # red line 2
+    def test_the_overlay_is_laid_over_as_it_is(self):
+        bg = np.full((H, W, 3), 40, np.uint8)
+        scene = SimpleNamespace(frame=lambda k, ink: bg)
+        ov = np.zeros((H, W, 4), np.uint8)
+        ov[1000:1100, 400:700] = (250, 240, 230, 255)
+        out = np.frombuffer(compose_frame(ov.tobytes(), scene, 0, THEME.text_rgb, Legibility()),
                             np.uint8).reshape(H, W, 4)
-        self.assertTrue((lit[..., 3] == 255).all())
-        far = np.ones((H, W), bool)   # beyond the ink, its shadows and their blur
-        far[box[1] - 120:box[3] + 120, box[0] - 120:box[2] + 120] = False
-        np.testing.assert_array_equal(lit[far], empty[far])
-        tint = self.room.light(k).tint
-        expected = np.round(np.asarray(THEME.text_rgb) * np.round(255 * tint) / 255)
-        ink = lit[box[1]:box[3], box[0]:box[2], :3].reshape(-1, 3)
-        self.assertLessEqual(np.abs(ink - expected).max(), 1)   # the room never shows through
-
-    def test_tint_is_bounded(self):
-        for k in range(0, 420, 15):
-            tint = self.room.light(k).tint
-            self.assertTrue(((tint >= 0.9) & (tint <= 1.0)).all(), (k, tint))
-
-    def test_the_shadow_darkens_only_near_the_ink(self):
-        k, box = 30, (400, 900, 600, 980)   # afternoon: the sun shadow falls down-right
-        empty = np.frombuffer(compose_frame(overlay(), self.room, k, THEME.text_rgb, Legibility()),
-                              np.uint8).reshape(H, W, 4).astype(int)
-        lit = np.frombuffer(compose_frame(overlay(box), self.room, k, THEME.text_rgb, Legibility()),
-                            np.uint8).reshape(H, W, 4).astype(int)
-        below = (slice(box[3] + 2, box[3] + 10), slice(box[0] + 20, box[2]))
-        self.assertLess(lit[below][..., :3].sum(), empty[below][..., :3].sum())
+        np.testing.assert_array_equal(out[1000:1100, 400:700, :3], ov[1000:1100, 400:700, :3])
+        np.testing.assert_array_equal(out[:900, :, :3], bg[:900])
+        self.assertTrue((out[..., 3] == 255).all())
 
 
-class LegibilityTest(unittest.TestCase):  # AC7
-    def test_a_bright_wall_fails_and_a_dim_one_passes(self):
-        box = (300, 800, 700, 900)
-        bright = SimpleNamespace(albedo_half=np.ones((H // 2, W // 2, 3), np.float32))
-        light = np.full((H // 2, W // 2, 3), 0.9, np.float32)
-        c = frame_contrast(bright, light, THEME.text_rgb, np.ones(3, np.float32), box)
+class DrawnAheadTest(unittest.TestCase):
+    def test_worker_frames_are_the_frames_drawn_here(self):
+        f = facts([LookTestBase.MARK], duration=0.1)             # 3 frames
+        here = build_scene(("fog", "moonlight"), f)
+        frames = list(drawn_ahead(("fog", "moonlight"), f, workers=2))
+        self.assertEqual(len(frames), 3)
+        for k, frame in enumerate(frames):
+            np.testing.assert_array_equal(frame, here.frame(k))
+
+    def test_only_a_simulation_is_drawn_in_order(self):
+        from lyric_engine.background import fog, milan, rain
+        self.assertEqual([m.Scene.in_order for m in (rain, fog, milan)], [False, False, True])
+
+
+class LegibilityTest(unittest.TestCase):
+    def test_a_bright_background_fails_and_a_dim_one_passes(self):
+        box = (300, 1000, 700, 1100)
+        bright = np.full((H, W, 3), 235, np.uint8)
+        c = frame_contrast(bright, THEME.text_rgb, box)
         self.assertLess(c, 3.0)
+        self.assertGreaterEqual(frame_contrast(np.full((H, W, 3), 30, np.uint8), THEME.text_rgb, box), 3.0)
         log = Legibility()
         log.note(12, c)
         log.note(13, 5.0)
@@ -215,11 +209,9 @@ class LegibilityTest(unittest.TestCase):  # AC7
         with mock.patch("lyric_engine.render.check._probe",
                         return_value={"size": (W, H), "rate": "30/1", "frames": 10,
                                       "pix_fmt": "yuv420p", "codec": "h264", "audio": True}):
-            fails = final_checks(Path("final_room_dusk.mp4"), 10, THEME, log)
-        self.assertEqual(fails, [f"legibility: 1 frame(s) below 3:1 in the lyric area; first: "
+            fails = final_checks(Path("final_milan_night.mp4"), 10, THEME, log)
+        self.assertEqual(fails, [f"legibility: 1 frame(s) below 3:1 around the text; first: "
                                  f"frame 12 ({c:.2f}:1)"])
-        dim = frame_contrast(bright, light * 0.2, THEME.text_rgb, np.ones(3, np.float32), box)
-        self.assertGreaterEqual(dim, 3.0)
 
 
 class BackgroundRenderTest(unittest.TestCase):  # AC1, AC3
@@ -228,14 +220,13 @@ class BackgroundRenderTest(unittest.TestCase):  # AC1, AC3
             song = make_song(Path(tmp), lyrics="Mere\n*saamne*\n", duration=2.0)
             plain = render.render(song, codec="qtrle", theme=THEME)
             hashes = {key: _frame_hash(p) for key, p in plain.outputs.items()}
-            result = render.render(song, codec="qtrle", theme=THEME, bg=("room", "dusk"))
+            result = render.render(song, codec="qtrle", theme=THEME, bg=("milan", "night"))
             self.assertEqual(result.checks, [])
-            final = result.outputs["final"]
-            self.assertEqual(final.name, "final_room_dusk.mp4")
+            self.assertEqual(result.outputs["final"].name, "final_milan_night.mp4")
             self.assertEqual({key: _frame_hash(result.outputs[key]) for key in hashes}, hashes)
             report = (result.render_dir / "report.md").read_text(encoding="utf-8")
             self.assertIn("## Background", report)
-            self.assertIn("- Gusts (marked words): 1.00 s \"saamne\" (line 2)", report)
+            self.assertIn("marked 1", report)
             render.render(song, codec="qtrle", theme=THEME)
             report = (result.render_dir / "report.md").read_text(encoding="utf-8")
             self.assertNotIn("## Background", report)

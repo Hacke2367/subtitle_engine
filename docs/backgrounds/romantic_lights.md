@@ -1,9 +1,10 @@
 # Background: romantic light looks (rain, fog, milan)
 
 **Status:** all three romantic looks are final from their moving samples: rain (H-034), fog
-(H-035) and milan (H-036). Milan replaced the dropped drive look. None is built into the engine
-yet. They replace the sunlit room (`romantic_room.md`), which the owner rejected after it
-was built.
+(H-035) and milan (H-036). Milan replaced the dropped drive look. All three are built into the
+engine (`--bg rain|fog|milan`, spec 17 v2, D-033), ported from the approved samples; the owner
+judges the engine's shorts. They replace the sunlit room (`romantic_room.md`), which the owner
+rejected after it was built.
 
 ## The owner's rules (H-032), for every background from now on
 
@@ -125,7 +126,11 @@ marked words, and memories of the meetings.
 
 **Song reaction:**
 - On each marked word, two dots near that word drift together and meet just as it is sung, with
-  a warmer bloom.
+  a warmer bloom. In the engine they meet 130 px below the lyrics, under the word: the sample's
+  "just above the word" put the meeting behind Soft Romantic v2's past line and failed the
+  legibility rule (D-033).
+- Behind the text on screen, dots and their light dim (engine only, D-033), so the lyrics stay
+  clear when a dot drifts behind them.
 - By the end of the song the frame holds the faint memories of every meeting.
 
 **Songs:** romantic of every kind; meeting, longing, togetherness.
@@ -148,7 +153,7 @@ seeded by the song folder's name.
    This is the lesson from the room: it was built in full before the owner saw it move.
 2. Build all three into the engine on the step 17 pipeline (`--bg`, the finished short with audio,
    the checks): rain, then fog, then milan. Each engine render must look like its approved sample
-   in `songs/_review/backgrounds/lights2/`.
+   in `songs/_review/backgrounds/lights2/`. Done 2026-09-29 (D-033).
 
 ## Rejected on the way (H-032)
 

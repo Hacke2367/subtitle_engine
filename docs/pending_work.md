@@ -1,6 +1,6 @@
 # Pending Work
 
-Last updated: 2026-09-29 (room rejected; three romantic light looks approved, H-032)
+Last updated: 2026-09-29 (rain, fog and milan built into the engine; H-039 open)
 
 ## WIP
 
@@ -8,9 +8,12 @@ Step 17 on `feature/bg-romantic-room` ([PR #16](https://github.com/Hacke2367/sub
 The pipeline is built and kept: `--bg`, a finished short with audio, stacked encode, checks;
 D-028 to D-030. The room itself was rejected by the owner after it was built.
 
-The owner then approved three romantic light looks from stills (H-032,
-`docs/backgrounds/romantic_lights.md`): rain, fog and drive. Each gets a moving sample the owner
-approves before its pipeline work; rain comes first.
+The owner then finalized three romantic light looks from moving samples (H-032 to H-036,
+`docs/backgrounds/romantic_lights.md`): rain, fog and milan. All three are now built into the
+engine (`--bg rain|fog|milan`; spec 17 v2, D-033, D-034), ported from the samples; the room's
+modules are deleted. Rain needed a calmer patch behind the lyrics to pass the 3:1 check; the
+owner decides keep or revert (H-039). Background frames of rain and fog are drawn in 4 worker
+processes.
 
 **V1 is complete (owner, 2026-09-29):** V1 core plus the V1.1 themes, beat detection and the
 title card are merged into `dev`; step 15 was the last ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)).
@@ -18,7 +21,8 @@ title card are merged into `dev`; step 15 was the last ([PR #13](https://github.
 ## Current focus
 
 Post-V1 (H-022 onward): engine-made backgrounds, one world per song type, each with moods.
-Romantic: three light looks approved (rain, fog, drive; H-032), the room rejected. Designed before H-032's rules, not built: hip-hop truck, party baraat, Sufi lamp,
+Romantic: three light looks final and built (rain, fog, milan; H-034 to H-036), the room
+rejected. Designed before H-032's rules, not built: hip-hop truck, party baraat, Sufi lamp,
 motivational forge, journey train (`docs/backgrounds/`). Plan steps 17–23 build them; the owner
 wants them built from the next session on. Not designed yet (H-029): mother and family,
 patriotic, old classics.
@@ -38,7 +42,8 @@ finished look.
    - romantic: rain, fog, milan (H-034 to H-036);
    - sad: Khaali jagah (H-037);
    - sad: Kinaare ke nishaan (stills made, `songs/_review/backgrounds/sad/00_nishaan.png`).
-   None of these is built into the engine yet (`--bg`, step 17).
+   The romantic three are built into the engine (`--bg`, step 17); the owner judges the
+   engine's shorts on `khidki_s2_em` (AC11) and answers H-039, then PR #16 can merge.
    Still open from V1: the owner tries a different song end to end (`align` → `clip` → `make`,
    spec 05 AC4); a bug found there comes first.
 2. Step 14 (Devanagari shaping) only when a song needs it. Step 16 (line breaks at sung

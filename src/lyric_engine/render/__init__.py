@@ -153,7 +153,7 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
         from .. import background
         from ..background.compose import Legibility, final_checks, with_background
         scene = background.build_scene(bg, background.song_facts(
-            doc, emphasis, duration, n, theme.fps, song_dir.name))
+            doc, emphasis, duration, n, theme.fps, song_dir.name, background.word_boxes(lines)))
         outputs["final"] = render_dir / f"final_{bg[0]}_{bg[1]}.mp4"
         legibility = Legibility()
     _remove([*outputs.values(), render_dir / REPORT])   # a failed run must not leave old results
@@ -161,7 +161,7 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
     frames = (parts(k, lines, sprites, theme, cache) for k in range(n))
     frames = with_card(frames, card, theme) if card else frames
     if scene:
-        frames = with_background(frames, scene, theme, legibility)
+        frames = with_background(frames, scene, theme, legibility, bg)
     _encode(_ffmpeg_cmd(theme, codec, audio, outputs), frames, outputs)
     encode_s = time.perf_counter() - t1
     result = RenderResult(render_dir, outputs, n, 0.0, skipped, [], emphasis=[
@@ -179,7 +179,7 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
         result.checks += final_checks(outputs["final"], n, theme, legibility)
         note = background.fit_note(bg[0], theme.name)
         result.notes += [note] if note else []
-        result.notes += [f"background: marked but untimed, no gust: {label}"
+        result.notes += [f"background: marked but untimed, nothing happens for it: {label}"
                          for label in scene.facts.untimed_marks]
         extra = background.report_lines(bg, scene, theme.name, legibility)
     check_s = time.perf_counter() - t2

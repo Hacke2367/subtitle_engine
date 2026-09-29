@@ -623,3 +623,19 @@ questioned hard before it is returned. The types:
 Also one cloth test before any dupatta, saree or veil idea is chosen, and one moving sample
 before any idea with animated human shadows.
 
+
+### H-039 — Rain in the engine: a calmer patch behind the lyrics?
+**Status:** pending
+**Raised:** 2026-09-29
+**Needed-before:** merging step 17 (PR #16)
+**Context:** The approved rain video was finalized with "kuch bhi mat change karna". In the
+engine, the legibility check (3:1 around the text, D-030) failed on it: where the second lyric
+row sits near the bright horizon mist, the contrast falls to 2.4:1 (187 of 420 frames on
+`khidki_s2_em`). Thin rain streaks are not the cause; the broad brightness near the horizon is.
+**Options:**
+- A: the calmer patch (engine default now): the dark patch behind the lyrics is half, not a
+  third, and reaches lower; the rest of the frame is unchanged. Lowest contrast about 3.2:1.
+- B: exactly as approved; the check's minimum for rain is lowered to 2.4:1, recorded here.
+**Recommendation:** A. The owner's first note on rain was "lyric clearly dikhna chaiye"; the
+change is only behind the text and the frame stays light. Comparison stills:
+`songs/_review/backgrounds/lights2/rain_calm_compare.png`.

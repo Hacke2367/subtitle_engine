@@ -26,7 +26,7 @@ Package installed with `pip install -e .`; always use `venv/Scripts/python`.
 ```
 python -m lyric_engine.cli align songs/<song> [--variant NAME] [--fresh] [--overwrite]
 python -m lyric_engine.cli clip songs/<full-song> --from 0:27 --to 0:57 [--out songs/<clip>]
-python -m lyric_engine.cli make songs/<song> [--theme NAME] [--bg room]   # align if needed, render
+python -m lyric_engine.cli make songs/<song> [--theme NAME] [--bg rain]   # align if needed, render
 python -m lyric_engine.cli render songs/<song> [--theme NAME] [--codec prores|png|qtrle]
                                [--allow-flagged] [--bg WORLD[:MOOD]]
 python -m lyric_engine.cli validate songs/<song>/words.json --song songs/<song>
@@ -37,9 +37,9 @@ python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json
 - `--theme`: `soft-romantic-v2` (default, spec 08), `soft-romantic` (v1), `pop-karaoke`,
   `lofi-minimal`, `lofi-typewriter` (spec 09), `cinematic` (spec 10), `beat-pop` (spec 12),
   `phonk-neon` (spec 13).
-- `--bg`: an engine-made background and a finished short with audio (spec 17): `room` (=
-  `room:dusk`, the romantic room, `docs/backgrounds/romantic_room.md`). Other designed worlds and
-  moods are refused as not built yet.
+- `--bg`: an engine-made background and a finished short with audio (spec 17): `rain`, `fog` or
+  `milan`, the owner-approved romantic looks (`docs/backgrounds/romantic_lights.md`, H-034 to
+  H-036). Anything else is refused.
 - All tests: `venv/Scripts/python -m unittest discover -s tests -t .`
 - One module / class / test: `venv/Scripts/python -m unittest tests.test_timing`,
   `... tests.test_timing.EmphasisTest`, or `... tests.test_render -k Emphasis`.
@@ -83,12 +83,12 @@ one or two lines, drawn as written; `clip` copies it) and, for a clip, `clip.jso
   `check`): `words.json` → `render/<theme>/overlay.mov`
   (alpha) + `overlay_green.mp4` + `preview.mp4` (with audio, review).
   Never calls the alignment API, so hand-edit + re-render stays free.
-- `background/` (spec 17, imported only with `--bg`: numpy, scipy): `__init__` (world names,
-  `parse_bg`, song facts: length, aligned word times, marked words' times, the folder name as
-  seed; never the words' meaning), `paint` (shared art tools: one grain for every world), `room`
-  + `room_art` (the romantic room: mood numbers, arc, gusts, per-frame light; the art drawn once),
-  `compose` (the lyrics' shadows block the light, their colours take a bounded tint, alpha
-  untouched; legibility log; the finished short's check). Wraps the frame stream after `card`.
+- `background/` (spec 17, imported only with `--bg`: numpy, scipy): `__init__` (look names,
+  `parse_bg`, song facts: length, aligned word times and places, marked words, the lyric block,
+  the folder name as seed; never the words' meaning), `paint` (shared art tools and the finishing
+  pass every look shares), `rain`, `fog`, `milan` (one `Scene` per look, ported from its approved
+  sample: D-033; milan's frames must come in order), `compose` (the overlay laid over as it is;
+  legibility log; the finished short's check). Wraps the frame stream after `card`.
 - `workflow.py`: `clip` (cut an aligned song at whole-line boundaries into a new song folder,
   lyrics copied verbatim) and `make` (keeps a valid `words.json`, since it may hold hand
   corrections; refuses a stale one).

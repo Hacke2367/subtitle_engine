@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-09-29 (23): romantic looks final from samples; rain, fog, milan built into the engine
+**Did:** owner rejected the room → sample-first process: rain (H-034), fog (H-035), milan (H-036) finalized from moving samples; sad "Khaali jagah" still final (H-037) and its moving sample made; 33 template ideas by 11 agents (H-038); a workflow draws stills for the ★ picks with an artist/viewer critic and a cloth test. Engine: `background/` rewritten (rain.py, fog.py, milan.py ported from the samples; room removed), overlay laid over as it is, milan's calm behind the text, rain's calmer patch, worker-pool drawing, faster finishing pass; spec 17 v2 + plan; CLAUDE.md rule "think from several perspectives".
+**Decisions:** H-032 to H-039 (H-038, H-039 pending), D-033, D-034.
+**Open:** owner judges the three engine shorts (AC11) and H-039; render time to re-measure on an idle laptop (AC10); the owner picks templates from the workflow's stills.
+**Next:** owner feedback → merge PR #16 → Khaali jagah engine build after its sample is approved.
+
 ## 2026-09-29 (22): step 17 built, the romantic room under the lyrics (in review)
 **Did:** "continue" → `/start_work` step 17 → spec + plan + build in one run (H-020 flow): `background/` package (`--bg room` = `room:dusk`; song facts only, seed from the folder name; `paint` shared art tools; `room` arc gold → rose → dusk skylight, gusts on marked words, lamp at the last line; `room_art` chakri jaali patch, money plant vine, sheer curtain, table, lamp, prop, chair + dupatta; `compose` text shadows block the light, bounded tint, alpha untouched, legibility log), stacked ffmpeg input with a fourth output `final_<world>_<mood>.mp4`, `--bg` on render/make, 18 new tests. Gate green (344 tests, alpha proof). Checks pass on four Khidki songs; eight themes hash-identical to `dev` without `--bg`; overlay outputs identical with it.
 **Decisions:** D-028 to D-031; spec's legibility rule moved from the whole lyric area to around the text (lamp glow at the bottom-left). H-024 status corrected to decided.

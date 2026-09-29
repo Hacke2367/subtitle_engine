@@ -1,28 +1,36 @@
-"""A theme's frame on its background (spec 17 §4.4): the lyrics' ink casts a shadow by blocking
-part of each light, and its colours take a bounded tint of that light. The overlay's alpha is used
-as it is, so the text is never redrawn (red line 2). Also the legibility log (§4.5) and the
-finished short's output check."""
+"""A theme's frame on its background (spec 17): the look draws the background frame, and the
+overlay is laid over it exactly as it is (same alpha, same colours), so the text is never redrawn
+(red line 2). Also the legibility log (the lit text against the background around it, at least
+3:1) and the finished short's output check.
+
+A look whose frames do not depend on each other (`Scene.in_order` False) is drawn a few frames
+ahead in worker processes, each with its own copy of the scene; the frames are the same bytes as
+drawn in this process."""
 from __future__ import annotations
 
+import itertools
+import os
 import time
+from collections import deque
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterable, Iterator
 
 import numpy as np
-from PIL import Image, ImageChops
-from scipy import ndimage
+from PIL import Image
 
-from . import LYRIC_AREA, paint
+from . import LYRIC_AREA, build_scene, paint
 
-MIN_CONTRAST = 3.0   # WCAG AA for large text; the lyrics are 56-110 px (spec 4.5)
+MIN_CONTRAST = 3.0   # WCAG AA for large text; the lyrics are 56-110 px
 NEAR = 24            # legibility is measured this far around the text
 INK = 16             # alpha that counts as drawn (the render checks' SAFE_ALPHA_MIN)
+WORKERS = max(1, min(4, (os.cpu_count() or 2) - 2))   # leave room for the theme and ffmpeg
 
 
 @dataclass
 class Legibility:
-    """Contrast of the lit text against the background's bright end in the lyric area, per frame."""
+    """Contrast of the text against the bright end of the background around it, per frame."""
     worst: tuple[int, float] | None = None
     failed: list[tuple[int, float]] = field(default_factory=list)
     draw_s: float = 0.0
@@ -35,23 +43,7 @@ class Legibility:
             self.failed.append((k, c))
 
 
-def frame_contrast(scene, light_rgb: np.ndarray, text_rgb, tint: np.ndarray,
-                   box: tuple[int, int, int, int]) -> float:
-    """Contrast of the theme's text colour (lit) with the 99th-percentile background luminance
-    behind the text (its ink box grown by NEAR px, inside the lyric area), before the text's own
-    shadows: the worst case."""
-    x0, y0, x1, y1 = (max(box[0] - NEAR, LYRIC_AREA[0]), max(box[1] - NEAR, LYRIC_AREA[1]),
-                      min(box[2] + NEAR, LYRIC_AREA[2]), min(box[3] + NEAR, LYRIC_AREA[3]))
-    if x1 <= x0 or y1 <= y0:
-        return float("inf")
-    hs = (slice(y0 // 2, max(y0 // 2 + 1, y1 // 2)), slice(x0 // 2, max(x0 // 2 + 1, x1 // 2)))
-    region = scene.albedo_half[hs] * light_rgb[hs]
-    y = float(np.percentile(paint.luminance(region), 99))
-    text = float(paint.luminance(np.asarray(text_rgb, np.float32) / 255.0 * tint))
-    return paint.contrast(text, y)
-
-
-def _ink_box(alpha: np.ndarray, least: int) -> tuple[int, int, int, int] | None:
+def ink_box(alpha: np.ndarray, least: int = INK) -> tuple[int, int, int, int] | None:
     """The bbox (x0, y0, x1, y1) of pixels with alpha >= least, or None."""
     ink = alpha >= least
     rows, cols = np.flatnonzero(ink.any(axis=1)), np.flatnonzero(ink.any(axis=0))
@@ -60,75 +52,78 @@ def _ink_box(alpha: np.ndarray, least: int) -> tuple[int, int, int, int] | None:
     return int(cols[0]), int(rows[0]), int(cols[-1]) + 1, int(rows[-1]) + 1
 
 
-def _grow(box: tuple, margin: int, w: int, h: int) -> tuple[int, int, int, int]:
-    """box grown by margin, clamped to the frame, on even edges (for the half-size light)."""
-    return (max(0, box[0] - margin) & ~1, max(0, box[1] - margin) & ~1,
-            min(w, box[2] + margin + 1) & ~1, min(h, box[3] + margin + 1) & ~1)
+def frame_contrast(bg: np.ndarray, text_rgb, box: tuple[int, int, int, int]) -> float:
+    """Contrast of the theme's text colour with the 99th-percentile luminance of the background
+    (uint8 sRGB) around the text: its ink box grown by NEAR px, inside the lyric area."""
+    x0, y0 = max(box[0] - NEAR, LYRIC_AREA[0]), max(box[1] - NEAR, LYRIC_AREA[1])
+    x1, y1 = min(box[2] + NEAR, LYRIC_AREA[2]), min(box[3] + NEAR, LYRIC_AREA[3])
+    if x1 <= x0 or y1 <= y0:
+        return float("inf")
+    region = bg[y0:y1:2, x0:x1:2].astype(np.float32) / 255.0
+    y = float(np.percentile(paint.luminance(region), 99))
+    text = float(paint.luminance(np.asarray(text_rgb, np.float32) / 255.0))
+    return paint.contrast(text, y)
 
 
-def compose_frame(overlay: bytes, scene, k: int, text_rgb, log: Legibility) -> bytes:
-    """The finished frame k as RGBA bytes (alpha 255): the background lit by scene.light(k), the
-    lyrics' shadows cut out of each light, the overlay laid over it with its colours tinted."""
-    w, h = scene.size
-    ov = np.frombuffer(overlay, np.uint8).reshape(h, w, 4)
-    L = scene.light(k)
-    light = (L.sun + L.air)[..., None] * L.sun_rgb
-    light += L.ambient
-    if L.lamp is not None:
-        light += L.lamp[..., None] * L.lamp_rgb
-    alpha = ov[..., 3]
-    drawn = _ink_box(alpha, 1)   # everything the overlay draws: composed below as it is
-    ink = _ink_box(alpha, INK) if drawn else None
+def compose_frame(overlay: bytes, scene, k: int, text_rgb, log: Legibility, bg=None) -> bytes:
+    """The finished frame k as RGBA bytes (alpha 255): the look's background (told where the text
+    is this frame, unless `bg` is already drawn) with the overlay laid over it as it is."""
+    h, w = paint.H, paint.W
+    ink = ink_box(np.frombuffer(overlay, np.uint8).reshape(h, w, 4)[..., 3])
+    if bg is None:
+        bg = scene.frame(k, ink)
     if ink:
-        log.note(k, frame_contrast(scene, light, text_rgb, L.tint, ink))
-    shadows = [(L.sun, L.sun_rgb, L.sun_shadow)]
-    if L.lamp is not None:
-        shadows.append((L.lamp, L.lamp_rgb, L.lamp_shadow))
-    reach = max(abs(v) for _, _, (dx, dy, _) in shadows for v in (dx, dy))
-    box = _grow(drawn, int(reach) + 8 * scene.look.shadow_soft + 4, w, h) if drawn else None
-    if box:
-        x0, y0, x1, y1 = box
-        cast0 = paint.down2(alpha[y0:y1, x0:x1].astype(np.float32) / 255.0)
-        hs = (slice(y0 // 2, y1 // 2), slice(x0 // 2, x1 // 2))
-        for term, rgb, (dx, dy, strength) in shadows:
-            cast = ndimage.shift(cast0, (dy / 2, dx / 2), order=1, mode="constant")
-            cast = paint.soft(cast, scene.look.shadow_soft) * strength
-            light[hs] -= (term[hs] * cast)[..., None] * rgb
-
-    # full size in 8-bit C ops (PIL): the light (clipped at 1: highlights burn out) upscaled,
-    # times the albedo
-    light *= 255.0
-    light += 0.5
-    np.clip(light, 0.0, 255.0, out=light)
-    half = np.empty((*light.shape[:2], 4), np.uint8)
-    half[..., :3] = light
-    half[..., 3] = 255
-    up = Image.fromarray(half, "RGBA").resize((w, h), Image.BILINEAR)
-    bg = ImageChops.multiply(scene.albedo_img, up)
-    if L.glow > 0:
-        gx0, gy0, glow = scene.glow
-        gbox = (gx0, gy0, gx0 + glow.shape[1], gy0 + glow.shape[0])
-        g = np.empty((*glow.shape[:2], 4), np.uint8)
-        g[..., :3] = np.clip(glow * (255 * L.glow) + 0.5, 0, 255)
-        g[..., 3] = 0
-        bg.paste(ImageChops.add(bg.crop(gbox), Image.fromarray(g, "RGBA")), gbox)
-    if drawn:   # the overlay as it is, only its colours tinted: straight alpha over the room
-        region = Image.frombuffer("RGBA", (w, h), overlay, "raw", "RGBA", 0, 1).crop(drawn)
-        tint = Image.new("RGBA", region.size, (*(int(round(255 * c)) for c in L.tint), 255))
-        bg.alpha_composite(ImageChops.multiply(region, tint), dest=drawn[:2])
-    return bg.tobytes()
+        log.note(k, frame_contrast(bg, text_rgb, ink))
+    im = Image.fromarray(bg, "RGB").convert("RGBA")
+    im.alpha_composite(Image.frombuffer("RGBA", (w, h), overlay, "raw", "RGBA", 0, 1))
+    return im.tobytes()
 
 
-def with_background(frames: Iterable, scene, theme, log: Legibility) -> Iterator[list]:
+_scene = None   # a worker's own scene
+
+
+def _start(bg: tuple[str, str], facts) -> None:
+    global _scene
+    _scene = build_scene(bg, facts)
+
+
+def _draw(k: int) -> np.ndarray:
+    return _scene.frame(k)
+
+
+def drawn_ahead(bg: tuple[str, str], facts, workers: int = WORKERS) -> Iterator[np.ndarray]:
+    """The look's frames 0..n-1 in order, drawn `workers` at a time in other processes, at most
+    two per worker ahead of the reader (a frame is 6 MB)."""
+    pool = ProcessPoolExecutor(workers, initializer=_start, initargs=(bg, facts))
+    try:
+        todo = iter(range(facts.n))
+        ahead = deque(pool.submit(_draw, k) for k in itertools.islice(todo, 2 * workers))
+        while ahead:
+            frame = ahead.popleft().result()
+            ahead.extend(pool.submit(_draw, k) for k in itertools.islice(todo, 1))
+            yield frame
+    finally:
+        pool.shutdown(cancel_futures=True)
+
+
+def with_background(frames: Iterable, scene, theme, log: Legibility, bg=None) -> Iterator[list]:
     """The theme's frames, each followed by its finished frame: the overlay's pieces go on to
-    ffmpeg exactly as they came (spec AC3), stacked above the finished frame."""
-    for k, parts in enumerate(frames):
-        pieces = list(parts)
-        t0 = time.perf_counter()
-        final = compose_frame(b"".join(pieces), scene, k, theme.text_rgb, log)
-        log.draw_s += time.perf_counter() - t0
-        log.frames += 1
-        yield [*pieces, final]
+    ffmpeg exactly as they came (spec AC3), stacked above the finished frame. With `bg` (the
+    look's name) and a look that can be drawn out of order, the backgrounds are drawn ahead in
+    worker processes."""
+    ahead = None if bg is None or scene.in_order else drawn_ahead(bg, scene.facts)
+    try:
+        for k, parts in enumerate(frames):
+            pieces = list(parts)
+            t0 = time.perf_counter()
+            final = compose_frame(b"".join(pieces), scene, k, theme.text_rgb, log,
+                                  next(ahead) if ahead else None)
+            log.draw_s += time.perf_counter() - t0
+            log.frames += 1
+            yield [*pieces, final]
+    finally:
+        if ahead:
+            ahead.close()
 
 
 def final_checks(path: Path, n: int, theme, log: Legibility) -> list[str]:
@@ -141,6 +136,6 @@ def final_checks(path: Path, n: int, theme, log: Legibility) -> list[str]:
         fails.append(f"{path.name}: {info.get('codec')} {info['pix_fmt']}, expected h264 yuv420p")
     if log.failed:
         k, c = log.failed[0]
-        fails.append(f"legibility: {len(log.failed)} frame(s) below {MIN_CONTRAST:g}:1 in the "
-                     f"lyric area; first: frame {k} ({c:.2f}:1)")
+        fails.append(f"legibility: {len(log.failed)} frame(s) below {MIN_CONTRAST:g}:1 around the "
+                     f"text; first: frame {k} ({c:.2f}:1)")
     return fails
