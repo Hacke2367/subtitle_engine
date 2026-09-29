@@ -135,3 +135,8 @@ Invariants that span files (tests and runtime asserts depend on them):
   owner object.
 - Owner rule: whenever you have a better idea than the owner's, say so plainly, with the reason,
   before building theirs. Their examples are a starting point, not the limit.
+- Owner rule: when the owner asks you to think ("socho") or asks for an idea, look at it from
+  several different perspectives before answering: the viewer scrolling (what stops them in the
+  first second), the artist or cinematographer (light, depth, composition), the song's own
+  emotion, what other channels already do (and avoid it), and what only this engine can do (it
+  knows every word's time). Bring clearly different options, not variations of the first thought.
