@@ -557,3 +557,25 @@ to `songs/_review/_trash/fog_drafts/`. Final sample:
 `docs/backgrounds/romantic_lights.md`.
 **Decided:** 2026-09-29
 
+### H-036 — The third romantic look: drive dropped, milan (the owner's idea) final
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** building the romantic looks into the engine (step 17)
+**Context:** The drive look had two tries:
+- first down the road ahead;
+- then through the side window, which the owner asked to make "ekdum dark", with the top light
+  "bahut chota" and the bottom only a soft blur.
+The owner then dropped it: "ye template ko drop kardo, iski jagha kuch aur socho". The owner
+proposed drifting dots that leave a faint light where they collide, moving "not forcefully". The
+owner asked for Claude's idea if theirs did not work. Claude kept the owner's idea, since meeting
+and light suits romance, and added three things:
+- a smooth random wander;
+- meetings timed to the marked words, near the word;
+- faint memories of each meeting.
+**Decision:** after "thoda dark hi vibe ... ek dum halka sa na dark border" and "dots ko thoda
+bada and clearly visibe banao, lekin usme lighting mat do jab wo takrye tabhi lighting aaye":
+"ok isko final karo". Final sample: `songs/_review/backgrounds/lights2/milan_final.mp4`;
+described in `docs/backgrounds/romantic_lights.md`. The drive tries are in
+`songs/_review/_trash/drive_drafts/`.
+**Decided:** 2026-09-29
+

@@ -1,7 +1,8 @@
-# Background: romantic light looks (rain, fog, drive)
+# Background: romantic light looks (rain, fog, milan)
 
-**Status:** three looks approved by the owner on 2026-09-29 from mockup stills (H-032). None is
-built yet. They replace the sunlit room (`romantic_room.md`), which the owner rejected after it
+**Status:** all three romantic looks are final from their moving samples: rain (H-034), fog
+(H-035) and milan (H-036). Milan replaced the dropped drive look. None is built into the engine
+yet. They replace the sunlit room (`romantic_room.md`), which the owner rejected after it
 was built.
 
 ## The owner's rules (H-032), for every background from now on
@@ -92,23 +93,43 @@ thoda kam. bas aisa feel ho ki ha ye shadow hai ek fog hai."
 **Songs:** calm and devotional romance, Sufi-romantic, sukoon.
 Sample: `songs/_review/backgrounds/lights2/fog_video.py` (argument `full moonlight`).
 
-## 3. Drive (`drive`): a night drive
+## 3. Milan (`milan`): drifting dots that light up where they meet
+
+**Status:** final, approved by the owner on 2026-09-29 from its moving sample: "ok isko final
+karo" (H-036). Two rounds of the owner's notes shaped it:
+- "puri theme ko thoda dark hi vibe dena hum dots ke takrane se jo light aaygi uska feel denge
+  and ek dum halka sa na dark border dena";
+- "dots ko thoda bada and clearly visibe banao, lekin usme lighting mat do jab wo takrye tabhi
+  lighting aaye".
+Approved sample: `songs/_review/backgrounds/lights2/milan_final.mp4`, made by
+`milan_video.py full`. The engine's version must match it.
+
+The drive look (a night drive, twice) was dropped: "ye template ko drop kardo, iski jagha kuch
+aur socho". In its place the owner proposed: "background mein dots slowly randomly ida udar ja
+rahe hai, and jab bhi apas mein takra rahe hai tou ek halki si light chhod rahe hai. ek dum
+force fully dots move ho rahe hai, aisa na feel ho". Claude kept the idea ("jab do milte hain,
+roshni hoti hai" suits romance) and added three things: a natural wander, meetings timed to the
+marked words, and memories of the meetings.
 
 **Layers**
-- **Far:** the city at the road's end under a deep blue sky.
-- **Mid:** street lamps along both sides running to the vanishing point, tail lights ahead and
-  oncoming headlights, all out of focus, reflected on the wet road.
-- **Near:** the dark of the car, with a faint dashboard glow at the bottom.
+- **Far:** an almost black night with a very faint plum haze, a light dark border round the
+  frame, and a few small matte dots drifting slowly.
+- **Mid:** bigger matte dots, clearly visible (cream, pale gold, pale rose) and giving no light
+  of their own. Each is on a smooth random wander: its velocity changes slowly and never jerks,
+  so nothing looks pushed. When two meet, they linger a moment and light up, a soft warm light
+  blooms where they met and fades, and a faint memory of it stays for a long while.
+- There is no near layer. Big blurred dots would have been light of their own, and the only
+  light is where dots meet.
 
-**Motion:** the lamps flow past toward the viewer.
+**Frame:** dark; a gentle scrim behind the lyrics (Soft Romantic v2).
 
 **Song reaction:**
-- On each beat, a streetlight's amber wash rolls down through the frame, as if the car passed
-  under a lamp.
-- A marked word brings the slow anamorphic streak of an oncoming car.
+- On each marked word, two dots near that word drift together and meet just as it is sung, with
+  a warmer bloom.
+- By the end of the song the frame holds the faint memories of every meeting.
 
-**Songs:** romantic songs with a beat, travel and friendship. Text theme in the mockup:
-Soft Romantic v2.
+**Songs:** romantic of every kind; meeting, longing, togetherness.
+Sample: `songs/_review/backgrounds/lights2/milan_video.py` (argument `full`).
 
 ## Reusable for any lyric
 
@@ -125,8 +146,9 @@ seeded by the song folder's name.
 
 1. A moving sample of each look on `khidki_s2_em`, shown to the owner before any pipeline work.
    This is the lesson from the room: it was built in full before the owner saw it move.
-2. Rain first, then fog, then drive, on the step 17 pipeline (`--bg`, the finished short with
-   audio, the checks).
+2. Build all three into the engine on the step 17 pipeline (`--bg`, the finished short with audio,
+   the checks): rain, then fog, then milan. Each engine render must look like its approved sample
+   in `songs/_review/backgrounds/lights2/`.
 
 ## Rejected on the way (H-032)
 
