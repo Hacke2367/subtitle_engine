@@ -32,11 +32,13 @@ finished look.
 
 ## Next up
 
-1. **Resume point:** romantic looks are final (rain, fog, milan; H-034 to H-036); they still
-   need building into the engine (`--bg rain|fog|milan`, step 17). Next song type: sad. Two
-   tries (a pair of dots drifting apart, "judaai", and stills of two more) were rejected as
-   concepts ("kachra idea"); the owner allowed images. Waiting on H-037: which sad idea, and
-   where images come from (AI via a fal key in `.env`, or free stock).
+1. **Resume point:** the owner picks template ideas per song type from
+   `docs/backgrounds/template_ideas.md` (H-038, 33 ideas from 11 agents, Claude's picks ★).
+   Each pick then gets code-drawn stills and a moving sample. Final so far:
+   - romantic: rain, fog, milan (H-034 to H-036);
+   - sad: Khaali jagah (H-037);
+   - sad: Kinaare ke nishaan (stills made, `songs/_review/backgrounds/sad/00_nishaan.png`).
+   None of these is built into the engine yet (`--bg`, step 17).
    Still open from V1: the owner tries a different song end to end (`align` → `clip` → `make`,
    spec 05 AC4); a bug found there comes first.
 2. Step 14 (Devanagari shaping) only when a song needs it. Step 16 (line breaks at sung

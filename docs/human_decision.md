@@ -604,3 +604,22 @@ each marked word; the light goes out on the last line. Stills:
 `khaali_jagah_yaad_final.png` (the memory moment), drawn by `sad_scenes.py`. The owner asked for
 two more sad ideas "couple wagera pe".
 **Decided:** 2026-09-29
+
+### H-038 — Which template ideas to draw for each song type
+**Status:** pending
+**Raised:** 2026-09-29
+**Needed-before:** stills and moving samples for the next song types
+**Context:** The owner asked for background agents to find 3 templates per song type, each
+questioned hard before it is returned. The types:
+- romantic and sad again;
+- hip-hop, party, Sufi, motivational, journey, family, patriotic and old classics.
+33 ideas came back, reviewed by Claude, in `docs/backgrounds/template_ideas.md`.
+**Options:** the 3 per type in that document.
+**Recommendation (★):**
+- Taaron ka jaal (hip-hop); Naachta fawaara (party); Jaali se subah (Sufi);
+- Seedhi dar seedhi (motivational); Pahadi raasta (journey); Jaagti khidki (family);
+- Dharti ki lehar (patriotic); Purani Talkies (classics);
+- Chaand ka ghoonghat (romantic); Aakhri patta (sad).
+Also one cloth test before any dupatta, saree or veil idea is chosen, and one moving sample
+before any idea with animated human shadows.
+
