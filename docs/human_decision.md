@@ -580,7 +580,7 @@ described in `docs/backgrounds/romantic_lights.md`. The drive tries are in
 **Decided:** 2026-09-29
 
 ### H-037 — Sad songs: which idea, and where the images come from
-**Status:** pending
+**Status:** decided
 **Raised:** 2026-09-29
 **Needed-before:** the sad-song background
 **Context:** The owner rejected the dot concepts for sad songs ("ye template hi bekar hai ... ye
@@ -596,4 +596,11 @@ Image source:
 - (a) AI stills, via a fal key in `.env`, about ₹1–3 each;
 - (b) free stock (Pexels, Pixabay).
 **Recommendation:** (1) with (a).
-
+**Decision:** The owner has no AI subscription: "ye image tum hi banao". Images are drawn by code
+(night, fog, light, silhouettes). Of three drawn scenes the owner picked (1), "Khaali jagah":
+"first image ko final karo". An empty bench under a streetlight in the rain; for a moment warm on
+each marked word; the light goes out on the last line. Stills:
+`songs/_review/backgrounds/sad/khaali_jagah_final.png` (present) and
+`khaali_jagah_yaad_final.png` (the memory moment), drawn by `sad_scenes.py`. The owner asked for
+two more sad ideas "couple wagera pe".
+**Decided:** 2026-09-29
