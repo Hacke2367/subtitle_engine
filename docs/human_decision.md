@@ -539,3 +539,21 @@ changed. Final sample: `songs/_review/backgrounds/lights2/rain_final.mp4`; descr
 `docs/backgrounds/romantic_lights.md`.
 **Decided:** 2026-09-29
 
+### H-035 — The fog look is final, in moonlight
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** building the fog look into the engine (step 17)
+**Context:** Fog samples on `khidki_s2_em` (H-032):
+- First, gold light through fog. The owner asked for shading, a dark lower part, and more
+  light where the fog comes in, fading lower down: "bas aisa feel ho ki ha ye shadow hai ek fog
+  hai".
+- That version became the base. The owner then asked for a different, peaceful colour
+  combination and a slightly darker theme.
+- Four palettes were shown as stills: moonlight, lavender, mint, dawn. Moonlight and lavender
+  were shown as videos.
+**Decision:** "chaandni wala final kardo, and baki ke delete kardo". The other samples were moved
+to `songs/_review/_trash/fog_drafts/`. Final sample:
+`songs/_review/backgrounds/lights2/fog_final.mp4`; described in
+`docs/backgrounds/romantic_lights.md`.
+**Decided:** 2026-09-29
+

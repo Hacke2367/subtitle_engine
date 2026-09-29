@@ -51,22 +51,46 @@ word lands the biggest, in rose.
 **Songs:** longing, separation, rainy-day romance; also sad and lofi.
 Sample: `songs/_review/backgrounds/lights2/rain3_video.py`.
 
-## 2. Fog (`fog`): light through fog
+## 2. Fog (`fog`): moonlight and shadow through fog
+
+**Status:** final, approved by the owner on 2026-09-29 from its moving sample, in the
+"moonlight" palette (H-035). The owner asked for a different, peaceful colour combination and a
+slightly darker theme than the first gold version ("thoda diffrent colur combo try karo light and
+jo thoda peacfully ho ... thoda dark theme try karo ekdum thoda"), then picked moonlight from
+four (moonlight, lavender, mint, dawn): "chaandni wala final kardo".
+- Approved sample: `songs/_review/backgrounds/lights2/fog_final.mp4`.
+- Made by `fog_video.py full moonlight`.
+- The engine's version must match it.
+
+Palette (moonlight):
+- base: deep navy `#040a16` → `#050b1b` → `#010206`;
+- source glow: `#e2eaff`;
+- rays: silver-blue `#b9ccff`;
+- scatter: `#46699e`.
+
+The owner's notes on the first moving sample: "usme thoda shading do, and jo neecha ka hissa hai
+usko dark rakho. and jaha se fog niklta hai waha light halka sa jyada rakho and neeche aate hue
+thoda kam. bas aisa feel ho ki ha ye shadow hai ek fog hai."
 
 **Layers**
-- **Far:** deep teal shadows and a low haze near the bottom.
-- **Mid:** broad soft rays of warm gold light, falling diagonally through gaps in leaves from
-  beyond the top left and crossing the whole frame.
-- **Near:** slow drifting fog that catches the rays.
+- **Far:** deep navy shadows. The lower part of the frame falls into darkness, like ground in
+  shadow.
+- **Mid:** broad soft rays of silver-blue moonlight falling diagonally through gaps in leaves from
+  beyond the top left. They are brightest where the light comes in and fade as they come down,
+  with darker shadow between them.
+- **Near:** slow wisps of fog drifting across, glowing where a ray catches them and darkening the
+  air where they sit in shadow.
+
+**Frame:** a gentle scrim behind the lyrics (Cinematic text).
 
 **Motion:** the fog drifts; the gaps in the leaves sway, so the rays shift slowly.
 
 **Song reaction:**
 - Each sung word brightens the rays a little, as if a cloud moved.
-- A marked word opens a new ray.
+- A marked word opens a new ray that stays.
 
-**Songs:** calm and devotional romance, Sufi-romantic, sukoon. Text theme in the mockup:
-Cinematic.
+**Songs:** calm and devotional romance, Sufi-romantic, sukoon.
+Sample: `songs/_review/backgrounds/lights2/fog_video.py` (argument `full moonlight`).
 
 ## 3. Drive (`drive`): a night drive
 
