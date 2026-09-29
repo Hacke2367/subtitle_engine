@@ -12,34 +12,44 @@ was built.
 2. **The whole screen is used.** One lit scene from top to bottom, not a cluster in one corner.
 3. **Real depth.** At least three layers (far, mid, near), each with its own blur and haze, and
    in motion each moves at its own speed.
-4. **The lyrics stay the clearest thing.** Behind the text the frame is calmer and darker (the
-   3:1 rule of spec 17).
+4. **The lyrics stay the clearest thing** ("lyric clearly dikhna chaiye"). Behind the text the
+   frame is calmer and darker, with a soft scrim if needed (the 3:1 rule of spec 17); a bold
+   theme beats a thin one on a busy look.
 
 Colour: film palettes (teal and amber, deep blue, sodium orange), mixed in OKLab, with a fine
 static grain. Mockups: `songs/_review/backgrounds/lights2/light_worlds.py` (review only).
 
-## 1. Rain (`rain`): a rainy night through a window
+## 1. Rain (`rain`): slow colourless rain; colour rises where it lands
+
+**Status:** final, approved by the owner on 2026-09-29 from its moving sample, with a few soft
+clouds added: "ye video ko final kardo and just aasman mein thode cloud add kardo, and kuch bhi
+mat change karna" (H-034). The approved sample is `songs/_review/backgrounds/lights2/rain_final.mp4`,
+made by `rain3_video.py`; the engine's version must match it.
+
+Two tries were dropped after their moving samples (H-032):
+- **A rainy window with a defocused city.** "isko drop kardo, ek real ashettic barish kaishi
+  hoti hai wo banao ... usme halki si chamak rahegi ... lyric clearly dikhna chaiye".
+- **Rain in a streetlight's cone at night.** "rain ko slowly girwa and usme ka colour hata do,
+  jab wo jamin pe niche gire tab usme (jamin) se ek colur nikle. and rain ko thoda naturally
+  banao - and theme dark mat rakho puri tarha se thoda sa light theme do".
 
 **Layers**
-- **Far:** the city out of focus. Coloured bokeh (amber, warm white, red, a little cyan and pink)
-  along a street low in the frame, with reflections streaking down the wet road. Above, very dim
-  and very soft window lights of far buildings.
-- **Mid:** rain falling through the air, seen only where it passes in front of the lights.
-- **Near:** the glass. A faint mist, drops that hold the street upside down, and streams that
-  have run down and left beads.
+- **Far:** a soft overcast evening, lighter than night: grey-blue sky with a few soft clouds
+  drifting slowly high up, mist on the horizon, a faint tree line far away.
+- **Mid:** slow, colourless rain. Each drop has its own depth: far drops are small and slow and
+  land near the horizon; near drops are bigger and softer and land low in the frame. The rain
+  sways a little in the wind.
+- **Near:** wet ground that mirrors the sky and the trees. Where a drop lands, a faint ripple
+  spreads and a soft pastel colour (rose, peach, lilac, teal, gold) rises out of the ground and
+  fades.
 
-**Frame:** dark and calm behind the lyrics in the middle; the street's colour fills the lower
-third.
+**Frame:** a gentle scrim behind the lyrics; a bold theme (Soft Romantic v2).
 
-**Motion:** the rain falls, the lights breathe a little, and now and then a car's light washes
-across the glass from one side.
+**Song reaction:** each sung word lands a bigger bloom of colour on the ground below it; a marked
+word lands the biggest, in rose.
 
-**Song reaction:**
-- Each sung word starts a drop running down the glass below it, clearing its own trail.
-- Each new line brings a passing car's light.
-
-**Songs:** longing, separation, rainy-day romance; also sad and lofi. Text theme in the mockup:
-Lofi Minimal.
+**Songs:** longing, separation, rainy-day romance; also sad and lofi.
+Sample: `songs/_review/backgrounds/lights2/rain3_video.py`.
 
 ## 2. Fog (`fog`): light through fog
 

@@ -521,3 +521,21 @@ screen, depth, nothing festive or childish.
 **Recommendation:** (a), after the romantic looks are built, since seeing them move will show
 what works.
 
+### H-034 — The rain look is final
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** building the rain look into the engine (step 17)
+**Context:** Rain samples on `khidki_s2_em` (H-032).
+- The first, a rainy window with a defocused city: "isko drop kardo ... lyric clearly dikhna
+  chaiye".
+- The second, rain in a streetlight's cone at night: "rain ko slowly girwa and usme ka colour
+  hata do, jab wo jamin pe niche gire tab usme (jamin) se ek colur nikle ... theme dark mat rakho
+  puri tarha se thoda sa light theme do".
+- The third: slow colourless rain on a soft overcast evening, where colour rises out of the wet
+  ground as each drop lands and each sung word lands a bigger bloom.
+**Decision:** "ok ab ek kaam karo ye video ko final kardo and just aasman mein thode cloud add
+kardo, and kuch bhi mat change karna". A few soft drifting clouds were added and nothing else
+changed. Final sample: `songs/_review/backgrounds/lights2/rain_final.mp4`; described in
+`docs/backgrounds/romantic_lights.md`.
+**Decided:** 2026-09-29
+
