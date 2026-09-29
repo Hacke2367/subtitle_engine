@@ -32,10 +32,11 @@ finished look.
 
 ## Next up
 
-1. **Resume point:** the rain look's moving sample on `khidki_s2_em`
-   (`songs/_review/backgrounds/lights2/`). The owner approves it, then rain replaces the room
-   in `background/` (spec 17 revised), then fog, then drive. Open for the owner: H-033 (redesign
-   steps 18–22 under H-032's rules?), and `moderngl` if numpy is too slow in motion.
+1. **Resume point:** romantic looks are final (rain, fog, milan; H-034 to H-036); they still
+   need building into the engine (`--bg rain|fog|milan`, step 17). Next song type: sad. Two
+   tries (a pair of dots drifting apart, "judaai", and stills of two more) were rejected as
+   concepts ("kachra idea"); the owner allowed images. Waiting on H-037: which sad idea, and
+   where images come from (AI via a fal key in `.env`, or free stock).
    Still open from V1: the owner tries a different song end to end (`align` → `clip` → `make`,
    spec 05 AC4); a bug found there comes first.
 2. Step 14 (Devanagari shaping) only when a song needs it. Step 16 (line breaks at sung

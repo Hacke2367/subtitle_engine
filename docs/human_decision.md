@@ -579,3 +579,21 @@ described in `docs/backgrounds/romantic_lights.md`. The drive tries are in
 `songs/_review/_trash/drive_drafts/`.
 **Decided:** 2026-09-29
 
+### H-037 — Sad songs: which idea, and where the images come from
+**Status:** pending
+**Raised:** 2026-09-29
+**Needed-before:** the sad-song background
+**Context:** The owner rejected the dot concepts for sad songs ("ye template hi bekar hai ... ye
+kiya tum kachra idea de rahe ho"). The owner allowed images ("tum image wagera bhi use kar sakte
+ho") and asked for ideas from several perspectives, now a CLAUDE.md rule.
+**Options:**
+- (1) "Khaali jagah": an empty place that once held two people, with a slow 2.5D push-in; cold
+  and grey, turning warm for a moment on each marked word; the streetlight goes out on the last
+  line.
+- (2) "Purani tasveer": an old faded photo that bleaches away over the song.
+- (3) "Aakhri train": an empty station at night; a train's light passes on the beat.
+Image source:
+- (a) AI stills, via a fal key in `.env`, about ₹1–3 each;
+- (b) free stock (Pexels, Pixabay).
+**Recommendation:** (1) with (a).
+
