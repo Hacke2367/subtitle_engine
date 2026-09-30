@@ -494,3 +494,21 @@ block's centre, with radii 680 × 420 px. Measured lowest contrast on `khidki_s2
 **Why:** Of the tried patches (ellipses and soft boxes, strength 0.45 to 0.55), this is the
 lightest that passes 3:1 with a margin; it changes only the area behind the text.
 **Supersedes:** —
+
+### D-035 — Backdrop: the look alone, two modes; looks are modules named like the look (step 17)
+**Date:** 2026-10-01
+**Context:** The owner wants a ready template and to add lyrics themselves in CapCut ("mujhe
+template ready mile and mein uspe lyric add kar saku").
+**Decision:**
+- `backdrop songs/<song> --bg LOOK` (render's `backdrop=True`): the look follows the song's aligned
+  words and the video carries its audio, no lyrics drawn, no other output touched. Needs the
+  theme's layout only to place the words (`--theme`).
+- `backdrop --seconds N --bg LOOK`: no song; the look runs with no words, the payoff at 85% of
+  the length, no audio.
+- One look code for both: `Scene(facts)` with empty `words` and `last_line_s None` is the no-song mode.
+- A look is `background/<name>.py` with `Scene`, plus a line in `WORLDS`; `build_scene` imports by name.
+- Owner asked to keep going without waiting ("jo bhi decision lena hona lelo"), so looks after
+  khaali are built from sample to engine in one run; owner approval stays the gate before merge.
+**Why:** The overlay (`overlay.mov`) is already word-synced, so background + overlay in CapCut needs
+no manual timing; a generic mode covers "any song".
+**Supersedes:** —

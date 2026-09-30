@@ -1,6 +1,6 @@
 # Pending Work
 
-Last updated: 2026-09-29 (rain, fog and milan built into the engine; H-039 open)
+Last updated: 2026-10-01 (khaali + backdrop built; Aakhri patta and Chaand in progress)
 
 ## WIP
 

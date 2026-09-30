@@ -175,6 +175,15 @@ legibility result.
 11. The owner approves the finished shorts on `khidki_s2_em`.
 12. Gate passes.
 
+## 6b. Added in v2.1: khaali and the backdrop (D-035)
+
+- Look `khaali` (mood `night`, sad: `docs/backgrounds/sad_khaali_jagah.md`). AC: renders with every
+  check passing; lowest contrast 4.4:1 (14 s), 3.2:1 (30 s clip).
+- `backdrop`: only the background, no lyrics drawn (`backdrop songs/<song> --bg LOOK`, with the
+  song's words and audio; or `--seconds N`, no song, payoff at 85%). AC: the file has the asked
+  length, audio only with a song, no other output of the render dir is written or touched;
+  a backdrop without a look is refused.
+
 ## 7. Dependencies
 
 numpy, PIL and scipy, already in the venv and in `requirements.txt` since v1. Nothing new.
