@@ -36,9 +36,11 @@ finished look.
 
 ## Next up
 
-1. **Resume point:** the owner picks template ideas per song type from
-   `docs/backgrounds/template_ideas.md` (H-038, 33 ideas from 11 agents, Claude's picks ★).
-   Each pick then gets code-drawn stills and a moving sample. Final so far:
+1. **Resume point:** the owner picks template ideas per song type (H-038). The ideas are in
+   `docs/backgrounds/template_ideas.md`; code-drawn stills of the ★ picks, rated by a critic
+   agent (artist, viewer, owner's rules) after one fix round, are in
+   `docs/backgrounds/template_stills.md` (best so far 6.5/10: Aakhri patta, Rail ki Seeti).
+   Hip-hop's fix round was cut by a session limit and re-run. Each pick then gets a moving sample. Final so far:
    - romantic: rain, fog, milan (H-034 to H-036);
    - sad: Khaali jagah (H-037);
    - sad: Kinaare ke nishaan (stills made, `songs/_review/backgrounds/sad/00_nishaan.png`).
