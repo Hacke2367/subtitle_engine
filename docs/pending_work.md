@@ -36,18 +36,23 @@ finished look.
 
 ## Next up
 
-1. **Resume point:** the owner picks template ideas per song type (H-038). The ideas are in
-   `docs/backgrounds/template_ideas.md`; code-drawn stills of the ★ picks, rated by a critic
-   agent (artist, viewer, owner's rules) after one fix round, are in
-   `docs/backgrounds/template_stills.md` (best so far 6.5/10: Aakhri patta, Rail ki Seeti).
-   Each pick then gets a moving sample. Final so far:
-   - romantic: rain, fog, milan (H-034 to H-036);
-   - sad: Khaali jagah (H-037);
-   - sad: Kinaare ke nishaan (stills made, `songs/_review/backgrounds/sad/00_nishaan.png`).
-   The romantic three are built into the engine (`--bg`, step 17); the owner judges the
-   engine's shorts on `khidki_s2_em` (AC11) and answers H-039, then PR #16 can merge.
-   Still open from V1: the owner tries a different song end to end (`align` → `clip` → `make`,
-   spec 05 AC4); a bug found there comes first.
+1. **Resume point (2026-10-01):** built into the engine on `feature/bg-romantic-room` (PR #16),
+   all waiting for the owner's look approval:
+   - romantic: rain, fog, milan (H-034 to H-036, final samples), chaand (Chaand ka ghoonghat,
+     agent-built, ~7/10);
+   - sad: khaali (Khaali jagah, from the approved still), aakhri (Aakhri patta, agent-built,
+     ~6.5-7/10);
+   - `backdrop` command: the look alone, with a song or `--seconds N` (D-035).
+   Owner answers: H-039 (rain patch), approve or note each look from its 14 s / 30 s renders
+   (`songs/khidki_30s/render/soft-romantic-v2/final_*.mp4`). Next per the owner's plan (H-038
+   picks): Rail ki Seeti (classics), Taaron ka jaal (hip-hop, needs a beat test song), Jaali se
+   subah (sufi: cache static parts first), Shamiyane ki parchhaiyan (party, beat song), Parchhaiyan
+   (family). Stills and critic notes: `docs/backgrounds/template_stills.md`,
+   `songs/_review/backgrounds/templates/_results.json`. Build flow: an agent makes
+   `templates/<type>/<look>.py` with the Scene contract and tests it with
+   `songs/_review/backgrounds/run_scene.py`, then it moves to `src/lyric_engine/background/`
+   (import `from . import paint as P`, expose `.facts`), one line in `WORLDS`, a doc, a 30 s render.
+   Kinaare ke nishaan (sad) has stills only.
 2. Step 14 (Devanagari shaping) only when a song needs it. Step 16 (line breaks at sung
    pauses) only if the owner asks; it is outside the original V1 scope.
 3. Optional cleanup: `render/check.py` (≈369 lines) and `render/karaoke.py` (≈313) are past
