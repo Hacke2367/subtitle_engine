@@ -33,19 +33,19 @@ Sheet: `songs/_review/backgrounds/templates/sad/00_sad.png`
 - **Aakhri patta:** Horizon trees (y 1430-1600: e.g. x 360-450 and the big one at x 845-1080) are lollipop clip-art: a round blob or cloud-shaped crown on one pencil-thin stick trunk, all in the same flat maroon fill.
 - **Jaagti raat:** The composition splits into two unrelated pictures: a warm top (y 0-790), a near-void middle (y 800-1390; the y 1280-1440 band has mean luminance about 6, essentially black) and a dim window pasted at the bottom (y 1500-1920).
 
-## Hip-hop (first review; fix pending)
+## Hip-hop (after the fix)
 
 Sheet: `songs/_review/backgrounds/templates/hiphop/00_hiphop.png`
 
 | Idea | Overall | Artist | Viewer | Rules |
 |---|---|---|---|---|
-| Taaron ka jaal | 6 | 6 | 5 | 6 |
-| Parchhaiyon ka cypher | 5 | 4 | 7 | 4 |
-| Flyover ke neeche | 4 | 4 | 3 | 5 |
+| Taaron ka jaal | 6 | 6 | 6 | 7 |
+| Parchhaiyon ka cypher | 5 | 6 | 6 | 5 |
+| Flyover ke neeche | 4 | 4 | 4 | 6 |
 
-- **Taaron ka jaal:** The bottom 45% (y 1050-1920) is dead: flat brown-violet murk with no texture, no wet sheen and no reflections.
-- **Parchhaiyon ka cypher:** The wall looks like a clean beige 3D blockout, not an old gali wall.
-- **Flyover ke neeche:** It reads as an unfinished 3D blockout. The pillars are plain rectangles with no visible hammerhead taper, the deck is stacked boxes, and the city at the left (x 50-330, y 550-830) is a stepped grey staircase.
+- **Taaron ka jaal:** The lower half still reads as a flooded gali or canal, not a wet lane.
+- **Parchhaiyon ka cypher:** The MID poses still read as violence or fear, not 'oooh'.
+- **Flyover ke neeche:** It does not read as a flyover. The girders overhead (y 0-450) and the flat slab crossbeam (x 300-1080, y 480-640) read as the ceiling of an underground parking garage or a metro concourse.
 
 ## Party / Punjabi (after the fix)
 
