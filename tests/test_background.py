@@ -234,6 +234,19 @@ class BackgroundRenderTest(unittest.TestCase):  # AC1, AC3
             self.assertNotIn("## Background", report)
 
 
+class WorkerRenderTest(unittest.TestCase):   # a look drawn out of order, in worker processes
+    def test_render_with_workers_passes_and_leaves_the_overlay_alone(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            song = make_song(Path(tmp), lyrics="Mere\n*saamne*\n", duration=2.0)
+            plain = render.render(song, codec="qtrle", theme=THEME)
+            hashes = {key: _frame_hash(p) for key, p in plain.outputs.items()}
+            with mock.patch("lyric_engine.background.compose.WORKERS", 2):
+                result = render.render(song, codec="qtrle", theme=THEME, bg=("fog", "moonlight"))
+            self.assertEqual(result.checks, [])
+            self.assertEqual(_streams(result.outputs["final"], "v:0"), ["h264,60"])
+            self.assertEqual({key: _frame_hash(result.outputs[key]) for key in hashes}, hashes)
+
+
 class EveryLookTest(unittest.TestCase):
     def test_each_look_draws_a_frame_with_no_words(self):   # the song-independent mode
         for look, (mood, *_rest) in WORLDS.items():

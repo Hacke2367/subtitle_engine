@@ -66,11 +66,13 @@ def frame_contrast(bg: np.ndarray, text_rgb, box: tuple[int, int, int, int]) -> 
     return paint.contrast(text, y)
 
 
-def compose_frame(overlay: bytes, scene, k: int, text_rgb, log: Legibility, bg=None) -> bytes:
+def compose_frame(overlay: bytes, scene, k: int, text_rgb, log: Legibility, bg=None, ink=None) -> bytes:
     """The finished frame k as RGBA bytes (alpha 255): the look's background (told where the text
-    is this frame, unless `bg` is already drawn) with the overlay laid over it as it is."""
+    is this frame, unless `bg` is already drawn; `ink` if already found) with the overlay laid over
+    it as it is."""
     h, w = paint.H, paint.W
-    ink = ink_box(np.frombuffer(overlay, np.uint8).reshape(h, w, 4)[..., 3])
+    if ink is None:
+        ink = ink_box(np.frombuffer(overlay, np.uint8).reshape(h, w, 4)[..., 3])
     if bg is None:
         bg = scene.frame(k, ink)
     if ink:
@@ -88,13 +90,13 @@ def _start(bg: tuple[str, str], facts) -> None:
     _scene = build_scene(bg, facts)
 
 
-def _draw(k: int) -> np.ndarray:
-    return _scene.frame(k)
+def _draw(k: int, ink=None) -> np.ndarray:
+    return _scene.frame(k, ink)
 
 
 def drawn_ahead(bg: tuple[str, str], facts, workers: int = WORKERS) -> Iterator[np.ndarray]:
-    """The look's frames 0..n-1 in order, drawn `workers` at a time in other processes, at most
-    two per worker ahead of the reader (a frame is 6 MB)."""
+    """The look's frames 0..n-1 in order (no text over them), drawn `workers` at a time in other
+    processes, at most two per worker ahead of the reader (a frame is 6 MB)."""
     pool = ProcessPoolExecutor(workers, initializer=_start, initargs=(bg, facts))
     try:
         todo = iter(range(facts.n))
@@ -110,21 +112,43 @@ def drawn_ahead(bg: tuple[str, str], facts, workers: int = WORKERS) -> Iterator[
 def with_background(frames: Iterable, scene, theme, log: Legibility, bg=None) -> Iterator[list]:
     """The theme's frames, each followed by its finished frame: the overlay's pieces go on to
     ffmpeg exactly as they came (spec AC3), stacked above the finished frame. With `bg` (the
-    look's name) and a look that can be drawn out of order, the backgrounds are drawn ahead in
-    worker processes."""
-    ahead = None if bg is None or scene.in_order else drawn_ahead(bg, scene.facts)
-    try:
+    look's name) and a look that can be drawn out of order, the backgrounds are drawn in worker
+    processes, a few frames ahead; each worker is told where the text is on its frame."""
+    if bg is None or scene.in_order:
         for k, parts in enumerate(frames):
             pieces = list(parts)
             t0 = time.perf_counter()
-            final = compose_frame(b"".join(pieces), scene, k, theme.text_rgb, log,
-                                  next(ahead) if ahead else None)
+            final = compose_frame(b"".join(pieces), scene, k, theme.text_rgb, log)
+            log.draw_s += time.perf_counter() - t0
+            log.frames += 1
+            yield [*pieces, final]
+        return
+    h, w = paint.H, paint.W
+    pool = ProcessPoolExecutor(WORKERS, initializer=_start, initargs=(bg, scene.facts))
+    source = enumerate(frames)
+    ahead: deque = deque()
+
+    def pull() -> None:
+        for k, parts in source:
+            pieces = list(parts)
+            overlay = b"".join(pieces)
+            ink = ink_box(np.frombuffer(overlay, np.uint8).reshape(h, w, 4)[..., 3])
+            ahead.append((k, pieces, overlay, ink, pool.submit(_draw, k, ink)))
+            return
+
+    try:
+        for _ in range(2 * WORKERS):
+            pull()
+        while ahead:
+            k, pieces, overlay, ink, future = ahead.popleft()
+            pull()
+            t0 = time.perf_counter()
+            final = compose_frame(overlay, scene, k, theme.text_rgb, log, bg=future.result(), ink=ink)
             log.draw_s += time.perf_counter() - t0
             log.frames += 1
             yield [*pieces, final]
     finally:
-        if ahead:
-            ahead.close()
+        pool.shutdown(cancel_futures=True)
 
 
 def final_checks(path: Path, n: int, theme, log: Legibility) -> list[str]:
