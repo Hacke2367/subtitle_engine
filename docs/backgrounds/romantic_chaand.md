@@ -1,8 +1,9 @@
 # Background: romantic, "Chaand ka ghoonghat" (`chaand`)
 
-**Status:** built into the engine (`--bg chaand`) from a moving sample made by an agent from the
-still (critic 6/10, H-038) and the critic's fixes; **not yet approved by the owner** (D-035: built
-ahead, approval is the gate before merge). Module `src/lyric_engine/background/chaand.py`.
+**Status:** final (H-040: the owner handed the approval to Claude, who approved it after a last
+check of the finished shorts). Built into the engine (`--bg chaand`) from a moving sample an agent
+made from the still (critic 6/10, H-038) and the critic's fixes. Module
+`src/lyric_engine/background/chaand.py`.
 
 ## The idea
 

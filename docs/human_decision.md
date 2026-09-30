@@ -606,7 +606,7 @@ two more sad ideas "couple wagera pe".
 **Decided:** 2026-09-29
 
 ### H-038 — Which template ideas to draw for each song type
-**Status:** pending
+**Status:** decided
 **Raised:** 2026-09-29
 **Needed-before:** stills and moving samples for the next song types
 **Context:** The owner asked for background agents to find 3 templates per song type, each
@@ -622,10 +622,14 @@ questioned hard before it is returned. The types:
 - Chaand ka ghoonghat (romantic); Aakhri patta (sad).
 Also one cloth test before any dupatta, saree or veil idea is chosen, and one moving sample
 before any idea with animated human shadows.
-
+**Decision:** the owner took the picks as proposed ("template final hai") and asked for them to be
+built: Khaali jagah and Aakhri patta (sad), Chaand ka ghoonghat (romantic), Rail ki Seeti
+(classics), Taaron ka jaal (hip-hop), Jaali se subah (sufi), Shamiyane ki parchhaiyan (party),
+Parchhaiyan (family). Journey, motivational and patriotic wait (all rated 5 or lower).
+**Decided:** 2026-10-01
 
 ### H-039 — Rain in the engine: a calmer patch behind the lyrics?
-**Status:** pending
+**Status:** decided
 **Raised:** 2026-09-29
 **Needed-before:** merging step 17 (PR #16)
 **Context:** The approved rain video was finalized with "kuch bhi mat change karna". In the
@@ -639,3 +643,21 @@ row sits near the bright horizon mist, the contrast falls to 2.4:1 (187 of 420 f
 **Recommendation:** A. The owner's first note on rain was "lyric clearly dikhna chaiye"; the
 change is only behind the text and the frame stays light. Comparison stills:
 `songs/_review/backgrounds/lights2/rain_calm_compare.png`.
+**Decision:** A, the calmer patch. The owner handed the call to Claude on 2026-10-01 ("tumhe jo best lage usko final karo"); Claude kept A for the owner's first rain note, "lyric clearly dikhna chaiye".
+**Decided:** 2026-10-01
+
+### H-040 — The owner hands the look approval to Claude
+**Status:** decided
+**Raised:** 2026-10-01
+**Needed-before:** merging step 17 (PR #16)
+**Context:** Six looks were built (rain, fog, milan, khaali, aakhri, chaand) and waited for the
+owner's approval (spec 17 AC11). The owner: "tumhe jo best lage usko final karo, and ek baar last
+check karo ki sab acha bana haina".
+**Options:** approve all six; approve the four from owner-seen samples and hold aakhri and chaand.
+**Decision:** Claude approved all six after a last check of every finished short (frames at the
+start, middle, last line and end; every check passes, lowest contrast 3.15:1 or more). Known
+issues stay recorded in each look's doc (aakhri: spiky bare twigs, a smudge-like near leaf; chaand:
+smooth tree domes, subtle peeks with few marks) and are the first fixes if the owner objects on
+seeing them.
+**Decided:** 2026-10-01
+

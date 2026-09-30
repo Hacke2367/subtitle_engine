@@ -5,8 +5,8 @@ Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 ## 2026-10-01 (24): khaali, aakhri, chaand and the backdrop command built (in review)
 **Did:** workflow for template stills finished (hip-hop fix re-run alone after a limit; a resume that re-ran every critic was stopped); ratings in `docs/backgrounds/template_stills.md`. Owner chose to build templates and add lyrics themselves → `backdrop` command (with a song or `--seconds`), `khaali` ported from its sample, `chaand` and `aakhri` built by two agents from the stills + critic fixes and moved into the engine; workers now get the text box; `run_scene.py` review runner. 30 s clip renders pass (khaali 3.2:1, chaand 9.5:1).
 **Decisions:** D-035 (backdrop, looks as named modules, build ahead of approval as the owner asked).
-**Open:** owner approval of every look and H-039; render time idle; Aakhri 30 s render result in the PR.
-**Next:** Rail ki Seeti, Taaron ka jaal, Jaali se subah, Shamiyane, Parchhaiyan (see pending_work).
+**Open:** PR #16 merge (owner's word). Owner handed the look approval to Claude: all six final after a last check, H-039 = A (H-040). Idle timing: rain 60 s ≈ 9 min.
+**Next:** next looks with `docs/backgrounds/look_build_brief.md`: Rail ki Seeti, Jaali se subah, then beat looks.
 
 ## 2026-09-29 (23): romantic looks final from samples; rain, fog, milan built into the engine
 **Did:** owner rejected the room → sample-first process: rain (H-034), fog (H-035), milan (H-036) finalized from moving samples; sad "Khaali jagah" still final (H-037) and its moving sample made; 33 template ideas by 11 agents (H-038); a workflow draws stills for the ★ picks with an artist/viewer critic and a cloth test. Engine: `background/` rewritten (rain.py, fog.py, milan.py ported from the samples; room removed), overlay laid over as it is, milan's calm behind the text, rain's calmer patch, worker-pool drawing, faster finishing pass; spec 17 v2 + plan; CLAUDE.md rule "think from several perspectives".

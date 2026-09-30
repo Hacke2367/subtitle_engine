@@ -89,6 +89,10 @@ agents were drawing stills on the same laptop, so the times are upper bounds:
 | rain | 263 s (602 s before the worker pool) | 3.15:1 (2.42:1 with the sample's patch) | D-034 |
 | fog | 259 s | 6.11:1 | |
 
+Idle laptop, `khidki_30s` (30 s, 900 frames), 2026-10-01: rain 274 s (a 60 s short ≈ 9 min,
+AC10 met), aakhri 318 s (≈ 10.6 min), chaand 437 s and khaali 570 s (both measured while two
+agents rendered; re-measure idle before relying on them).
+
 - The finishing pass does the shoulder only on pixels above the knee and works in place: 2.3×
   faster, the same bytes.
 - rain and fog draw their frames in 4 worker processes (`compose.drawn_ahead`), at most two

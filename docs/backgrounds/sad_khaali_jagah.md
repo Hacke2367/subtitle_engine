@@ -1,9 +1,8 @@
 # Background: sad songs, "Khaali jagah" (`khaali`)
 
-**Status:** the still is final (H-037: "first image ko final karo"): an empty bench under a
-streetlight in the rain, at night. A moving sample is made and waits for the owner:
-`songs/_review/backgrounds/sad/khaali_jagah_sample.mp4`, drawn by `khaali_video.py` (review
-only). Not built into the engine; the engine's version must match the approved sample.
+**Status:** final. The still was approved by the owner (H-037); the engine look (`--bg khaali`,
+module `src/lyric_engine/background/khaali.py`) was approved by Claude, to whom the owner handed
+the approval (H-040).
 
 The owner's rules of H-032 hold (`romantic_lights.md`): light felt, never poking the eye; the
 whole screen used; real depth; the lyrics the clearest thing. Everything is drawn by code (the

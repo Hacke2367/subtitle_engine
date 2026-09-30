@@ -1,9 +1,9 @@
 # Background: sad songs, "Aakhri patta" (`aakhri`)
 
-**Status:** built into the engine (`--bg aakhri`, mood `dusk`) from a moving sample made by an
-agent from the still (critic 6.5/10, H-038) and the critic's fixes; **not yet approved by the
-owner** (D-035). Module `src/lyric_engine/background/aakhri.py` (about 940 lines: one art module,
-kept whole rather than split). The agent rates it 6.5-7/10.
+**Status:** final (H-040: approved by Claude, to whom the owner handed the approval). Built into
+the engine (`--bg aakhri`, mood `dusk`) from a moving sample an agent made from the still (critic
+6.5/10, H-038) and the critic's fixes; the agent rates it 6.5-7/10. Module
+`src/lyric_engine/background/aakhri.py` (about 940 lines: one art module, kept whole).
 
 ## The idea
 

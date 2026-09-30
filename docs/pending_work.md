@@ -1,6 +1,6 @@
 # Pending Work
 
-Last updated: 2026-10-01 (khaali, aakhri, chaand + backdrop built; waiting for owner approval)
+Last updated: 2026-10-01 (step 17 approved, H-040; next looks per look_build_brief.md)
 
 ## WIP
 
@@ -36,22 +36,15 @@ finished look.
 
 ## Next up
 
-1. **Resume point (2026-10-01):** built into the engine on `feature/bg-romantic-room` (PR #16),
-   all waiting for the owner's look approval:
-   - romantic: rain, fog, milan (H-034 to H-036, final samples), chaand (Chaand ka ghoonghat,
-     agent-built, ~7/10);
-   - sad: khaali (Khaali jagah, from the approved still), aakhri (Aakhri patta, agent-built,
-     ~6.5-7/10);
-   - `backdrop` command: the look alone, with a song or `--seconds N` (D-035).
-   Owner answers: H-039 (rain patch), approve or note each look from its 14 s / 30 s renders
-   (`songs/khidki_30s/render/soft-romantic-v2/final_*.mp4`). Next per the owner's plan (H-038
-   picks): Rail ki Seeti (classics), Taaron ka jaal (hip-hop, needs a beat test song), Jaali se
-   subah (sufi: cache static parts first), Shamiyane ki parchhaiyan (party, beat song), Parchhaiyan
-   (family). Stills and critic notes: `docs/backgrounds/template_stills.md`,
-   `songs/_review/backgrounds/templates/_results.json`. Build flow: an agent makes
-   `templates/<type>/<look>.py` with the Scene contract and tests it with
-   `songs/_review/backgrounds/run_scene.py`, then it moves to `src/lyric_engine/background/`
-   (import `from . import paint as P`, expose `.facts`), one line in `WORLDS`, a doc, a 30 s render.
+1. **Resume point (2026-10-01):** step 17 is complete and approved (H-040: the owner handed the
+   look approval to Claude): six looks (`rain`, `fog`, `milan`, `chaand` romantic; `khaali`,
+   `aakhri` sad) and the `backdrop` command, on `feature/bg-romantic-room`, PR #16 (merge waits for
+   the owner's explicit "merge"). **Next:** build the next H-038 looks with
+   `docs/backgrounds/look_build_brief.md` (the proven flow: an agent makes the Scene + sample, then
+   it moves into the engine): Rail ki Seeti (classics) and Jaali se subah (sufi) first, since both
+   test on the Khidki songs; Taaron ka jaal (hip-hop) and Shamiyane ki parchhaiyan (party) need a
+   beat test song from the owner and beat times in `SongFacts`; Parchhaiyan (family) last. Stills
+   and critic notes: `docs/backgrounds/template_stills.md`, `songs/_review/backgrounds/templates/`.
    Kinaare ke nishaan (sad) has stills only.
 2. Step 14 (Devanagari shaping) only when a song needs it. Step 16 (line breaks at sung
    pauses) only if the owner asks; it is outside the original V1 scope.
