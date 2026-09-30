@@ -13,13 +13,16 @@ A look's module has a `Scene(facts)` with `describe()` (a line for the report) a
 that frame (x0, y0, x1, y1), or None."""
 from __future__ import annotations
 
+import importlib
 import zlib
 from dataclasses import dataclass
 
-WORLDS = {"rain": ("evening",), "fog": ("moonlight",), "milan": ("night",)}   # first = default
+# A look is a module of this package with the same name and a `Scene(facts)` (see below); first
+# mood = default. Adding a look = its file + one line here.
+WORLDS = {"rain": ("evening",), "fog": ("moonlight",), "milan": ("night",), "khaali": ("night",)}
 DESIGNED: dict[str, tuple[str, ...]] = {}
-FITS = {look: {"soft-romantic", "soft-romantic-v2", "cinematic", "lofi-minimal", "lofi-typewriter"}
-        for look in WORLDS}
+SOFT = {"soft-romantic", "soft-romantic-v2", "cinematic", "lofi-minimal", "lofi-typewriter"}
+FITS = {look: SOFT for look in WORLDS}   # the themes each look is made for
 LYRIC_AREA = (60, 380, 960, 1540)   # x0, y0, x1, y1: where lyrics may sit (the themes' safe zone)
 DEFAULT_CENTRE = (540.0, 1150.0)
 
@@ -115,13 +118,7 @@ def song_facts(doc: dict, emphasis, duration: float, n: int, fps: int, name: str
 def build_scene(bg: tuple[str, str], facts: SongFacts):
     """The look's scene for this song (numpy and the art load here)."""
     world, _mood = bg
-    if world == "rain":
-        from .rain import Scene
-    elif world == "fog":
-        from .fog import Scene
-    else:
-        from .milan import Scene
-    return Scene(facts)
+    return importlib.import_module(f".{world}", __package__).Scene(facts)
 
 
 def fit_note(world: str, theme_name: str) -> str | None:

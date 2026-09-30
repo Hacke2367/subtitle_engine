@@ -101,10 +101,12 @@ def load_beats_for_render(song_dir: Path, duration: float
 
 # --- Render ----------------------------------------------------------------------------------
 def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = False,
-           theme: Theme = SOFT_ROMANTIC, bg: tuple[str, str] | None = None) -> RenderResult:
+           theme: Theme = SOFT_ROMANTIC, bg: tuple[str, str] | None = None,
+           backdrop: bool = False) -> RenderResult:
     """songs/<song>/words.json -> render/<theme>/overlay.mov, overlay_green.mp4, preview.mp4,
     report.md (D-018: each theme in its own folder); with bg = (world, mood) also the finished
-    short final_<world>_<mood>.mp4 (spec 17). Raises RenderError (or layout.LayoutError for a
+    short final_<world>_<mood>.mp4 (spec 17); with backdrop=True (needs bg) only the background,
+    backdrop_<world>_<mood>.mp4: no lyrics drawn, no other output touched. Raises RenderError (or layout.LayoutError for a
     line that cannot be laid out)."""
     t0 = time.perf_counter()
     song_dir = Path(song_dir)
@@ -148,12 +150,17 @@ def render(song_dir: Path, *, codec: str | None = None, allow_flagged: bool = Fa
     render_dir = song_dir / "render" / theme.name
     render_dir.mkdir(parents=True, exist_ok=True)
     outputs = {key: render_dir / name for key, name in OUTPUTS.items()}
+    if backdrop and not bg:
+        raise RenderError("a backdrop needs a background: pass bg")
     scene = None
     if bg:   # here: numpy and the world's art load only for a background
         from .. import background
         from ..background.compose import Legibility, final_checks, with_background
         scene = background.build_scene(bg, background.song_facts(
             doc, emphasis, duration, n, theme.fps, song_dir.name, background.word_boxes(lines)))
+        if backdrop:
+            from ..background.backdrop import write_backdrop
+            return write_backdrop(scene, bg, render_dir, audio, theme, n, t0)
         outputs["final"] = render_dir / f"final_{bg[0]}_{bg[1]}.mp4"
         legibility = Legibility()
     _remove([*outputs.values(), render_dir / REPORT])   # a failed run must not leave old results

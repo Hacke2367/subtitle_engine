@@ -37,9 +37,13 @@ python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json
 - `--theme`: `soft-romantic-v2` (default, spec 08), `soft-romantic` (v1), `pop-karaoke`,
   `lofi-minimal`, `lofi-typewriter` (spec 09), `cinematic` (spec 10), `beat-pop` (spec 12),
   `phonk-neon` (spec 13).
-- `--bg`: an engine-made background and a finished short with audio (spec 17): `rain`, `fog` or
-  `milan`, the owner-approved romantic looks (`docs/backgrounds/romantic_lights.md`, H-034 to
-  H-036). Anything else is refused.
+- `--bg`: an engine-made background and a finished short with audio (spec 17): `rain`, `fog`,
+  `milan` (`docs/backgrounds/romantic_lights.md`, H-034 to H-036) or `khaali` (sad,
+  `docs/backgrounds/sad_khaali_jagah.md`). Anything else is refused. A look = a module in
+  `background/` named like the look with `Scene(facts)`, plus a line in `WORLDS`.
+- `backdrop`: only the background, no lyrics drawn, for adding lyrics in CapCut:
+  `backdrop songs/<song> --bg LOOK` (follows the song's words, has its audio) or
+  `backdrop --seconds 60 --bg LOOK [--out F]` (no song, no reactions).
 - All tests: `venv/Scripts/python -m unittest discover -s tests -t .`
 - One module / class / test: `venv/Scripts/python -m unittest tests.test_timing`,
   `... tests.test_timing.EmphasisTest`, or `... tests.test_render -k Emphasis`.

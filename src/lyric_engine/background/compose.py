@@ -25,7 +25,8 @@ from . import LYRIC_AREA, build_scene, paint
 MIN_CONTRAST = 3.0   # WCAG AA for large text; the lyrics are 56-110 px
 NEAR = 24            # legibility is measured this far around the text
 INK = 16             # alpha that counts as drawn (the render checks' SAFE_ALPHA_MIN)
-WORKERS = max(1, min(4, (os.cpu_count() or 2) - 2))   # leave room for the theme and ffmpeg
+WORKERS = int(os.environ.get("LYRIC_ENGINE_WORKERS",   # leave room for the theme and ffmpeg
+                             max(1, min(4, (os.cpu_count() or 2) - 2))))
 
 
 @dataclass

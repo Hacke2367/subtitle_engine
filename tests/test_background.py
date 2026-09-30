@@ -19,7 +19,8 @@ from unittest import mock
 import numpy as np
 
 from lyric_engine import cli, render
-from lyric_engine.background import (SongFacts, build_scene, paint, parse_bg, seed_of, song_facts,
+from lyric_engine.background import (WORLDS, SongFacts, backdrop, build_scene, khaali, paint, parse_bg,
+                                     seed_of, song_facts,
                                      word_boxes)
 from lyric_engine.background.compose import (Legibility, compose_frame, drawn_ahead, final_checks,
                                              frame_contrast)
@@ -49,6 +50,7 @@ class ParseBgTest(unittest.TestCase):  # AC9
         self.assertEqual(parse_bg("rain"), ("rain", "evening"))
         self.assertEqual(parse_bg("fog:moonlight"), ("fog", "moonlight"))
         self.assertEqual(parse_bg("milan"), ("milan", "night"))
+        self.assertEqual(parse_bg("khaali"), ("khaali", "night"))
 
     def test_refusals_name_the_choices(self):
         with self.assertRaisesRegex(ValueError, r"unknown background 'room'; built: rain"):
@@ -230,6 +232,71 @@ class BackgroundRenderTest(unittest.TestCase):  # AC1, AC3
             render.render(song, codec="qtrle", theme=THEME)
             report = (result.render_dir / "report.md").read_text(encoding="utf-8")
             self.assertNotIn("## Background", report)
+
+
+class EveryLookTest(unittest.TestCase):
+    def test_each_look_draws_a_frame_with_no_words(self):   # the song-independent mode
+        for look, (mood, *_rest) in WORLDS.items():
+            with self.subTest(look=look):
+                scene = build_scene((look, mood), facts([]))
+                frame = scene.frame(0)
+                self.assertEqual((frame.shape, frame.dtype), ((H, W, 3), np.uint8))
+                self.assertIsInstance(scene.describe(), str)
+                self.assertIsInstance(scene.in_order, bool)
+                if not scene.in_order:               # a pure function of the frame number
+                    np.testing.assert_array_equal(frame, scene.frame(0))
+
+
+class KhaaliTest(LookTestBase):  # H-037
+    def test_warm_on_a_marked_word_and_the_lamp_goes_out(self):
+        self.assertEqual(khaali.memory_level(5.0, [6.0]), 0.0)
+        self.assertAlmostEqual(khaali.memory_level(7.0, [6.0]), 0.9)
+        self.assertEqual(khaali.memory_level(12.0, [6.0]), 0.0)
+        self.assertEqual(khaali.lamp_level(5.0, 10.0), 1.0)
+        self.assertEqual(khaali.lamp_level(13.0, 10.0), 0.0)
+
+    def test_the_frame_turns_warm_then_dark(self):
+        scene = build_scene(("khaali", "night"), facts([self.MARK], last=10.0))
+        lamp = (slice(520, 700), slice(560, 800))
+        cold, warm, dark = (scene.frame(int(t * 30)).astype(float) for t in (5.0, 7.2, 13.0))
+        ratio = lambda f: f[lamp][..., 0].mean() / f[lamp][..., 2].mean()    # red over blue
+        self.assertGreater(ratio(warm), ratio(cold) + 0.3)
+        self.assertGreater(cold[lamp].mean(), dark[lamp].mean() + 30)
+
+
+def _streams(path: Path, kind: str) -> list[str]:
+    out = subprocess.run(["ffprobe", "-v", "error", "-select_streams", kind, "-count_packets",
+                          "-show_entries", "stream=codec_name,nb_read_packets", "-of", "csv=p=0", str(path)],
+                         capture_output=True, text=True, check=True).stdout
+    return out.split()
+
+
+class BackdropTest(unittest.TestCase):  # step 0: the look without lyrics
+    def test_generic_backdrop_has_the_length_asked_and_no_audio(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            out = backdrop.make_generic(("milan", "night"), 0.5, Path(tmp) / "b.mp4")
+            self.assertEqual(_streams(out, "v:0"), ["h264,15"])
+            self.assertEqual(_streams(out, "a"), [])
+
+    def test_song_backdrop_writes_only_the_backdrop_with_the_songs_audio(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            song = make_song(Path(tmp), lyrics="Mere\n*saamne*\n", duration=2.0)
+            result = render.render(song, codec="qtrle", theme=THEME, bg=("milan", "night"),
+                                   backdrop=True)
+            self.assertEqual(result.checks, [])
+            self.assertEqual([p.name for p in result.render_dir.iterdir()], ["backdrop_milan_night.mp4"])
+            out = result.outputs["backdrop"]
+            self.assertEqual(_streams(out, "v:0"), ["h264,60"])
+            self.assertEqual(len(_streams(out, "a")), 1)
+            with self.assertRaises(render.RenderError):
+                render.render(song, codec="qtrle", theme=THEME, backdrop=True)
+
+    def test_cli_wants_a_song_or_seconds(self):
+        for argv in (["backdrop", "--bg", "rain"], ["backdrop", "songs/x", "--seconds", "5", "--bg", "rain"]):
+            err = io.StringIO()
+            with redirect_stderr(err):
+                self.assertEqual(cli.main(argv), 2)
+            self.assertIn("song folder, or --seconds", err.getvalue())
 
 
 def _frame_hash(path: Path) -> str:
