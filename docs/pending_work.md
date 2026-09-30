@@ -1,6 +1,6 @@
 # Pending Work
 
-Last updated: 2026-10-01 (khaali + backdrop built; Aakhri patta and Chaand in progress)
+Last updated: 2026-10-01 (khaali, aakhri, chaand + backdrop built; waiting for owner approval)
 
 ## WIP
 
