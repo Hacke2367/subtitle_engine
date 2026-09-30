@@ -363,7 +363,7 @@ class Scene:
     in_order = False
 
     def __init__(self, facts):
-        self.f = facts
+        self.f = self.facts = facts      # `facts`: the engine's contract (report, workers)
         self.fps = facts.fps
         self.dur = facts.duration
         rng = np.random.default_rng(facts.seed)

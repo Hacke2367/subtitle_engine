@@ -254,6 +254,7 @@ class EveryLookTest(unittest.TestCase):
                 scene = build_scene((look, mood), facts([]))
                 frame = scene.frame(0)
                 self.assertEqual((frame.shape, frame.dtype), ((H, W, 3), np.uint8))
+                self.assertEqual(scene.facts.n, int(14.0 * 30))        # the contract: `.facts`
                 self.assertIsInstance(scene.describe(), str)
                 self.assertIsInstance(scene.in_order, bool)
                 if not scene.in_order:               # a pure function of the frame number

@@ -38,8 +38,8 @@ python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json
   `lofi-minimal`, `lofi-typewriter` (spec 09), `cinematic` (spec 10), `beat-pop` (spec 12),
   `phonk-neon` (spec 13).
 - `--bg`: an engine-made background and a finished short with audio (spec 17): `rain`, `fog`,
-  `milan` (`docs/backgrounds/romantic_lights.md`, H-034 to H-036) or `khaali` (sad,
-  `docs/backgrounds/sad_khaali_jagah.md`). Anything else is refused. A look = a module in
+  `milan` (`docs/backgrounds/romantic_lights.md`, H-034 to H-036), `khaali`, `aakhri` (sad,
+  `docs/backgrounds/sad_*.md`) or `chaand` (`romantic_chaand.md`). Anything else is refused. A look = a module in
   `background/` named like the look with `Scene(facts)`, plus a line in `WORLDS`.
 - `backdrop`: only the background, no lyrics drawn, for adding lyrics in CapCut:
   `backdrop songs/<song> --bg LOOK` (follows the song's words, has its audio) or
