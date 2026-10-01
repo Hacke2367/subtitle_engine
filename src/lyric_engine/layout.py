@@ -267,9 +267,10 @@ def _balance(rows: list[list[Item]], space: float, max_width: int) -> list[list[
 
 def _place(rows: list[list[Item]], theme: Theme, line: int, size: int,
            emphasis: frozenset[int]) -> tuple[WordBox, ...]:
-    """Each row centred on theme.center_x, its words on one baseline; the block of rows centred at
-    anchor_y · height. A row is as tall as its tallest word; the gap between rows is the plain
-    row pitch minus a plain word's height, so rows without marked words sit exactly as before."""
+    """Each row centred on theme.center_x (or all starting at one left edge: theme.align), its
+    words on one baseline; the block of rows centred at anchor_y · height. A row is as tall as its
+    tallest word; the gap between rows is the plain row pitch minus a plain word's height, so rows
+    without marked words sit exactly as before."""
     fonts = font_set(theme, size)
     h = fonts.ascent + fonts.descent
     gap = round(h * theme.row_spacing) - h
@@ -279,7 +280,9 @@ def _place(rows: list[list[Item]], theme: Theme, line: int, size: int,
     y = round(theme.anchor_y * theme.height - (sum(heights) + gap * (len(rows) - 1)) / 2)
     boxes = []
     for row, fs, ascent, height in zip(rows, row_fonts, ascents, heights):
-        left = (2 * theme.center_x - _row_width(row, fonts.space)) // 2   # 540: as (width − w) // 2
+        # centred at 540 this is (width − w) // 2
+        left = (theme.center_x - theme.max_width // 2 if theme.align == "left"
+                else (2 * theme.center_x - _row_width(row, fonts.space)) // 2)
         boxes += [WordBox(i, text, left + x, y + ascent - f.ascent, math.ceil(advance),
                           f.ascent + f.descent, i in emphasis)
                   for (i, text, advance), x, f in zip(row, _offsets(row, fonts.space), fs)]

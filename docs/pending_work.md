@@ -37,6 +37,10 @@ finished look.
 
 ## Next up
 
+0. **Lyric themes for romantic + classics: done (H-042, D-038).** `romantic-soft` and
+   `classic-sher` on branch `feature/lyric-romantic-classics` (off
+   `feature/bg-romantic-room`), committed, not pushed; samples in `songs/_review/lyric_fix/`.
+   Use them for the romantic and classics videos. The branch merges after PR #16.
 1. **Resume point (2026-10-01, session 25):** step 17's six looks + `backdrop` are approved
    (H-040). On the same branch two H-038 looks are now built and in the engine: `jaali` (Sufi,
    "Jaali se subah", D-036, `docs/backgrounds/sufi_jaali.md`) and `rail` (classics, "Rail ki

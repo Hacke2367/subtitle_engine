@@ -544,3 +544,24 @@ bedroll make the near layer.
 **Why:** Removes the critic's two worst reads at the root and follows the spec's "its side slides
 away, the headlight moves off into the fog".
 **Supersedes:** —
+
+### D-038 — Romantic and classics lyric themes: Cinematic's motion, softer, left-aligned (H-041)
+**Date:** 2026-10-01
+**Context:** H-041: the default `soft-romantic-v2` reads "forceful" on the romantic and classics
+templates (Candara Bold, a rose glow that flashes on every word, 0.2 s pops, a jerky hand-over, a
+blurred past line like a smudge, the first word hanging alone at the left of a centred row). The
+owner wants simple, generic fixes and samples first.
+**Decision:** Two new themes beside the old ones, both on the existing Cinematic renderer (one
+block at a time, words blur in as sung, the block blurs out); no new renderer. `romantic-soft`:
+Poppins Light 76, ivory with a blush sung word, one line at a time, no glow. `classic-sher`:
+Cinematic's Cormorant Italic and couplets at 72 px so a usual line fits one row (a sher stays two
+rows), old paper with an antique-gold sung word. Both: lead 0.15 s, reveal 0.5 s, hold 2 s, exit
+0.8 s, rows left-aligned. Three small theme options make it: `align` ("left": rows start at one
+edge), `couplets` (False: every line alone), `reveal_min_s` (a short word's blur-in lasts at least
+0.3 s, and the block waits for it). Defaults keep every old theme pixel-identical. Font picked
+from six candidates drawn on the chaand and rail frames. Samples were rendered from the engine on
+the branch: `songs/_review/lyric_fix/*_pehle_vs_ab.mp4` (old left, new right).
+**Why:** Reuses a renderer that already has the calm motion; three options, no new inputs.
+Dropped as extra complexity (H-041): glow colour taken from the template, breath-based line
+breaks, a held-word swell.
+**Supersedes:** —

@@ -36,7 +36,8 @@ python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json
 
 - `--theme`: `soft-romantic-v2` (default, spec 08), `soft-romantic` (v1), `pop-karaoke`,
   `lofi-minimal`, `lofi-typewriter` (spec 09), `cinematic` (spec 10), `beat-pop` (spec 12),
-  `phonk-neon` (spec 13).
+  `phonk-neon` (spec 13), `romantic-soft` and `classic-sher` (romantic and classics songs,
+  D-038).
 - `--bg`: an engine-made background and a finished short with audio (spec 17): `rain`, `fog`,
   `milan` (`docs/backgrounds/romantic_lights.md`, H-034 to H-036), `khaali`, `aakhri` (sad,
   `docs/backgrounds/sad_*.md`), `chaand` (`romantic_chaand.md`), `jaali` (Sufi, `sufi_jaali.md`)
@@ -145,3 +146,11 @@ Invariants that span files (tests and runtime asserts depend on them):
   first second), the artist or cinematographer (light, depth, composition), the song's own
   emotion, what other channels already do (and avoid it), and what only this engine can do (it
   knows every word's time). Bring clearly different options, not variations of the first thought.
+- Owner rule (2026-10-01): keep the system simple. The goal is about 3 templates (background
+  looks) per song type, and the owner adds any song of that type on them. Lyric styling must work
+  for any lyrics, never for one song's (khidki is only a test clip). Lyric-style work changes the
+  lyric themes only, not the templates. No new inputs, files, flags or layers unless the gain is
+  clear; when unsure, pick the simpler option and say what was left out.
+- Owner rule (2026-10-01): every fix must be better than what it replaces. Show the old and the
+  new on the same clip, side by side, before shipping; if the new one is not clearly better, keep
+  the old one. The old theme or look stays until the owner approves the new one.

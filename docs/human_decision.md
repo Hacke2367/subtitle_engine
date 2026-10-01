@@ -661,3 +661,30 @@ smooth tree domes, subtle peeks with few marks) and are the first fixes if the o
 seeing them.
 **Decided:** 2026-10-01
 
+
+### H-041 — Keep the system simple; lyric fixes stay generic
+**Status:** decided
+**Raised:** 2026-10-01
+**Needed-before:** any lyric-style fix for romantic and classics songs
+**Context:** A frame-by-frame review of `soft-romantic-v2` and `cinematic` on the khidki_30s
+finals found why the lyrics feel "forceful" (bold font, pink per-word glow, 0.2 s pops, a jerky
+hand-over, a smudged past line, the first word hanging alone at the left, and more). Claude
+proposed new romantic and classics lyric themes.
+**Decision:** "ye system ko complex mat karo, simple rakho". The goal is about 3 templates per
+song type, with any song of that type added on them. Lyric fixes change only the lyric themes,
+never the templates, and must work for any lyrics, not just khidki. Saved as an owner rule in
+`CLAUDE.md`. Claude dropped three proposals as extra complexity (glow colour taken from the
+background, breath-based line breaks, a held-word swell) and assumes: left-aligned lines (H-010
+kept, no ghosted upcoming words) and emphasis kept at 1.5x (H-013 kept). Building waits for the
+owner's go-ahead.
+**Decided:** 2026-10-01
+
+### H-042 — Romantic and classics lyric themes approved
+**Status:** decided
+**Raised:** 2026-10-01
+**Needed-before:** using the new lyric themes for videos
+**Context:** Samples of `romantic-soft` (on chaand) and `classic-sher` (on rail), each beside
+`soft-romantic-v2` on the same clip: `songs/_review/lyric_fix/*_pehle_vs_ab.mp4` (D-038).
+**Decision:** "acha laga, dono themes pakki karo aur commit kardo". Both themes ship as built.
+The old themes stay; `soft-romantic-v2` stays the default.
+**Decided:** 2026-10-01

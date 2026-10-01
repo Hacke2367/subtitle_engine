@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-10-01 (26): romantic-soft and classic-sher lyric themes (approved)
+**Did:** frame-by-frame review of why the lyrics feel "forceful" on the romantic and classics templates; two new lyric themes on the Cinematic renderer (`romantic-soft`, `classic-sher`) with three theme options (`align`, `couplets`, `reveal_min_s`); old-vs-new samples in `songs/_review/lyric_fix/`; tests 358 OK, alpha proof pass. Two owner rules added to `CLAUDE.md` (keep it simple; every fix must beat the old one).
+**Decisions:** H-041, H-042; D-038.
+**Open:** branch `feature/lyric-romantic-classics` is committed, not pushed; it sits on `feature/bg-romantic-room` (PR #16).
+**Next:** owner makes romantic and classics videos with the new themes; push and PR after PR #16 merges.
+
 ## 2026-10-01 (25): jaali (Sufi) and rail (classics) built into the engine (in review)
 **Did:** "continue" → the next H-038 looks, built inline (not by agents). `jaali`: rebuilt in the engine's style (parallel beam traced in perspective, floor pattern traced back, lace lattice, night → rose → dawn), 1.2 s/frame. `rail`: redesigned (engine from the side, a couple instead of a lone woman, the train leaves on the last line), depth map so steam, glow and the moving train never show through nearer things, ~1 s/frame. Both registered, tested, 30 s renders pass (6.2:1, 5.6:1); gate green (354 tests, alpha proof).
 **Decisions:** D-036 (jaali), D-037 (rail).
