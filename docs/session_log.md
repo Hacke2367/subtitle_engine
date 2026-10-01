@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-10-01 (25): jaali (Sufi) and rail (classics) built into the engine (in review)
+**Did:** "continue" → the next H-038 looks, built inline (not by agents). `jaali`: rebuilt in the engine's style (parallel beam traced in perspective, floor pattern traced back, lace lattice, night → rose → dawn), 1.2 s/frame. `rail`: redesigned (engine from the side, a couple instead of a lone woman, the train leaves on the last line), depth map so steam, glow and the moving train never show through nearer things, ~1 s/frame. Both registered, tested, 30 s renders pass (6.2:1, 5.6:1); gate green (354 tests, alpha proof).
+**Decisions:** D-036 (jaali), D-037 (rail).
+**Open:** owner watches both samples + shorts; PR #16 merge (owner's word).
+**Next:** Parchhaiyan (family): a moving sample for the owner first (H-038: animated human shadows); beat looks need a beat song from the owner.
+
 ## 2026-10-01 (24): khaali, aakhri, chaand and the backdrop command built (in review)
 **Did:** workflow for template stills finished (hip-hop fix re-run alone after a limit; a resume that re-ran every critic was stopped); ratings in `docs/backgrounds/template_stills.md`. Owner chose to build templates and add lyrics themselves → `backdrop` command (with a song or `--seconds`), `khaali` ported from its sample, `chaand` and `aakhri` built by two agents from the stills + critic fixes and moved into the engine; workers now get the text box; `run_scene.py` review runner. 30 s clip renders pass (khaali 3.2:1, chaand 9.5:1).
 **Decisions:** D-035 (backdrop, looks as named modules, build ahead of approval as the owner asked).

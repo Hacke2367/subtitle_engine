@@ -1,6 +1,6 @@
 # Pending Work
 
-Last updated: 2026-10-01 (step 17 approved, H-040; next looks per look_build_brief.md)
+Last updated: 2026-10-01 (jaali and rail built on step 17's branch, D-036, D-037)
 
 ## WIP
 
@@ -21,8 +21,9 @@ title card are merged into `dev`; step 15 was the last ([PR #13](https://github.
 ## Current focus
 
 Post-V1 (H-022 onward): engine-made backgrounds, one world per song type, each with moods.
-Romantic: three light looks final and built (rain, fog, milan; H-034 to H-036), the room
-rejected. Designed before H-032's rules, not built: hip-hop truck, party baraat, Sufi lamp,
+Built and usable now: romantic `rain`, `fog`, `milan`, `chaand`; sad `khaali`, `aakhri`; Sufi
+`jaali`; classics `rail` (the owner is starting to make videos with the romantic and classics
+looks, 2026-10-01). Earlier: the room was rejected. Designed before H-032's rules, not built: hip-hop truck, party baraat, Sufi lamp,
 motivational forge, journey train (`docs/backgrounds/`). Plan steps 17–23 build them; the owner
 wants them built from the next session on. Not designed yet (H-029): mother and family,
 patriotic, old classics.
@@ -36,16 +37,17 @@ finished look.
 
 ## Next up
 
-1. **Resume point (2026-10-01):** step 17 is complete and approved (H-040: the owner handed the
-   look approval to Claude): six looks (`rain`, `fog`, `milan`, `chaand` romantic; `khaali`,
-   `aakhri` sad) and the `backdrop` command, on `feature/bg-romantic-room`, PR #16 (merge waits for
-   the owner's explicit "merge"). **Next:** build the next H-038 looks with
-   `docs/backgrounds/look_build_brief.md` (the proven flow: an agent makes the Scene + sample, then
-   it moves into the engine): Rail ki Seeti (classics) and Jaali se subah (sufi) first, since both
-   test on the Khidki songs; Taaron ka jaal (hip-hop) and Shamiyane ki parchhaiyan (party) need a
-   beat test song from the owner and beat times in `SongFacts`; Parchhaiyan (family) last. Stills
-   and critic notes: `docs/backgrounds/template_stills.md`, `songs/_review/backgrounds/templates/`.
-   Kinaare ke nishaan (sad) has stills only.
+1. **Resume point (2026-10-01, session 25):** step 17's six looks + `backdrop` are approved
+   (H-040). On the same branch two H-038 looks are now built and in the engine: `jaali` (Sufi,
+   "Jaali se subah", D-036, `docs/backgrounds/sufi_jaali.md`) and `rail` (classics, "Rail ki
+   Seeti", D-037, `docs/backgrounds/classics_rail.md`); 30 s renders pass (lowest contrast jaali
+   6.2:1, rail 5.6:1). They wait for the owner to watch the samples
+   (`songs/_review/backgrounds/templates/sufi/jaali_sample.mp4`, `.../classics/rail_sample.mp4`)
+   and the finished shorts in `songs/khidki_30s/render/soft-romantic-v2/`. PR #16 merge waits for
+   the owner's explicit "merge". **Next:** Parchhaiyan (family) on the Khidki songs (shadows as
+   shade, not black paint; maa with pallu). Taaron ka jaal (hip-hop) and Shamiyane ki parchhaiyan
+   (party) need a beat test song from the owner and beat times in `SongFacts`. Built this session
+   inline, not by agents (`look_build_brief.md` step 1 done by Claude directly): ~1.5 h per look.
 2. Step 14 (Devanagari shaping) only when a song needs it. Step 16 (line breaks at sung
    pauses) only if the owner asks; it is outside the original V1 scope.
 3. Optional cleanup: `render/check.py` (≈369 lines) and `render/karaoke.py` (≈313) are past

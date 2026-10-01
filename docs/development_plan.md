@@ -23,7 +23,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 14 | Devanagari shaping                     | `feature/devanagari-shaping`    | Deferred (only when a song needs it) |
 | 15 | Title card ("Song \| Singer")          | `feature/title-card`            | Done ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)) |
 | 16 | Line breaks at sung pauses             | `feature/pause-line-breaks`     | Optional (only if the owner asks) |
-| 17 | Background layer + romantic light looks | `feature/bg-romantic-room`      | Review (6 looks + backdrop approved, H-040; PR #16) |
+| 17 | Background layer + romantic light looks | `feature/bg-romantic-room`      | Review (6 looks + backdrop approved, H-040; jaali + rail built, owner to see; PR #16) |
 | 18 | Hip-hop truck background               | `feature/bg-hiphop-truck`       | Planned (H-026) |
 | 19 | Party baraat background                | `feature/bg-party-baraat`       | Planned (H-027) |
 | 20 | Sufi lamp background                   | `feature/bg-sufi-lamp`          | Planned (H-028) |
@@ -252,7 +252,9 @@ Rules for every background step:
 variation per song and a finished-video output with audio. The first backgrounds are the three
 romantic light looks, all final from moving samples: rain, fog and milan
 (`docs/backgrounds/romantic_lights.md`, H-032 to H-036). The
-first build's room was rejected (H-032); its pipeline is kept (PR #16).
+first build's room was rejected (H-032); its pipeline is kept (PR #16). Built on the same branch afterwards:
+khaali, aakhri (sad), chaand (romantic), the `backdrop` command (H-040), then the H-038 picks
+jaali (Sufi, D-036) and rail (classics, D-037) with `docs/backgrounds/look_build_brief.md`.
 **Needs:** nothing new to install for a first cut (numpy, PIL, scipy); `moderngl` only if the
 look or render time needs it (research section 2).
 **Done when:**

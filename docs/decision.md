@@ -512,3 +512,35 @@ template ready mile and mein uspe lyric add kar saku").
 **Why:** The overlay (`overlay.mov`) is already word-synced, so background + overlay in CapCut needs
 no manual timing; a generic mode covers "any song".
 **Supersedes:** —
+
+### D-036 — Jaali se subah: rebuilt for the engine, lace lattice, a rose stop before dawn (step 17)
+**Date:** 2026-10-01
+**Context:** H-038 picked Jaali se subah (Sufi). The still took 30 s a frame and the critic rated it
+6/10 (green night, a perforated-board lattice, a tiled floor pool, an Eid-card dawn).
+**Decision:** Built straight in the engine's style instead of porting the still: one parallel beam
+traced in perspective (beams = the lattice zoomed about the beam's vanishing point, cut at the
+floor; the floor pattern traced back to the lattice), everything else drawn once; 1.2 s a frame.
+The lattice is a lace of 8-point star rings with thin webs (about a third stone), so the window
+reads as dark lace on light, not glowing star stickers. The night passes through rose (brahma
+muhurat) on its way to gold, because a straight blue-to-gold mix went through grey. Mood name
+`dawn`. Docs: `docs/backgrounds/sufi_jaali.md`.
+**Why:** The critic's fixes, the 1.5 s/frame budget, and the owner's rules (felt light, no
+festive points).
+**Supersedes:** —
+
+### D-037 — Rail ki Seeti: the engine seen from the side, a couple instead of a lone woman (step 17)
+**Date:** 2026-10-01
+**Context:** H-038 picked Rail ki Seeti (classics). The still's critic (6.5/10): the engine front
+read as a cartoon face, the lone woman with her pallu down her back read as the haunted-station
+"chudail" trope, a black bar at the top, a murky floor.
+**Decision:** The train stands along the platform on the right, the engine at the far end with its
+front away from us: its headlight throws a soft cone into the fog ahead, the cab's fire glows, the
+chimney steams. No front face, so no face can read. A couple (her pallu over her head, him in a
+Gandhi cap) sees someone off under a lamp and is still there when the train has gone. On the last
+line the whole train pulls away into the fog (its coach slides past, then its red tail lamp
+recedes) and the steam thins: "gaadi chali gayi". Steam, glows and the train are depth-tested
+against the station (a depth map), so nearer things never look see-through. A blurred trunk and
+bedroll make the near layer.
+**Why:** Removes the critic's two worst reads at the root and follows the spec's "its side slides
+away, the headlight moves off into the fog".
+**Supersedes:** —
