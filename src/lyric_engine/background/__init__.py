@@ -20,7 +20,8 @@ from dataclasses import dataclass
 # A look is a module of this package with the same name and a `Scene(facts)` (see below); first
 # mood = default. Adding a look = its file + one line here.
 WORLDS = {"rain": ("evening",), "fog": ("moonlight",), "milan": ("night",), "khaali": ("night",),
-          "chaand": ("night",), "aakhri": ("dusk",)}
+          "chaand": ("night",), "aakhri": ("dusk",), "jaali": ("dawn",),
+          "rail": ("night",)}
 DESIGNED: dict[str, tuple[str, ...]] = {}
 SOFT = {"soft-romantic", "soft-romantic-v2", "cinematic", "lofi-minimal", "lofi-typewriter"}
 FITS = {look: SOFT for look in WORLDS}   # the themes each look is made for

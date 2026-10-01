@@ -285,6 +285,30 @@ def _streams(path: Path, kind: str) -> list[str]:
     return out.split()
 
 
+class JaaliTest(LookTestBase):  # H-038
+    def test_the_light_walks_to_the_viewer_and_turns_warm(self):
+        words = [(s, False, 500.0, 1100.0) for s in (1.0, 3.0, 5.0, 7.0, 10.0)]   # one line each
+        scene = build_scene(("jaali", "dawn"), facts(words, last=10.0))
+        feet = (slice(1800, 1920), slice(300, 780))           # the floor at the viewer's feet
+        night, dawn = (scene.frame(int(t * 30)).astype(float)[feet] for t in (0.5, 13.5))
+        self.assertGreater(dawn.mean(), night.mean() + 40)
+        warmth = lambda f: f[..., 0].mean() / max(f[..., 2].mean(), 1.0)      # red over blue
+        self.assertGreater(warmth(dawn), warmth(night) + 1.0)
+
+
+class RailTest(LookTestBase):  # H-038
+    def test_the_train_stands_until_the_last_line_then_leaves(self):
+        words = [(s, False, 500.0, 1100.0) for s in (1.0, 3.0, 5.0, 7.0, 10.0)]
+        scene = build_scene(("rail", "night"), facts(words, last=10.0))
+        self.assertEqual(scene.depart(9.9), 0.0)
+        self.assertGreater(scene.depart(13.9), 40.0)
+        fire = (slice(690, 800), slice(740, 780))            # the cab's fire door
+        glow = lambda f: f[fire][..., 0].mean() - f[fire][..., 2].mean()      # orange: red over blue
+        standing, gone = (scene.frame(int(t * 30)).astype(float) for t in (5.0, 13.9))
+        self.assertGreater(glow(standing), 30)
+        self.assertLess(glow(gone), 10)
+
+
 class BackdropTest(unittest.TestCase):  # step 0: the look without lyrics
     def test_generic_backdrop_has_the_length_asked_and_no_audio(self):
         with tempfile.TemporaryDirectory() as tmp:

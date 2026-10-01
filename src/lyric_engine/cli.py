@@ -187,7 +187,7 @@ def main(argv: list[str] | None = None) -> int:
                    help="render despite flagged words; untimed ones are shown static, never animated")
     r.add_argument("--bg", type=_bg, metavar="WORLD[:MOOD]",
                    help="also write a finished short on an engine-made background: "
-                        "rain, fog, milan, khaali, aakhri or chaand")
+                        "rain, fog, milan, khaali, aakhri, chaand, jaali or rail")
     c = sub.add_parser("clip", help="cut whole lyric lines of an aligned song into a new song folder")
     c.add_argument("song_dir", type=Path, help="an aligned full song (has words.json)")
     c.add_argument("--from", dest="start", type=_seconds, required=True, help="e.g. 27 or 0:27")
