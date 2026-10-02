@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-10-02 (28): khidki reel on all seven templates, judged; fixes from the judging
+**Did:** `songs/khidki_reel` (khidki 27-57 s, words reused from the identical khidki_30s clip, three `*marks*`, `title.txt`) rendered on all seven romantic + classics templates and judged per video (first-second hook, lyrics, background, vibe, payoff); verdicts in `docs/video_plan.md`. Fixes found by the judging (D-040): title card 0.5 -> 0.8 for the two new themes; the legibility check measures each text block apart (`compose.ink_bands`); `paint.title_calm` for fog; chaand's moon hidden under the card until 2.8 s; ghata's cloud forms blended; talkies opens at half light. Finals in `songs/_review/khidki_reel/` (1-7) plus `0_fixes_pehle_vs_ab.mp4`.
+**Decisions:** D-040.
+**Open:** the owner's look at the seven videos and the fixes; the 20 planned songs need their audio + lyrics in `songs/`.
+**Next:** owner adds the planned songs; make them with the lessons in `docs/video_plan.md`.
+
 ## 2026-10-02 (27): classics templates talkies and ghata, 20-video plan, cleanup list
 **Did:** `talkies` (Purani Talkies) and `ghata` (Kaali Ghata) built fresh into the engine (D-039), docs `classics_talkies.md` / `classics_ghata.md`; moving samples in `songs/_review/classics_templates/` (legibility 9.45:1 and 6.03:1 lowest); `docs/video_plan.md` (10 romantic + 10 classics songs, each with a template); removed one dead method (`aakhri.prepare_release`). Cleanup of ~7.7 GB old outputs: Claude's delete was blocked by the permission system, so `songs/_review/cleanup.sh` lists it for the owner to run.
 **Decisions:** D-039.

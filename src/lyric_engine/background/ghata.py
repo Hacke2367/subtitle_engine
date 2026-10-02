@@ -234,14 +234,14 @@ class Scene:
         Tm = roll(self.tm, self.ph[0] + 4.0 * t)
         Ts = roll(self.ts, self.ph[1] + 9.0 * t)
         dm = sm((Tm * 0.55 + 1.15 - 3.2 * sm((Yf - (base - 280)) / 300)) / 1.1)
-        ds = sm((Ts * 0.6 + 0.6 - 4.0 * sm((Yf - base + 30) / 45) - 1.2 * sm((base - 330 - Yf) / 240)) / 0.9)
+        ds = sm((Ts * 0.6 + 0.6 - 4.0 * sm((Yf - base + 30) / 45) - 2.6 * sm((base - 330 - Yf) / 240)) / 0.9)
         D = np.maximum(dm, ds)
         # light from the band below: what reaches each pixel through the cloud beneath it
         below = np.flip(np.cumsum(np.flip(D, 0), 0), 0) * (F / 40.0)
         lit = np.exp(-1.6 * below) * (1 - 0.85 * c) * sm((Yf - 200) / 600)
         # the lobes' form: faces turned down catch the band a little deeper in, faces turned up the
         # last cold light of the sky above; lobes lighter than the creases between them
-        Tsm = np.where(ds > dm, Ts, Tm)
+        Tsm = (Tm * dm + Ts * ds) / (dm + ds + 1e-3)             # the two banks' forms, blended
         gy = np.gradient(Tsm, axis=0)
         lobe = sm(Tsm * 0.45 + 0.5)
         down = np.clip(-gy * 6.0, 0, 1) * np.exp(-0.5 * below) * (1 - 0.85 * c)

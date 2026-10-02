@@ -29,7 +29,8 @@ film; on the last line the show ends ("picture khatam").
 ## Motion and song reaction
 
 - Smoke drifts through the beam all the time; the film's light shifts with each shot.
-- The film starts dim and comes up after ~3 s, so a title card at the top reads.
+- The film starts at half its light and comes up after ~3 s, so a title card at the top reads
+  (D-040: a quarter was too dark an opening).
 - Word: the film's light lifts a little.
 - Line: a cut; the screen eases into the next shot over half a second.
 - Marked word: colour breathes into the film and the beam (warm amber with faded teal shadows) and

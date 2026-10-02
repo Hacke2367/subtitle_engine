@@ -37,3 +37,23 @@ for classics (D-038). Use the song's best-known 30-60 s (usually the mukhda) as 
 
 Spread: romantic 3 rain, 2 fog, 3 milan, 2 chaand; classics 3 rail, 4 talkies, 3 ghata, so no
 template repeats too often in a row. Post them mixed (romantic, classic, romantic ...).
+
+## Template verdicts (khidki reel, 2026-10-02)
+
+Judged on the khidki mukhda (30 s, three `*marked*` words, title card) rendered on every template
+(`songs/_review/khidki_reel/`). Hook = what the first second gives a scroller (motion and
+brightness of the opening); all seven pass the engine's legibility check.
+
+| Template | Hook | Lyrics | Background | Payoff | Score |
+|---|---|---|---|---|---|
+| `chaand` | moon hidden, comes out at ~3 s | clean, *chaand* big in blush | calm moon night | veil lifts off | 7.5 |
+| `ghata` | clouds roll, warm horizon (motion 0.42) | gold sher over dark clouds, very clear | dramatic monsoon sky | rain on the last line | 7.5 |
+| `rain` | strongest: rain from frame 0 (motion 1.78, brightest) | a little washed out on grey | soft rain, colour glows | none | 7 |
+| `talkies` | "old cinema" reads at once, title on the screen | clear | film shots change per line | curtain closes, lights up | 7 |
+| `rail` | dim, still (motion 0.16) | clear sher, gold *chaand* | detailed period station | the train leaves | 7 |
+| `fog` | moonlight rays, dreamy | very clear | rays, black lower third | none | 6.5 |
+| `milan` | weakest: near-black first frame | clearest (white on black) | sparse dots, warm glows on marks | none | 6 |
+
+Lessons for the 20 videos: mark 2-3 words in `lyrics.txt` (the looks' best moments only happen on
+marked words); always add `title.txt`; match the template to the song's own image (the khidki
+lyric "chaand" made `chaand` the best fit); start the clip right where the best-known line begins.

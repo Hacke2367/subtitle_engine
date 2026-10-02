@@ -1,7 +1,8 @@
 """Chaand ka ghoonghat: a full moon behind a veil of high cloud. The veil's hem breathes on every
 sung word, lifts higher (a peek) on each marked word and lifts right off on the last line, along
-its own cloud shapes. Clouds drift, trees sway a hair. Everything is a pure function of the frame
-number and the song facts."""
+its own cloud shapes. Clouds drift, trees sway a hair. The moon stays dim behind the veil for the
+first ~3 s (the title card sits over it) and then comes out. Everything is a pure function of the
+frame number and the song facts."""
 from __future__ import annotations
 
 import math
@@ -365,6 +366,7 @@ class Scene:
             self._static()
         t = k / self.facts.fps
         o = self.opening(t)
+        rise = 0.2 + 0.8 * float(sm((t - 2.8) / 1.4))   # the moon comes out after the title card
         Xf, Yf, r = self.Xf, self.Yf, self.r
         flux = 0.5 + 0.5 * float(sm(o / 0.8))
         # ---- the veil
@@ -383,15 +385,15 @@ class Scene:
         Tv = np.exp(-2.1 * D)
         dm = float(D[int(MY / 2) - 20:int(MY / 2) + 20, int(MX / 2) - 20:int(MX / 2) + 20].mean())
         breath = (1 + 0.10 * dm) * (1 + 0.04 * math.sin(2 * math.pi * t / 5.5))
-        aur = (self.aur0 + self.aur1 * (0.7 + 1.4 * o)) * breath
+        aur = (self.aur0 + self.aur1 * (0.7 + 1.4 * o)) * breath * rise
         Sx = (self.sky + self.haze * (0.75 + 0.25 * flux) + aur) * Tv[..., None]
         # the veil is lit from the moon: brightest along its hem, fading up into the sheet
         edge = np.exp(-np.clip(arg, 0, None) * 1.25)
         puff = np.clip(0.60 + 0.42 * F1 + 0.15 * F2, 0.12, 1.6)
-        lum = (0.50 * self.e330 + 0.04 + 0.10 * o * self.e500) * self.incore
+        lum = (0.50 * self.e330 + 0.04 + 0.10 * o * self.e500) * self.incore * rise
         glow = D * lum * (0.30 + 0.70 * edge) * puff
         rimb = 4 * D0 * (1 - D0)
-        glow += rimb * (0.30 * self.e330 + 0.02) * (0.15 + 0.85 * o) * puff * self.incore
+        glow += rimb * (0.30 * self.e330 + 0.02) * (0.15 + 0.85 * o) * puff * self.incore * rise
         Sx += glow[..., None] * self.lcol + (D * 0.010)[..., None] * P.lin("#2b3a68")
         # ---- the mid bank, lit by the moon through the cloud between
         Db = sm((roll(self.bt, self.ph[2] + 3.0 * t * self.bank_speed) * 1.0 + self.comp + 0.5) / 1.6) ** 1.15
@@ -399,7 +401,7 @@ class Scene:
         acc = ndimage.map_coordinates(Dq, self.mc, order=1, mode="nearest").reshape(self.msteps, h // 2, w // 2).mean(0)
         trans = P.resize(np.exp(-acc * self.mL * 2.4).astype(np.float32), w, h)
         body = 0.7 + 0.32 * np.clip(roll(self.vt2, self.ph[2] * 0.3 + 1.1 * t), -1.5, 1.5)
-        lit = trans * (0.50 * self.e380 + 0.02) * flux * body
+        lit = trans * (0.50 * self.e380 + 0.02) * flux * body * (0.5 + 0.5 * rise)
         Tm = np.exp(-3.0 * Db)
         Sx = Sx * Tm[..., None] + (1 - Tm)[..., None] * SLATE + (lit * (1 - Tm))[..., None] * self.lcol
         # ---- low streaks across the horizon haze (only the rows they live in)
@@ -421,7 +423,7 @@ class Scene:
         box = (px0 / 2, py0 / 2, (px0 + n) / 2, (py0 + n) / 2)
         Tp = P.resize(Tv, n, n, box=box)
         aurp = np.stack([P.resize((aur[..., c] * Tv), n, n, box=box) for c in range(3)], -1)
-        disc = 0.95 * self.alb[..., None] * MOON * Tp[..., None]
+        disc = 0.95 * rise * self.alb[..., None] * MOON * Tp[..., None]
         x[py0:py0 + n, px0:px0 + n] += disc - self.cover[..., None] * aurp
         np.clip(x, 0, None, out=x)
         # ---- trees: a far grove, a middle row, near crowns; mist between them

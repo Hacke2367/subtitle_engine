@@ -582,3 +582,25 @@ last line. Moving samples: `songs/_review/classics_templates/`.
 **Why:** The stills' problems were in their drawing, not the ideas; a fresh, plainer build fixed them
 faster than patching. An Eastmancolor mood for Talkies was left out (simplicity).
 **Supersedes:** —
+
+### D-040 — Fixes found by judging the khidki reel on all seven templates
+**Date:** 2026-10-02
+**Context:** The owner asked for videos and a judgement of each ("kiya user ye video ko ruk ke
+dekhega?"). With only khidki in `songs/`, Claude cut `songs/khidki_reel` (27-57 s, the mukhda),
+marked three words (`*chaand*`, `*Afsos*`, `*chaand*`, so the looks' marked-word moments happen) and
+added a title card, then rendered it on all seven romantic and classics templates.
+**Decision:** Fixes, each checked old vs new on the same clip:
+- Title card `card_scale` 0.5 -> 0.8 for `romantic-soft` and `classic-sher`: at 0.5 the card was a
+  ~36 px thin line, hard to read on a phone, in the seconds that decide a scroll.
+- The finished short's legibility check measures each block of text apart (`compose.ink_bands`,
+  split at a gap of 200 px): one box around the title card and the lyrics also measured the bright
+  frame between them, so rail failed at 1.84:1 while both blocks were above 4:1.
+- `paint.title_calm`: a look can calm the card's rows for the first ~3 s; fog uses it (its rays
+  were brightest behind the card, 2.27:1). `chaand` keeps the moon dim behind its veil until 2.8 s,
+  since the moon sits behind the card (the reveal also gives the opening some life).
+  `talkies` opens at half its film light instead of a quarter (its first frame was 9/255), the card
+  still above 5:1.
+- `ghata`: the two cloud banks' forms are blended, not switched per pixel (hard-edged grey patches
+  showed in the marked-word glow), and the low shelf stays out of the upper sky.
+**Why:** Each was a visible or measured problem in a finished short; none adds an input or a flag.
+**Supersedes:** —

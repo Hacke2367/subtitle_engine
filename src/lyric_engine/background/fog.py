@@ -106,4 +106,5 @@ class Scene:
         x += P.up(q.astype(np.float32))
         x *= self.dark
         x *= self.scrim
+        x *= P.title_calm(t, 0.5)   # the rays are brightest where the title card sits
         return P.finish(x, bloom=0.35, bloom_sigma=7, knee=0.42, soft=0.5, vig=self.vig)

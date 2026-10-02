@@ -25,6 +25,7 @@ from . import LYRIC_AREA, build_scene, paint
 MIN_CONTRAST = 3.0   # WCAG AA for large text; the lyrics are 56-110 px
 NEAR = 24            # legibility is measured this far around the text
 INK = 16             # alpha that counts as drawn (the render checks' SAFE_ALPHA_MIN)
+GAP = 200            # text this far apart is two blocks, measured apart (the title card, the lyrics)
 WORKERS = int(os.environ.get("LYRIC_ENGINE_WORKERS",   # leave room for the theme and ffmpeg
                              max(1, min(4, (os.cpu_count() or 2) - 2))))
 
@@ -53,6 +54,21 @@ def ink_box(alpha: np.ndarray, least: int = INK) -> tuple[int, int, int, int] | 
     return int(cols[0]), int(rows[0]), int(cols[-1]) + 1, int(rows[-1]) + 1
 
 
+def ink_bands(alpha: np.ndarray, least: int = INK, gap: int = GAP) -> list[tuple[int, int, int, int]]:
+    """Each block of text on its own: rows of ink split where more than `gap` rows are empty, so
+    the title card and the lyrics below it are two boxes, not one box over the frame between."""
+    ink = alpha >= least
+    rows = np.flatnonzero(ink.any(axis=1))
+    if rows.size == 0:
+        return []
+    cuts = np.flatnonzero(np.diff(rows) > gap)
+    boxes = []
+    for a, b in zip(np.r_[0, cuts + 1], np.r_[cuts, rows.size - 1]):
+        cols = np.flatnonzero(ink[rows[a]:rows[b] + 1].any(axis=0))
+        boxes.append((int(cols[0]), int(rows[a]), int(cols[-1]) + 1, int(rows[b]) + 1))
+    return boxes
+
+
 def frame_contrast(bg: np.ndarray, text_rgb, box: tuple[int, int, int, int]) -> float:
     """Contrast of the theme's text colour with the 99th-percentile luminance of the background
     (uint8 sRGB) around the text: its ink box grown by NEAR px, inside the lyric area."""
@@ -71,12 +87,13 @@ def compose_frame(overlay: bytes, scene, k: int, text_rgb, log: Legibility, bg=N
     is this frame, unless `bg` is already drawn; `ink` if already found) with the overlay laid over
     it as it is."""
     h, w = paint.H, paint.W
+    alpha = np.frombuffer(overlay, np.uint8).reshape(h, w, 4)[..., 3]
     if ink is None:
-        ink = ink_box(np.frombuffer(overlay, np.uint8).reshape(h, w, 4)[..., 3])
+        ink = ink_box(alpha)
     if bg is None:
         bg = scene.frame(k, ink)
-    if ink:
-        log.note(k, frame_contrast(bg, text_rgb, ink))
+    if ink:   # each block of text against the background around it (title card, lyrics)
+        log.note(k, min(frame_contrast(bg, text_rgb, b) for b in ink_bands(alpha)))
     im = Image.fromarray(bg, "RGB").convert("RGBA")
     im.alpha_composite(Image.frombuffer("RGBA", (w, h), overlay, "raw", "RGBA", 0, 1))
     return im.tobytes()

@@ -23,7 +23,7 @@ from lyric_engine.background import (WORLDS, SongFacts, backdrop, build_scene, k
                                      seed_of, song_facts,
                                      word_boxes)
 from lyric_engine.background.compose import (Legibility, compose_frame, drawn_ahead, final_checks,
-                                             frame_contrast)
+                                             frame_contrast, ink_bands)
 from lyric_engine.theme import SOFT_ROMANTIC_V2 as THEME
 from tests.test_render import make_song
 
@@ -214,6 +214,21 @@ class LegibilityTest(unittest.TestCase):
             fails = final_checks(Path("final_milan_night.mp4"), 10, THEME, log)
         self.assertEqual(fails, [f"legibility: 1 frame(s) below 3:1 around the text; first: "
                                  f"frame 12 ({c:.2f}:1)"])
+
+    def test_title_card_and_lyrics_are_measured_apart(self):
+        bg = np.full((H, W, 3), 30, np.uint8)
+        bg[700:900] = 240                 # bright, but near neither block of text
+        scene = SimpleNamespace(frame=lambda k, ink: bg)
+        ov = np.zeros((H, W, 4), np.uint8)
+        ov[430:510, 300:700, 3] = 255     # the title card
+        ov[1010:1080, 100:770, 3] = 255   # the lyrics
+        self.assertEqual(ink_bands(ov[..., 3]), [(300, 430, 700, 510), (100, 1010, 770, 1080)])
+        log = Legibility()
+        compose_frame(ov.tobytes(), scene, 0, THEME.text_rgb, log)
+        self.assertEqual(log.failed, [])
+        bg[520:560] = 240                 # bright right under the card: fails
+        compose_frame(ov.tobytes(), scene, 1, THEME.text_rgb, log)
+        self.assertEqual([k for k, _ in log.failed], [1])
 
 
 class BackgroundRenderTest(unittest.TestCase):  # AC1, AC3

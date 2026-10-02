@@ -55,6 +55,9 @@ Sample: `songs/_review/backgrounds/lights2/rain3_video.py`.
 
 ## 2. Fog (`fog`): moonlight and shadow through fog
 
+2026-10-02 (D-040): the title card's rows are calmed for its first ~3 s (`paint.title_calm`),
+since the rays were brightest right behind it.
+
 **Status:** final, approved by the owner on 2026-09-29 from its moving sample, in the
 "moonlight" palette (H-035). The owner asked for a different, peaceful colour combination and a
 slightly darker theme than the first gold version ("thoda diffrent colur combo try karo light and

@@ -209,6 +209,18 @@ def vignette(strength: float, border: float = 0.0) -> np.ndarray:
     return v[..., None].astype(np.float32)
 
 
+@lru_cache(maxsize=1)
+def _card_band() -> np.ndarray:
+    y = np.arange(H, dtype=np.float32)
+    return (smooth((y - 340) / 80) * (1 - smooth((y - 600) / 90)))[:, None, None]
+
+
+def title_calm(t: float, strength: float) -> np.ndarray:
+    """(H, 1, 1) darkening of the title card's rows (card_top 420, two rows) while it shows, the
+    first ~3 s, fading out by 3.6 s, so a bright part of a look never sits behind the card."""
+    return 1 - strength * float(1 - smooth((t - 2.4) / 1.2)) * _card_band()
+
+
 def scrim(cx: float, cy: float, rx: float = 600, ry: float = 330) -> np.ndarray:
     """(H, W, 1) 1 at the lyrics' centre falling to 0: how much to calm the frame behind them."""
     yy, xx = grids()

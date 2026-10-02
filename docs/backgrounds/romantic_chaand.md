@@ -27,6 +27,9 @@ the moon's face to show, and it does on the last line.
 - Last line (or 85% of the length with no words): the full lift over 2.6 s along the cloud shapes;
   it stays open to the end.
 
+- 2026-10-02 (D-040): the moon stays dim behind the veil until ~2.8 s and then comes out, so a
+  title card (which sits over the moon) reads.
+
 ## Known issues (agent's report)
 
 - With few marked words the peeks are subtle; the payoff reads mainly in the last 3 s.

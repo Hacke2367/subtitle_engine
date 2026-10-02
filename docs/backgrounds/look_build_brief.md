@@ -27,6 +27,8 @@ the session of 2026-10-01 if they are at hand; this is their skeleton):
   `last_line_s` (else 0.85 × duration), `lyric_box`, `block_centre`. Must also work with no
   words (the `backdrop --seconds` mode). Never read what the words say.
 - **Legibility:** a calm patch behind `lyric_box`; the sample must have 0 frames below 3:1.
+  Also the title card (rows ~420-600, first ~3 s): if the look is bright there, use
+  `P.title_calm(t, strength)` or keep that part dim until ~3 s (D-040).
 - **Test** with `songs/_review/backgrounds/run_scene.py <file> --stills 30,120,225,330,411`
   and `--video <sample>.mp4` (real overlay, prints the 3:1 result); `--no-words` for the song-free
   mode. Look at every still; iterate until ~7.5/10.

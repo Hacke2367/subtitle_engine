@@ -345,7 +345,7 @@ class Scene:
         col = self.colour(t)
         start = float(sm((t - 2.4) / 1.4))                            # the film comes up after the title
         voice = P.envelope(t, self.starts, 0.15, 0.8) if self.facts.words else 0.0
-        bright = (0.25 + 0.75 * start) * (1 + 0.07 * voice + 0.12 * col) * (1 - 0.8 * end)
+        bright = (0.5 + 0.5 * start) * (1 + 0.07 * voice + 0.12 * col) * (1 - 0.8 * end)
         # the film: black and white, colour breathing in on marked words
         shot = self.film(t)
         lum = ndimage.map_coordinates(shot, self.scr_uv, order=1) * self.scr_shade

@@ -267,14 +267,14 @@ ROMANTIC_SOFT = Theme(
     text_rgb=(246, 239, 230), accent_rgb=(242, 196, 196),   # ivory, blush
     shadow_rgb=(8, 8, 18), shadow_alpha=0.6, shadow_radius=10, shadow_offset=(0, 3),
     lead_s=0.15, reveal_s=0.5, reveal_min_s=0.3, sung_in_s=1.0, hold_s=2.0, fade_out_s=0.8,
-    blur_px=6.0)
+    blur_px=6.0, card_scale=0.8)   # a title card that reads on a phone: the first 3 s are the hook
 
 # Cinematic's couplets (sher), smaller so a usual line fits one row and a sher stays two rows
 CLASSIC_SHER = replace(
     CINEMATIC, name="classic-sher", align="left", font_size=72, min_font_size=60, max_width=820,
     text_rgb=(241, 230, 208), accent_rgb=(214, 178, 112),   # old paper, antique gold
     shadow_rgb=(20, 12, 6), shadow_alpha=0.65, shadow_radius=10,
-    lead_s=0.15, reveal_min_s=0.3, sung_in_s=1.0, fade_out_s=0.8, blur_px=8.0)
+    lead_s=0.15, reveal_min_s=0.3, sung_in_s=1.0, fade_out_s=0.8, blur_px=8.0, card_scale=0.8)
 
 THEMES = {t.name: t for t in (SOFT_ROMANTIC, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL,
                               LOFI_TYPEWRITER, CINEMATIC, BEAT_POP, PHONK_NEON, ROMANTIC_SOFT,
