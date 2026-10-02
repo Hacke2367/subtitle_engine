@@ -43,9 +43,8 @@ finished look.
    Use them for the romantic and classics videos. The branch merges after PR #16.
    Same branch: classics templates `talkies` and `ghata` built (D-039), waiting for the owner's
    look (samples in `songs/_review/classics_templates/`). 20-video plan: `docs/video_plan.md`.
-   Owner action: a cleanup list of ~7.5 GB of old outputs was proposed (2026-10-01); Claude's
-   deletion was blocked by the permission system, so the owner runs it. Keep `songs/khidki_s2_em`
-   (words + audio): `run_scene.py` needs it to test templates.
+   Cleanup done 2026-10-02 (the owner ran `songs/_review/cleanup.sh`; `songs/` is 1.3 GB). Keep
+   `songs/khidki_s2_em` (words + audio): `run_scene.py` needs it to test templates.
 1. **Resume point (2026-10-01, session 25):** step 17's six looks + `backdrop` are approved
    (H-040). On the same branch two H-038 looks are now built and in the engine: `jaali` (Sufi,
    "Jaali se subah", D-036, `docs/backgrounds/sufi_jaali.md`) and `rail` (classics, "Rail ki

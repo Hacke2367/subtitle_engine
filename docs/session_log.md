@@ -5,7 +5,7 @@ Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 ## 2026-10-02 (27): classics templates talkies and ghata, 20-video plan, cleanup list
 **Did:** `talkies` (Purani Talkies) and `ghata` (Kaali Ghata) built fresh into the engine (D-039), docs `classics_talkies.md` / `classics_ghata.md`; moving samples in `songs/_review/classics_templates/` (legibility 9.45:1 and 6.03:1 lowest); `docs/video_plan.md` (10 romantic + 10 classics songs, each with a template); removed one dead method (`aakhri.prepare_release`). Cleanup of ~7.7 GB old outputs: Claude's delete was blocked by the permission system, so `songs/_review/cleanup.sh` lists it for the owner to run.
 **Decisions:** D-039.
-**Open:** owner's look at talkies and ghata; owner runs the cleanup script; the branch is committed, not pushed (sits on PR #16).
+**Open:** owner's look at talkies and ghata; the branch is committed, not pushed (sits on PR #16). Cleanup done: the owner ran the script (`songs/` 1.3 GB).
 **Next:** owner picks songs from `docs/video_plan.md`, adds them to `songs/`, and makes the videos.
 
 ## 2026-10-01 (26): romantic-soft and classic-sher lyric themes (approved)
