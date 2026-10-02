@@ -113,6 +113,8 @@ def plan_lofi(doc: dict, theme: Theme, n_frames: int, emphasis: frozenset[int] =
 HANDOVER_GAP = 100   # px between a line sliding out and the line coming in under it
 HANDOVER_DELAY_S = 0.15   # the next line starts coming in this long after the leaving one moves
 HANDOVER_S = 0.35    # the leaving line is gone this fast, so the two never sit on each other
+SWAP_ROOM_S = 0.4    # less room than this before the next line's first word: no slide, a swap
+SWAP_OUT_S, SWAP_IN_S = 0.1, 0.2   # the swap: the old line fades in place, then the new fades in
 
 
 def _handover(lines: list[LofiLine], theme: Theme, n_frames: int) -> None:
@@ -127,6 +129,13 @@ def _handover(lines: list[LofiLine], theme: Theme, n_frames: int) -> None:
         if F - P >= E + H + X:       # room to clear on its own: the plain plan stands
             continue
         t = max(min(max(F - P, E), F - 2), ll.rest, 0)
+        if F - t < round(SWAP_ROOM_S * fps):   # too little room to slide: swap in place
+            ll.leave, ll.stop = t, t + max(1, round(SWAP_OUT_S * fps))
+            nxt.enter = ll.stop - 1
+            nxt.rest = nxt.enter + max(1, round(SWAP_IN_S * fps))
+            ll.notes = [note for note in ll.notes if "cut, not faded" not in note
+                        and "are not shown" not in note]
+            continue
         nxt.enter = max(t, min(t + round(HANDOVER_DELAY_S * fps), F - 2))
         nxt.rest = max(nxt.enter + 1, min(nxt.enter + Ein, F - 1))
         ll.leave, ll.stop = t, t + max(1, round(HANDOVER_S * fps))
