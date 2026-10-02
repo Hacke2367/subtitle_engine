@@ -40,9 +40,9 @@ python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json
   D-038).
 - `--bg`: an engine-made background and a finished short with audio (spec 17): `rain`, `fog`,
   `milan` (`docs/backgrounds/romantic_lights.md`, H-034 to H-036), `khaali`, `aakhri` (sad,
-  `docs/backgrounds/sad_*.md`), `chaand` (`romantic_chaand.md`), `jaali` (Sufi, `sufi_jaali.md`)
-  or `rail` (classics, `classics_rail.md`). Anything else is refused. A look = a module in
-  `background/` named like the look with `Scene(facts)`, plus a line in `WORLDS`.
+  `docs/backgrounds/sad_*.md`), `chaand` (`romantic_chaand.md`), `jaali` (Sufi, `sufi_jaali.md`),
+  `rail`, `talkies` or `ghata` (classics, `classics_*.md`). Anything else is refused. A look = a
+  module in `background/` named like the look with `Scene(facts)`, plus a line in `WORLDS`.
 - `backdrop`: only the background, no lyrics drawn, for adding lyrics in CapCut:
   `backdrop songs/<song> --bg LOOK` (follows the song's words, has its audio) or
   `backdrop --seconds 60 --bg LOOK [--out F]` (no song, no reactions).

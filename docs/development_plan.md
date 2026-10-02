@@ -31,6 +31,7 @@ Steps run in order. Each gets a spec in `docs/specs/NN_<slug>.md` before any cod
 | 22 | Journey train background               | `feature/bg-journey-train`      | Planned (H-031) |
 | 23 | Other moods of every background        | `feature/bg-moods`              | Planned (after each default is approved) |
 | 24 | Romantic + classics lyric themes       | `feature/lyric-romantic-classics` | Done on branch, owner approved (H-042, D-038); merges after PR #16 |
+| 25 | Classics templates: talkies, ghata     | `feature/lyric-romantic-classics` | Built (D-039), waiting for the owner's look |
 
 Steps 08–14: the owner builds every researched style (H-012), in this order by default (D-017).
 The owner can reorder any step before it starts.

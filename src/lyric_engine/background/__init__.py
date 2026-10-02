@@ -21,7 +21,7 @@ from dataclasses import dataclass
 # mood = default. Adding a look = its file + one line here.
 WORLDS = {"rain": ("evening",), "fog": ("moonlight",), "milan": ("night",), "khaali": ("night",),
           "chaand": ("night",), "aakhri": ("dusk",), "jaali": ("dawn",),
-          "rail": ("night",)}
+          "rail": ("night",), "talkies": ("show",), "ghata": ("dusk",)}
 DESIGNED: dict[str, tuple[str, ...]] = {}
 SOFT = {"soft-romantic", "soft-romantic-v2", "cinematic", "lofi-minimal", "lofi-typewriter",
         "romantic-soft", "classic-sher"}

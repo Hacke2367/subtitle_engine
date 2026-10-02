@@ -565,3 +565,20 @@ the branch: `songs/_review/lyric_fix/*_pehle_vs_ab.mp4` (old left, new right).
 Dropped as extra complexity (H-041): glow colour taken from the template, breath-based line
 breaks, a held-word swell.
 **Supersedes:** —
+
+### D-039 — Purani Talkies and Kaali Ghata built fresh, simpler than their stills (classics)
+**Date:** 2026-10-01
+**Context:** The owner asked for the two missing classics templates (classics had only `rail`).
+The ideas' earlier stills scored 5.5 (Talkies) and 5 (Ghata) with the critic: a synthwave screen and
+pink beam, clip-art pelmet and bezel, egg-carton heads; bubble clouds, clip-art trees, ruled lines.
+**Decision:** Both written fresh in the engine (`talkies.py`, `ghata.py`) with the shared paint
+tools and chaand's drifting noise, following the critic's fixes and the owner's simplicity rule
+(H-041): one mood each. Talkies: a black-and-white film of soft era shots (river and boat, jharokha,
+hills, lamp-lit room, avenue), colour breathing in on marked words, heads in front of the screen,
+rims only on head tops, the film dim for the first ~3 s (title card), the curtain closing on the last
+line. Ghata: two cloud banks lit only from below (light through the cloud beneath each pixel), a
+narrowing band, broad tree crowns, telegraph poles below the lyrics, grass gusts per word, rain on the
+last line. Moving samples: `songs/_review/classics_templates/`.
+**Why:** The stills' problems were in their drawing, not the ideas; a fresh, plainer build fixed them
+faster than patching. An Eastmancolor mood for Talkies was left out (simplicity).
+**Supersedes:** —

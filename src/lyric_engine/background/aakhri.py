@@ -653,9 +653,6 @@ class Scene:
         sc = self.depth_s[i] * (1 - 0.22 * w)
         return x, y, rot, max(flip, 0.09), sc, tau >= T, T
 
-    def prepare_release(self, t_unused=None):
-        pass
-
     # ---------------- per frame ----------------
     def quiet_map(self, ink):
         """(H/Q, W/Q) 1 where the lyrics are this frame (softened), 0 elsewhere."""
