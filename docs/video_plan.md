@@ -10,6 +10,10 @@ Fastest way per song (2026-10-02):
    (or `--pick 2`) cuts it to `audio.wav` and keeps the song as `full.mp3`. Then `lyrics.txt` with
    only the lines in the clip, one sung line per line. Aligning a short clip is quick.
 2. Mark 2-3 hero words with `*word*` (the looks' best moments happen on them).
+   Learned on the first four (2026-10-03): align the clip with exactly its own lines, not the
+   full song with a few lines (scores 0.3 -> 0.7 on Chand Sifarish); lyrics sites can list the
+   chorus in the wrong place, so check the clip's lines against the vocals; old recordings
+   (Lag Jaa Gale, Rimjhim) align with low word scores: let the judge check their sync.
 3. `title.txt`: song name on line 1, `Singer | Film (Year)` on line 2.
 4. `make songs/<name> --bg <template>`; the finished short is
    `songs/<name>/render/<style>/final_<template>_<mood>.mp4` (overlay.mov is next to it).

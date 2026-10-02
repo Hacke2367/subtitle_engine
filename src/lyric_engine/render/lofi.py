@@ -133,6 +133,8 @@ def _handover(lines: list[LofiLine], theme: Theme, n_frames: int) -> None:
             ll.stop = min(ll.stop, max(lines[k + 2].enter, ll.leave + 1))
         (top, bottom), (ntop, nbottom) = _block(ll.layout), _block(nxt.layout)
         ll.shift = round((bottom - top + nbottom - ntop) / 2 + HANDOVER_GAP)
+        zone_top = theme.safe_zone[1] if theme.safe_zone else 0   # never slide out of the zone
+        ll.shift = min(ll.shift, max(0, top - zone_top - sprite_pad(theme)))
         ll.notes = [note for note in ll.notes if "cut, not faded" not in note
                     and "are not shown" not in note]
     for ll in lines:
