@@ -636,6 +636,10 @@ for a moment, hard audio cuts at the end, blank screens during held notes.
 **Decision:** No hand-moved word times (red line 1): Lag Jaa Gale's clip starts at the repeat of
 the mukhda, whose sync is good. Clips re-cut to start on the first line (Chand, Barsaat) with a
 0.15 s fade in and a 1 s fade out. The line themes hold a finished line 2.4 s (was 1.6) and the
-leaving line in a hand-over is gone in 0.35 s.
+leaving line in a hand-over is gone in 0.35 s. With less than 0.4 s before the next line's first
+word, the lines swap in place instead (old fades out in 0.1 s, new fades in over 0.2 s): the
+judge saw 3 frames of text on text in Rimjhim and Barsaat. Barsaat Ki Dhun moved from the grey
+`rain` look to `ghata` with `--theme romantic-line` (the judge: grey on grey, no contrast); a
+darker rain mood for the other rain songs is a follow-up for the owner to approve.
 **Why:** The judge's postable fixes, generic for every song.
 **Supersedes:** —
