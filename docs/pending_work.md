@@ -45,6 +45,9 @@ finished look.
    look (samples in `songs/_review/classics_templates/`). 20-video plan: `docs/video_plan.md`.
    Khidki reel on all seven templates made and judged (D-040; `songs/_review/khidki_reel/`,
    verdicts in `docs/video_plan.md`); waiting for the owner's look.
+   First four real videos (2026-10-03): `songs/<song>_reel` for Barsaat Ki Dhun, Chand
+   Sifarish, Lag Jaa Gale, Rimjhim Gire Sawan, re-rendered after the judge (D-042); finals go to
+   `songs/_review/final4/`. Next: the remaining 16 (owner adds audio + lyrics).
    Cleanup done 2026-10-02 (the owner ran `songs/_review/cleanup.sh`; `songs/` is 1.3 GB). Keep
    `songs/khidki_s2_em` (words + audio): `run_scene.py` needs it to test templates.
 1. **Resume point (2026-10-01, session 25):** step 17's six looks + `backdrop` are approved

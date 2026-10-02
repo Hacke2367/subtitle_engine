@@ -626,3 +626,16 @@ sharper film. lofi's colour-state check skips the colour test for a marked word 
 Fonts are OFL (Google Fonts), bundled in `fonts/` with their licences.
 **Why:** The judge's top issues, each fixed generically (any lyrics, any song of the type).
 **Supersedes:** D-038's use of `romantic-soft` / `classic-sher` for the 20 videos (the themes stay).
+
+### D-042 — First four real videos: clip with good sync only, quicker hand-over, audio fades
+**Date:** 2026-10-03
+**Context:** The video-judge scored the first four (Barsaat Ki Dhun, Chand Sifarish, Lag Jaa Gale,
+Rimjhim Gire Sawan) 5-7/10: Lag Jaa Gale's first line out of sync (low-confidence alignment on an
+old recording), dark or repeated stretches at clip starts, leaving and incoming lines overlapping
+for a moment, hard audio cuts at the end, blank screens during held notes.
+**Decision:** No hand-moved word times (red line 1): Lag Jaa Gale's clip starts at the repeat of
+the mukhda, whose sync is good. Clips re-cut to start on the first line (Chand, Barsaat) with a
+0.15 s fade in and a 1 s fade out. The line themes hold a finished line 2.4 s (was 1.6) and the
+leaving line in a hand-over is gone in 0.35 s.
+**Why:** The judge's postable fixes, generic for every song.
+**Supersedes:** —

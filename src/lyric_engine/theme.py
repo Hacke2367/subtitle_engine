@@ -292,7 +292,7 @@ ROMANTIC_LINE = Theme(
     text_rgb=(248, 242, 232), accent_rgb=(255, 214, 186), emphasis_rgb=(247, 201, 169),
     shadow_rgb=(8, 8, 18), shadow_alpha=0.6, shadow_radius=10, shadow_offset=(0, 4),
     upcoming_opacity=0.6, lead_s=0.1, preroll_s=0.9, enter_s=0.6, rise_px=24,
-    current_in_s=0.15, sung_in_s=0.6, hold_s=1.6, fade_out_s=0.6, exit_rise_px=12,
+    current_in_s=0.15, sung_in_s=0.6, hold_s=2.4, fade_out_s=0.6, exit_rise_px=12,
     card_scale=0.62, handover=True)
 
 CLASSIC_LINE = replace(
