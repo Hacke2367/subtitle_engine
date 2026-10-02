@@ -34,7 +34,8 @@ TEAL = P.lin("#40605e")
 WARM = P.lin("#ffc890")
 VELVET = P.lin("#5a1018")
 AIR = P.lin("#141a26")
-SCRIM = 0.45
+SCRIM = 0.3
+GAIN = 1.7                                # the whole hall: it read too dark on a phone (D-041)
 N_SHOTS = 12
 sm = P.smooth
 
@@ -167,7 +168,7 @@ def shot(rng, kind: str) -> np.ndarray:
                 tx = 0.5 + sx * (0.05 + 0.08 / z)
                 img = np.where((((u - tx) / (0.05 / z ** 0.6)) ** 2 + ((v - 0.35) / (0.18 / z ** 0.4)) ** 2 < 1), 0.12, img)
     img = np.asarray(Image.fromarray(np.clip(img, 0, 1).astype(np.float32), "F").resize((96, 54), Image.BILINEAR), np.float32)
-    img = ndimage.gaussian_filter(img + 0.03 * rng.standard_normal(img.shape), 1.1)
+    img = ndimage.gaussian_filter(img + 0.03 * rng.standard_normal(img.shape), 0.7)
     yy2, xx2 = np.mgrid[0:54, 0:96].astype(np.float32)
     img *= 0.75 + 0.25 * np.exp(-(((xx2 - 48) / 58) ** 2 + ((yy2 - 27) / 33) ** 2))
     return np.clip(img, 0.06, 1.0).astype(np.float32)
@@ -193,7 +194,7 @@ class Scene:
         self._beam(rng)
         bx, by = f.block_centre
         lb = f.lyric_box
-        rx, ry = ((lb[2] - lb[0]) / 2 + 240, (lb[3] - lb[1]) / 2 + 200) if lb else (600, 380)
+        rx, ry = ((lb[2] - lb[0]) / 2 + 380, (lb[3] - lb[1]) / 2 + 340) if lb else (700, 500)
         calm = P.scrim(bx, by, rx, ry)
         self.calm = calm[..., 0]
         self.vig = P.vignette(0.2, 0.3) * (1 - SCRIM * calm)
@@ -378,7 +379,7 @@ class Scene:
             hl = self.house * end
             x += hl
             x += (self.rims * 0.25 * end)[..., None] * WARM * (1 - 0.6 * self.calm[..., None])
-        return P.finish(x, bloom=0.3, bloom_sigma=7, knee=0.45, soft=0.5, vig=self.vig)
+        return P.finish(x * GAIN, bloom=0.3, bloom_sigma=7, knee=0.45, soft=0.5, vig=self.vig)
 
     def _curtain(self, x, end):
         close = float(sm(end / 0.85))

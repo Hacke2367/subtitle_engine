@@ -24,7 +24,7 @@ WORLDS = {"rain": ("evening",), "fog": ("moonlight",), "milan": ("night",), "kha
           "rail": ("night",), "talkies": ("show",), "ghata": ("dusk",)}
 DESIGNED: dict[str, tuple[str, ...]] = {}
 SOFT = {"soft-romantic", "soft-romantic-v2", "cinematic", "lofi-minimal", "lofi-typewriter",
-        "romantic-soft", "classic-sher"}
+        "romantic-soft", "classic-sher", "romantic-line", "classic-line"}
 FITS = {look: SOFT for look in WORLDS}   # the themes each look is made for
 LYRIC_AREA = (60, 380, 960, 1540)   # x0, y0, x1, y1: where lyrics may sit (the themes' safe zone)
 DEFAULT_CENTRE = (540.0, 1150.0)

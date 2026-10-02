@@ -688,3 +688,16 @@ owner's go-ahead.
 **Decision:** "acha laga, dono themes pakki karo aur commit kardo". Both themes ship as built.
 The old themes stay; `soft-romantic-v2` stays the default.
 **Decided:** 2026-10-01
+
+### H-043 — Lyrics: line-level, styled, bigger; an independent judge
+**Status:** decided
+**Raised:** 2026-10-02
+**Needed-before:** the 20 videos
+**Context:** After seeing the khidki reel on all seven templates, the owner: the lyrics look
+"normal" (font and size not right, no style); word by word "gaane ke sath match nahi ho raha,
+smoothness nahi hai"; the chaand video has no motion; Claude's own judging passed things it should
+not have.
+**Decision:** The owner asked for line-level or smoother lyrics (Claude's call), real style per
+template, a separate judge subagent, and speed ("aaj 20 video banana hai"). Claude chose
+line-level with a soft word highlight (D-041) and made `.claude/agents/video-judge.md`.
+**Decided:** 2026-10-02

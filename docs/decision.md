@@ -604,3 +604,25 @@ added a title card, then rendered it on all seven romantic and classics template
   showed in the marked-word glow), and the low shelf stays out of the upper sky.
 **Why:** Each was a visible or measured problem in a finished short; none adds an input or a flag.
 **Supersedes:** —
+
+### D-041 — Line-level styled lyrics per template, judged by an independent agent
+**Date:** 2026-10-02
+**Context:** H-043. The `video-judge` agent scored the old word-by-word styles 4-4.5/10 (small,
+plain Poppins/italic type, the line changing shape with every word) and the first line-level
+samples 5.5-6 (a blank-frame blink at every line change, hero word crowding the next word,
+hairline Cormorant, chaand still for 20 s, talkies too dark).
+**Decision:** Two themes on the lofi renderer (no new renderer): `romantic-line` (Playfair Display
+96 px, the marked word in Great Vibes 1.9x, peach) and `classic-line` (Cormorant Garamond SemiBold
+104 px, the marked word in Pinyon Script 1.6x, gold). The whole line comes in 0.9 s ahead at 60 % (the sync check needs it clearly dimmer),
+each word lights as sung. New theme options, off by default: `emphasis_font`, `emphasis_rgb`,
+`handover` (the leaving line slides up and fades while the next comes in, no blank frame); a
+marked word in its own font gets 0.15 em room each side. `--bg LOOK` without `--theme` picks the
+look's style (`theme.LOOK_THEMES`). The leaving line ends 100 px clear of the next one, fades
+as (1 - x)^2, and the next line starts 0.15 s later (on rail they crowded, 4 rows at once, over
+the headlight). The finished short's legibility is read on text at least half shown
+(`compose.LEGIBLE`): a line fading out is leaving; the 60 % upcoming words still count. chaand: faster clouds and veil, a 6 % push-in over the song, the
+moon glows up on marked words. talkies: 1.7x light, a wider, softer calm behind the lyrics, a
+sharper film. lofi's colour-state check skips the colour test for a marked word in its own colour.
+Fonts are OFL (Google Fonts), bundled in `fonts/` with their licences.
+**Why:** The judge's top issues, each fixed generically (any lyrics, any song of the type).
+**Supersedes:** D-038's use of `romantic-soft` / `classic-sher` for the 20 videos (the themes stay).

@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 from . import align, timing
-from .theme import DEFAULT_THEME, THEMES
+from .theme import DEFAULT_THEME, LOOK_THEMES, THEMES
 
 
 def _validate(path: Path, song: Path | None) -> int:
@@ -37,9 +37,10 @@ def _validate(path: Path, song: Path | None) -> int:
     return 0 if not errors else 1
 
 
-def _render(song: Path, codec: str | None, allow_flagged: bool, theme: str,
+def _render(song: Path, codec: str | None, allow_flagged: bool, theme: str | None,
             bg: tuple[str, str] | None = None, backdrop: bool = False) -> int:
     from . import layout, render   # lazy: fonts/Pillow only when rendering
+    theme = theme or (LOOK_THEMES.get(bg[0]) if bg else None) or DEFAULT_THEME   # the look's style
     try:
         result = render.render(song, codec=codec, allow_flagged=allow_flagged,
                                theme=THEMES[theme], bg=bg, backdrop=backdrop)
@@ -179,8 +180,8 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--song", type=Path)
     r = sub.add_parser("render", help="words.json → overlay.mov + overlay_green.mp4 + preview.mp4")
     r.add_argument("song_dir", type=Path)
-    r.add_argument("--theme", choices=list(THEMES), default=DEFAULT_THEME,
-                   help=f"look of the overlay; outputs go to render/<theme>/ (default: {DEFAULT_THEME})")
+    r.add_argument("--theme", choices=list(THEMES), default=None,
+                   help="look of the overlay; outputs go to render/<theme>/ (default: the --bg look's style, else " + DEFAULT_THEME + ")")
     r.add_argument("--codec", choices=["prores", "png", "qtrle"],
                    help="alpha codec for overlay.mov (default: theme's, provisional until CapCut test)")
     r.add_argument("--allow-flagged", action="store_true",
@@ -195,7 +196,7 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("--out", type=Path, help="new song folder (default: <song>_<from>-<to>)")
     m = sub.add_parser("make", help="align (if not done yet) and render a song folder")
     m.add_argument("song_dir", type=Path)
-    m.add_argument("--theme", choices=list(THEMES), default=DEFAULT_THEME)
+    m.add_argument("--theme", choices=list(THEMES), default=None)
     m.add_argument("--codec", choices=["prores", "png", "qtrle"])
     m.add_argument("--allow-flagged", action="store_true")
     m.add_argument("--bg", type=_bg, metavar="WORLD[:MOOD]")
@@ -204,7 +205,7 @@ def main(argv: list[str] | None = None) -> int:
     bd.add_argument("song_dir", type=Path, nargs="?",
                     help="an aligned song: the look follows its words and the video has its audio")
     bd.add_argument("--bg", type=_bg, metavar="WORLD[:MOOD]", required=True)
-    bd.add_argument("--theme", choices=list(THEMES), default=DEFAULT_THEME,
+    bd.add_argument("--theme", choices=list(THEMES), default=None,
                     help="whose layout places the words on screen (with a song only)")
     bd.add_argument("--seconds", type=float, help="no song: a background of this length, no reactions")
     bd.add_argument("--out", type=Path, help="no song: the file (default: backdrop_<look>_<seconds>s.mp4)")

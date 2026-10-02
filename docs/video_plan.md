@@ -1,11 +1,18 @@
 # Video plan: 20 shorts (10 romantic, 10 classics)
 
 Picked by Claude on 2026-10-01 for the owner's first 20 videos. Each song goes on the template
-whose idea it matches; the lyric theme is `romantic-soft` for romantic songs and `classic-sher`
-for classics (D-038). Use the song's best-known 30-60 s (usually the mukhda) as the clip:
-`clip songs/<full-song> --from M:SS --to M:SS`, then `make songs/<clip> --theme ... --bg ...`.
+whose idea it matches; the lyric style comes with the template (D-041: romantic looks use
+`romantic-line`, classics `classic-line`), so no `--theme` is needed.
 
-## Romantic (`--theme romantic-soft`)
+Fastest way per song (2026-10-02):
+1. `songs/<name>/`: `audio.mp3` cut to the best-known 30-60 s (usually the mukhda) and
+   `lyrics.txt` with only those lines, one sung line per line. Aligning a short clip is quick.
+2. Mark 2-3 hero words with `*word*` (the looks' best moments happen on them).
+3. `title.txt`: song name on line 1, `Singer | Film (Year)` on line 2.
+4. `make songs/<name> --bg <template>`; the finished short is
+   `songs/<name>/render/<style>/final_<template>_<mood>.mp4` (overlay.mov is next to it).
+
+## Romantic (style `romantic-line`)
 
 | # | Song (film, year, singer) | Template | Why this template |
 |---|---|---|---|
@@ -20,7 +27,7 @@ for classics (D-038). Use the song's best-known 30-60 s (usually the mukhda) as 
 | 9 | Chand Sifarish (Fanaa, 2006, Shaan, Kailash Kher) | `chaand` | a moon song; the veil lifts off the moon |
 | 10 | Chaand Baaliyan (single, Aditya A) | `chaand` | moon imagery, soft night mood |
 
-## Classics (`--theme classic-sher`)
+## Classics (style `classic-line`)
 
 | # | Song (film, year, singer) | Template | Why this template |
 |---|---|---|---|

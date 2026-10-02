@@ -8,7 +8,7 @@ from __future__ import annotations
 import itertools
 import math
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import lru_cache
 from pathlib import Path
 
@@ -161,8 +161,13 @@ def font_set(theme: Theme, size: int) -> FontSet:
 
 def word_fonts(theme: Theme, size: int, emphasis: bool) -> FontSet:
     """The fonts a word of a line laid out at `size` is measured and drawn with: a *marked* word
-    at emphasis_scale times the line's size, so the ratio holds when a long line shrinks."""
-    return font_set(theme, round(size * theme.emphasis_scale) if emphasis else size)
+    at emphasis_scale times the line's size, so the ratio holds when a long line shrinks, in the
+    theme's emphasis_font when it has one."""
+    if not emphasis:
+        return font_set(theme, size)
+    if theme.emphasis_font is not None:
+        theme = replace(theme, font=theme.emphasis_font)
+    return font_set(theme, round(size * theme.emphasis_scale))
 
 
 def word_mask(text: str, fonts: FontSet, pad: int = 0, stroke: int = 0) -> Image.Image:
@@ -192,6 +197,12 @@ def word_mask(text: str, fonts: FontSet, pad: int = 0, stroke: int = 0) -> Image
 
 # --- Line layout (plan §4) -----------------------------------------------------------------------
 Item = tuple[int, str, float]  # (words.json "i", text, advance)
+HERO_MARGIN = 0.15   # × the line size, each side of a marked word in its own (script) font
+
+
+def _margin(theme: Theme, size: int, marked: bool) -> float:
+    """Room on each side of a marked word drawn in an emphasis_font: script swashes overhang."""
+    return HERO_MARGIN * size if marked and theme.emphasis_font is not None else 0.0
 
 
 def layout_line(words: list[tuple[int, str]], line: int, theme: Theme,
@@ -205,8 +216,8 @@ def layout_line(words: list[tuple[int, str]], line: int, theme: Theme,
     for size in sizes:
         fonts = font_set(theme, size)
         try:
-            items = [(i, text, word_fonts(theme, size, i in emphasis).advance(text))
-                     for i, text in words]
+            items = [(i, text, word_fonts(theme, size, i in emphasis).advance(text)
+                      + 2 * _margin(theme, size, i in emphasis)) for i, text in words]
         except LayoutError as exc:  # a missing glyph: no size fixes that
             raise LayoutError(f"line {line + 1}: {exc}") from None
         rows = _wrap(items, fonts.space, theme.max_width)
@@ -283,9 +294,11 @@ def _place(rows: list[list[Item]], theme: Theme, line: int, size: int,
         # centred at 540 this is (width − w) // 2
         left = (theme.center_x - theme.max_width // 2 if theme.align == "left"
                 else (2 * theme.center_x - _row_width(row, fonts.space)) // 2)
-        boxes += [WordBox(i, text, left + x, y + ascent - f.ascent, math.ceil(advance),
-                          f.ascent + f.descent, i in emphasis)
-                  for (i, text, advance), x, f in zip(row, _offsets(row, fonts.space), fs)]
+        boxes += [WordBox(i, text, left + x + round(m), y + ascent - f.ascent,
+                          math.ceil(round(advance - 2 * m, 6)), f.ascent + f.descent,
+                          i in emphasis)
+                  for (i, text, advance), x, f in zip(row, _offsets(row, fonts.space), fs)
+                  for m in (_margin(theme, size, i in emphasis),)]
         y += height + gap
     if any(b.x < 0 or b.y < 0 or b.x + b.w > theme.width or b.y + b.h > theme.height
            for b in boxes):

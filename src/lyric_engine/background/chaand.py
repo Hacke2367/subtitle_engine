@@ -23,6 +23,7 @@ SILVER = P.lin("#b4c2e4")
 BLUEAIR = P.lin("#5673bd")
 SLATE = P.lin("#0b1228")
 TY0 = 1330                                   # tree band: rows TY0..H
+PUSH = 0.06                                  # the push-in over the song (6 %)
 sm = P.smooth
 
 
@@ -373,10 +374,10 @@ class Scene:
         apex = (MY + 62) - (MY + 62 - 170) * o ** 0.72
         arch = 0.0003 + 0.0018 * o ** 0.6
         xc = Xf[0] - MX
-        hem = (apex + arch * xc ** 2 + 0.06 * xc + 8 * np.sin(2 * math.pi * (xc / 420 - t / 19) + self.fold_ph[0])
-               + 5 * np.sin(2 * math.pi * (xc / 190 + t / 13) + self.fold_ph[1])).astype(np.float32)
-        F1 = roll(self.vt1, self.ph[0] + 1.6 * t)
-        F2 = roll(self.vt2, self.ph[1] + 2.4 * t)
+        hem = (apex + arch * xc ** 2 + 0.06 * xc + 14 * np.sin(2 * math.pi * (xc / 420 - t / 8) + self.fold_ph[0])
+               + 8 * np.sin(2 * math.pi * (xc / 190 + t / 6) + self.fold_ph[1])).astype(np.float32)
+        F1 = roll(self.vt1, self.ph[0] + 5.0 * t)
+        F2 = roll(self.vt2, self.ph[1] + 7.5 * t)
         dist = (hem[None, :] - Yf) / 100            # above the hem, in 100 px
         arg = dist + 0.75 * F1 + 0.22 * F2
         D0 = sm((arg + 0.25) / 1.0)
@@ -385,7 +386,8 @@ class Scene:
         Tv = np.exp(-2.1 * D)
         dm = float(D[int(MY / 2) - 20:int(MY / 2) + 20, int(MX / 2) - 20:int(MX / 2) + 20].mean())
         breath = (1 + 0.10 * dm) * (1 + 0.04 * math.sin(2 * math.pi * t / 5.5))
-        aur = (self.aur0 + self.aur1 * (0.7 + 1.4 * o)) * breath * rise
+        swell = 1 + 0.6 * P.envelope(t, self.marks, 0.3, 2.0)   # the moon glows up on a hero word
+        aur = (self.aur0 + self.aur1 * (0.7 + 1.4 * o)) * breath * rise * swell
         Sx = (self.sky + self.haze * (0.75 + 0.25 * flux) + aur) * Tv[..., None]
         # the veil is lit from the moon: brightest along its hem, fading up into the sheet
         edge = np.exp(-np.clip(arg, 0, None) * 1.25)
@@ -396,23 +398,23 @@ class Scene:
         glow += rimb * (0.30 * self.e330 + 0.02) * (0.15 + 0.85 * o) * puff * self.incore * rise
         Sx += glow[..., None] * self.lcol + (D * 0.010)[..., None] * P.lin("#2b3a68")
         # ---- the mid bank, lit by the moon through the cloud between
-        Db = sm((roll(self.bt, self.ph[2] + 3.0 * t * self.bank_speed) * 1.0 + self.comp + 0.5) / 1.6) ** 1.15
+        Db = sm((roll(self.bt, self.ph[2] + 9.0 * t * self.bank_speed) * 1.0 + self.comp + 0.5) / 1.6) ** 1.15
         Dq = Db.reshape(h // 2, 2, w // 2, 2).mean((1, 3))
         acc = ndimage.map_coordinates(Dq, self.mc, order=1, mode="nearest").reshape(self.msteps, h // 2, w // 2).mean(0)
         trans = P.resize(np.exp(-acc * self.mL * 2.4).astype(np.float32), w, h)
-        body = 0.7 + 0.32 * np.clip(roll(self.vt2, self.ph[2] * 0.3 + 1.1 * t), -1.5, 1.5)
+        body = 0.7 + 0.32 * np.clip(roll(self.vt2, self.ph[2] * 0.3 + 3.3 * t), -1.5, 1.5)
         lit = trans * (0.50 * self.e380 + 0.02) * flux * body * (0.5 + 0.5 * rise)
         Tm = np.exp(-3.0 * Db)
         Sx = Sx * Tm[..., None] + (1 - Tm)[..., None] * SLATE + (lit * (1 - Tm))[..., None] * self.lcol
         # ---- low streaks across the horizon haze (only the rows they live in)
         r0, r1 = 690, 880
-        Dl = np.clip(roll(self.lt[r0:r1], self.ph[3] + 5.0 * t) * 0.9 + 0.2, 0, 1) * self.lwin
+        Dl = np.clip(roll(self.lt[r0:r1], self.ph[3] + 14.0 * t) * 0.9 + 0.2, 0, 1) * self.lwin
         Sx[r0:r1] = Sx[r0:r1] * (1 - Dl[..., None]) + Dl[..., None] * P.lin("#0a1026")
         # ---- near scud (dark, faster)
         for y0, th, x0, a in self.scud:
             ra, rb = max(int((y0 - 3 * th) / 2), 0), min(int((y0 + 3 * th) / 2), h)
             rows = np.exp(-(((Yf[ra:rb, :1] - y0) / th) ** 2))
-            tx = roll(self.st[ra:rb], x0 + 7.0 * t)
+            tx = roll(self.st[ra:rb], x0 + 20.0 * t)
             Dn = np.clip(rows * (0.85 + 0.35 * tx) * a, 0, 0.9)
             Sx[ra:rb] = Sx[ra:rb] * (1 - Dn[..., None]) + Dn[..., None] * P.lin("#05070f")
         Sx *= self.scrim
@@ -431,11 +433,17 @@ class Scene:
         for i, (mask, sheen) in enumerate(self.trees):
             band += (self.mist[i] * (0.75 + 0.25 * flux))[..., None] * self.mistcol
             if i > 0:
-                sh = 0.55 * (i + 0.6) * math.sin(2 * math.pi * t / (6.0 + i) + self.sway_ph[i]) * self.vfall
+                sh = 1.6 * (i + 0.6) * math.sin(2 * math.pi * t / (4.0 + i) + self.sway_ph[i]) * self.vfall
                 m, s = self._sway(mask, sh), self._sway(sheen, sh)
             else:
                 m, s = mask, sheen
             s = s * (0.05 + 0.20 * o) * (0.6 if i == 0 else 1.0)
             band += m[..., None] * (self.tree_col[i] - band)
             band += s[..., None] * SILVER
-        return P.finish(x, bloom=0.32, bloom_sigma=8, knee=0.5, soft=0.5, vig=self.vig)
+        rgb = P.finish(x, bloom=0.32, bloom_sigma=8, knee=0.5, soft=0.5, vig=self.vig)
+        # a slow push-in toward the moon over the whole song, so the night is never still
+        z = 1 + PUSH * min(t / max(self.dur, 1.0), 1.0)
+        bw, bh = W / z, H / z
+        x0, y0 = MX - (MX / W) * bw, MY - (MY / H) * bh
+        img = Image.fromarray(rgb).resize((W, H), Image.BICUBIC, box=(x0, y0, x0 + bw, y0 + bh))
+        return np.asarray(img)

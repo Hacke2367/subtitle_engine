@@ -26,6 +26,7 @@ MIN_CONTRAST = 3.0   # WCAG AA for large text; the lyrics are 56-110 px
 NEAR = 24            # legibility is measured this far around the text
 INK = 16             # alpha that counts as drawn (the render checks' SAFE_ALPHA_MIN)
 GAP = 200            # text this far apart is two blocks, measured apart (the title card, the lyrics)
+LEGIBLE = 128        # text read for legibility: at least half shown (a line fading out is leaving)
 WORKERS = int(os.environ.get("LYRIC_ENGINE_WORKERS",   # leave room for the theme and ffmpeg
                              max(1, min(4, (os.cpu_count() or 2) - 2))))
 
@@ -92,8 +93,9 @@ def compose_frame(overlay: bytes, scene, k: int, text_rgb, log: Legibility, bg=N
         ink = ink_box(alpha)
     if bg is None:
         bg = scene.frame(k, ink)
-    if ink:   # each block of text against the background around it (title card, lyrics)
-        log.note(k, min(frame_contrast(bg, text_rgb, b) for b in ink_bands(alpha)))
+    bands = ink_bands(alpha, LEGIBLE) if ink else []
+    if bands:   # each block of text against the background around it (title card, lyrics)
+        log.note(k, min(frame_contrast(bg, text_rgb, b) for b in bands))
     im = Image.fromarray(bg, "RGB").convert("RGBA")
     im.alpha_composite(Image.frombuffer("RGBA", (w, h), overlay, "raw", "RGBA", 0, 1))
     return im.tobytes()

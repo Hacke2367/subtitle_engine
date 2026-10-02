@@ -17,7 +17,7 @@ from PIL import Image, ImageFilter
 from ..layout import LineLayout, word_fonts
 from ..theme import Theme
 from .frames import _LUTS, LEVELS, _scaled, _solid, band_parts, checked_mask
-from .karaoke import ease_in_quad, ease_out_cubic, smoothstep, sprite_pad
+from .karaoke import _block, ease_in_quad, ease_out_cubic, smoothstep, sprite_pad
 from .lifecycle import schedule
 from .timeline import WordPlan, _ceil_frame, _floor_frame, laid_out_lines, word_plans
 
@@ -37,6 +37,7 @@ class LofiLine:
     rest: int = 0             # first frame at rest (full opacity, no rise)
     leave: int = 0            # the exit fade starts here ...
     stop: int = 0             # ... and ends here (exclusive)
+    shift: int = 0            # handover: how far up the line slides while it leaves
     notes: list[str] = field(default_factory=list)   # for the report: cuts, words typed whole
 
     @property
@@ -60,6 +61,7 @@ class LofiCache:
         self.looks: dict[tuple, Image.Image] = {}
         self.image: tuple[tuple, Image.Image] | None = None
         self.layer: tuple[tuple, Image.Image] | None = None
+        self.leaving: dict[int, LofiCache] = {}   # handover: the line sliding out has its own
 
 
 def label(wp: WordPlan, lay: LineLayout) -> str:
@@ -103,7 +105,40 @@ def plan_lofi(doc: dict, theme: Theme, n_frames: int, emphasis: frozenset[int] =
         lines.append(ll)
     lines.sort(key=lambda ll: (ll.first_cur, ll.layout.line))
     schedule(lines, theme, n_frames, ahead=not tw)
+    if theme.handover and not tw:
+        _handover(lines, theme, n_frames)
     return lines, skipped
+
+
+HANDOVER_GAP = 100   # px between a line sliding out and the line coming in under it
+HANDOVER_DELAY_S = 0.15   # the next line starts coming in this long after the leaving one moves
+
+
+def _handover(lines: list[LofiLine], theme: Theme, n_frames: int) -> None:
+    """Lines sung close together hand over instead of cutting: the next line comes in from
+    max(its preroll, the leaving line's last word) while the leaving line slides up out of its
+    way and fades, so no frame is blank between them. Word frames never move (red line 1)."""
+    fps = theme.fps
+    P, Ein = round(theme.preroll_s * fps), _ceil_frame(theme.enter_s, fps)
+    H, X = _ceil_frame(theme.hold_s, fps), round(theme.fade_out_s * fps)
+    for k, (ll, nxt) in enumerate(zip(lines, lines[1:])):
+        E, F = ll.settled, nxt.first_cur
+        if F - P >= E + H + X:       # room to clear on its own: the plain plan stands
+            continue
+        t = max(min(max(F - P, E), F - 2), ll.rest, 0)
+        nxt.enter = max(t, min(t + round(HANDOVER_DELAY_S * fps), F - 2))
+        nxt.rest = max(nxt.enter + 1, min(nxt.enter + Ein, F - 1))
+        ll.leave, ll.stop = t, t + max(X, Ein)
+        if k + 2 < len(lines):
+            ll.stop = min(ll.stop, max(lines[k + 2].enter, ll.leave + 1))
+        (top, bottom), (ntop, nbottom) = _block(ll.layout), _block(nxt.layout)
+        ll.shift = round((bottom - top + nbottom - ntop) / 2 + HANDOVER_GAP)
+        ll.notes = [note for note in ll.notes if "cut, not faded" not in note
+                    and "are not shown" not in note]
+    for ll in lines:
+        ll.stop = min(ll.stop, n_frames)
+        ll.rest, ll.leave = min(ll.rest, ll.stop), min(ll.leave, ll.stop)
+        ll.enter = min(ll.enter, ll.rest)
 
 
 def colour_state(wp: WordPlan, n: int, theme: Theme) -> tuple[float, float]:
@@ -137,7 +172,10 @@ def line_state(ll: LofiLine, n: int, theme: Theme) -> tuple[float, float]:
         e = ease_out_cubic((n - ll.enter) / (ll.rest - ll.enter))
         return e, theme.rise_px * (1 - e)
     if n >= ll.leave:
-        x = ease_in_quad((n - ll.leave) / max(1, ll.stop - ll.leave))
+        x = (n - ll.leave) / max(1, ll.stop - ll.leave)
+        if ll.shift:   # handover: slides up out of the next line's way while it fades
+            return (1.0 - x) ** 2, -ll.shift * ease_out_cubic(x)
+        x = ease_in_quad(x)
         return 1.0 - x, -theme.exit_rise_px * x
     return REST
 
@@ -192,7 +230,7 @@ def word_look(ll: LofiLine, wp: WordPlan, n: int, theme: Theme) -> tuple | None:
 
 
 def look_sprite(sprites: LSprites, index: int, key: tuple, theme: Theme,
-                cache: LofiCache) -> Image.Image:
+                cache: LofiCache, rest: tuple[int, int, int] | None = None) -> Image.Image:
     """The word at a look: shadow + glyph composed at full opacity in the mixed colour, then
     faded, so solid ink keeps the exact state colour at any opacity (plan §2.3). While typing,
     each letter band is faded to its own level."""
@@ -203,8 +241,8 @@ def look_sprite(sprites: LSprites, index: int, key: tuple, theme: Theme,
     ml = key[1]
     base = cache.looks.get((index, LEVELS, ml))
     if base is None:
-        base = Image.alpha_composite(under, _solid(mix_rgb(theme.text_rgb, theme.accent_rgb, ml),
-                                                   mask))
+        base = Image.alpha_composite(under, _solid(mix_rgb(rest or theme.text_rgb, theme.accent_rgb,
+                                                           ml), mask))
         cache.looks[index, LEVELS, ml] = base
     if len(key) == 3:
         img = Image.new("RGBA", base.size, (0, 0, 0, 0))
@@ -239,7 +277,8 @@ def line_image(ll: LofiLine, sprites: LSprites, n: int, theme: Theme,
     img = Image.new("RGBA", (x1 - x0, y1 - y0), (0, 0, 0, 0))
     for wp, look in zip(ll.words, key):
         if look is not None:
-            img.alpha_composite(look_sprite(sprites, wp.box.index, look, theme, cache),
+            rest = theme.emphasis_rgb if wp.box.emphasis else None   # a marked word keeps its colour
+            img.alpha_composite(look_sprite(sprites, wp.box.index, look, theme, cache, rest),
                                 dest=(wp.box.x - pad - x0, wp.box.y - pad - y0))
     cache.image = (key, img)
     return img, x0, y0
@@ -247,16 +286,29 @@ def line_image(ll: LofiLine, sprites: LSprites, n: int, theme: Theme,
 
 def frame_parts(n: int, lines: list[LofiLine], sprites: LSprites, theme: Theme,
                 cache: LofiCache) -> list:
-    """Frame n as bytes-like pieces (frames.band_parts): the one visible line, faded and risen."""
-    ll = next((ll for ll in lines if ll.enter <= n < ll.stop), None)
-    if ll is None:
+    """Frame n as bytes-like pieces (frames.band_parts): the visible line, faded and risen (with
+    handover, also the line sliding out above it)."""
+    visible = [ll for ll in lines if ll.enter <= n < ll.stop]
+    if not visible:
         return band_parts([], theme)
+    current, rest = visible[-1], visible[:-1]
+    cache.leaving = {ll.layout.line: cache.leaving.get(ll.layout.line) or LofiCache() for ll in rest}
+    layers = [layer for ll in rest
+              if (layer := _layer(n, ll, sprites, theme, cache.leaving[ll.layout.line]))]
+    if layer := _layer(n, current, sprites, theme, cache):
+        layers.append(layer)
+    return band_parts(layers, theme)
+
+
+def _layer(n: int, ll: LofiLine, sprites: LSprites, theme: Theme,
+           cache: LofiCache) -> tuple[Image.Image, tuple[int, int]] | None:
+    """One line at frame n, faded and moved, or None when nothing of it shows."""
     if cache.line != ll.layout.line:
         cache.line, cache.looks, cache.image, cache.layer = ll.layout.line, {}, None, None
     opacity, dy = line_state(ll, n, theme)
     level = min(LEVELS, round(opacity * LEVELS))
     if level <= 0:
-        return band_parts([], theme)
+        return None
     img, x0, y0 = line_image(ll, sprites, n, theme, cache)
     lkey = (cache.image[0], level)
     if cache.layer is None or cache.layer[0] != lkey:
@@ -265,4 +317,4 @@ def frame_parts(n: int, lines: list[LofiLine], sprites: LSprites, theme: Theme,
             layer = img.copy()
             layer.putalpha(img.getchannel("A").point(_LUTS[level]))
         cache.layer = (lkey, layer)
-    return band_parts([(cache.layer[1], (x0, y0 + round(dy)))], theme)
+    return cache.layer[1], (x0, y0 + round(dy))
