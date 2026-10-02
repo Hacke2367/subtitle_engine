@@ -17,7 +17,7 @@ from PIL import Image, ImageFilter
 from ..layout import LineLayout, word_fonts
 from ..theme import Theme
 from .frames import _LUTS, LEVELS, _scaled, _solid, band_parts, checked_mask
-from .karaoke import _block, ease_in_quad, ease_out_cubic, smoothstep, sprite_pad
+from .karaoke import ease_in_quad, ease_out_cubic, smoothstep, sprite_pad
 from .lifecycle import schedule
 from .timeline import WordPlan, _ceil_frame, _floor_frame, laid_out_lines, word_plans
 
@@ -37,7 +37,6 @@ class LofiLine:
     rest: int = 0             # first frame at rest (full opacity, no rise)
     leave: int = 0            # the exit fade starts here ...
     stop: int = 0             # ... and ends here (exclusive)
-    shift: int = 0            # handover: how far up the line slides while it leaves
     notes: list[str] = field(default_factory=list)   # for the report: cuts, words typed whole
 
     @property
@@ -110,41 +109,26 @@ def plan_lofi(doc: dict, theme: Theme, n_frames: int, emphasis: frozenset[int] =
     return lines, skipped
 
 
-HANDOVER_GAP = 100   # px between a line sliding out and the line coming in under it
-HANDOVER_DELAY_S = 0.15   # the next line starts coming in this long after the leaving one moves
-HANDOVER_S = 0.35    # the leaving line is gone this fast, so the two never sit on each other
-SWAP_ROOM_S = 0.4    # less room than this before the next line's first word: no slide, a swap
-SWAP_OUT_S, SWAP_IN_S = 0.1, 0.2   # the swap: the old line fades in place, then the new fades in
+HANDOVER_OUT_S = 0.3   # the leaving line fades out this fast (faster when the next line is close)
+HANDOVER_IN_S = 0.2    # the shortest fade-in of the next line
 
 
 def _handover(lines: list[LofiLine], theme: Theme, n_frames: int) -> None:
-    """Lines sung close together hand over instead of cutting: the next line comes in from
-    max(its preroll, the leaving line's last word) while the leaving line slides up out of its
-    way and fades, so no frame is blank between them. Word frames never move (red line 1)."""
+    """Lines sung close together hand over instead of cutting, and never share the screen: from
+    max(the next line's preroll, the leaving line's last word) the leaving line fades out, then the
+    next fades in. Word frames never move (red line 1)."""
     fps = theme.fps
     P, Ein = round(theme.preroll_s * fps), _ceil_frame(theme.enter_s, fps)
     H, X = _ceil_frame(theme.hold_s, fps), round(theme.fade_out_s * fps)
-    for k, (ll, nxt) in enumerate(zip(lines, lines[1:])):
+    for ll, nxt in zip(lines, lines[1:]):
         E, F = ll.settled, nxt.first_cur
         if F - P >= E + H + X:       # room to clear on its own: the plain plan stands
             continue
         t = max(min(max(F - P, E), F - 2), ll.rest, 0)
-        if F - t < round(SWAP_ROOM_S * fps):   # too little room to slide: swap in place
-            ll.leave, ll.stop = t, t + max(1, round(SWAP_OUT_S * fps))
-            nxt.enter = ll.stop - 1
-            nxt.rest = nxt.enter + max(1, round(SWAP_IN_S * fps))
-            ll.notes = [note for note in ll.notes if "cut, not faded" not in note
-                        and "are not shown" not in note]
-            continue
-        nxt.enter = max(t, min(t + round(HANDOVER_DELAY_S * fps), F - 2))
-        nxt.rest = max(nxt.enter + 1, min(nxt.enter + Ein, F - 1))
-        ll.leave, ll.stop = t, t + max(1, round(HANDOVER_S * fps))
-        if k + 2 < len(lines):
-            ll.stop = min(ll.stop, max(lines[k + 2].enter, ll.leave + 1))
-        (top, bottom), (ntop, nbottom) = _block(ll.layout), _block(nxt.layout)
-        ll.shift = round((bottom - top + nbottom - ntop) / 2 + HANDOVER_GAP)
-        zone_top = theme.safe_zone[1] if theme.safe_zone else 0   # never slide out of the zone
-        ll.shift = min(ll.shift, max(0, top - zone_top - sprite_pad(theme)))
+        ll.leave = t
+        ll.stop = t + max(1, min(round(HANDOVER_OUT_S * fps), (F - t) // 3))
+        nxt.enter = ll.stop
+        nxt.rest = nxt.enter + max(round(HANDOVER_IN_S * fps), min(Ein, F - 1 - nxt.enter))
         ll.notes = [note for note in ll.notes if "cut, not faded" not in note
                     and "are not shown" not in note]
     for ll in lines:
@@ -184,10 +168,7 @@ def line_state(ll: LofiLine, n: int, theme: Theme) -> tuple[float, float]:
         e = ease_out_cubic((n - ll.enter) / (ll.rest - ll.enter))
         return e, theme.rise_px * (1 - e)
     if n >= ll.leave:
-        x = (n - ll.leave) / max(1, ll.stop - ll.leave)
-        if ll.shift:   # handover: slides up out of the next line's way while it fades
-            return (1.0 - x) ** 2, -ll.shift * ease_out_cubic(x)
-        x = ease_in_quad(x)
+        x = ease_in_quad((n - ll.leave) / max(1, ll.stop - ll.leave))
         return 1.0 - x, -theme.exit_rise_px * x
     return REST
 

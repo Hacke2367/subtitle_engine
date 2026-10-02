@@ -108,8 +108,8 @@ class Theme:
     sung_in_s: float = 0.4        # fade back to text_rgb from its end frame
     exit_rise_px: int = 10        # a leaving line rises this much more while it fades
     typewriter: bool = False      # letters type in inside the word's own span; nothing shown ahead
-    handover: bool = False        # lines sung close together: the leaving one slides up and fades
-    #                               while the next comes in, so no frame is blank between them
+    handover: bool = False        # lines sung close together: the leaving one fades out, then the
+    #                               next fades in, with no blank gap and never two lines at once
     type_stagger_s: float = 0.06  # at most this between letters (less if the word is short)
     letter_fade_s: float = 0.1
     # Cinematic only (spec 10): blur-in / blur-out, couplets. Reuses reveal_s (blur-in),
