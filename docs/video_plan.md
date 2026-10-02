@@ -14,33 +14,39 @@ Fastest way per song (2026-10-02):
 
 ## Romantic (style `romantic-line`)
 
-| # | Song (film, year, singer) | Template | Why this template |
-|---|---|---|---|
-| 1 | Barsaat Ki Dhun (single, 2021, Jubin Nautiyal) | `rain` | a rain song; colour rises where the rain lands |
-| 2 | Baarish (Yaariyan, 2014, Mohammed Irfan) | `rain` | rain as longing, slow and soft |
-| 3 | Tum Se Hi (Jab We Met, 2007, Mohit Chauhan) | `rain` | "tum se hi din hota hai": colour coming into a grey day |
-| 4 | Tum Hi Ho (Aashiqui 2, 2013, Arijit Singh) | `fog` | deep, aching love; moonlight and shadow through fog |
-| 5 | Agar Tum Saath Ho (Tamasha, 2015, Alka Yagnik, Arijit Singh) | `fog` | love about to be lost; the dark, misty look holds the pain |
-| 6 | Raabta (Agent Vinod, 2012, Arijit Singh) | `milan` | "raabta" is the look itself: two lights meet and glow |
-| 7 | Kesariya (Brahmastra, 2022, Arijit Singh) | `milan` | two people drawn together; the meeting lights carry it |
-| 8 | Tum Mile (Tum Mile, 2009, Neeraj Shridhar) | `milan` | "tum mile": the moment of meeting |
-| 9 | Chand Sifarish (Fanaa, 2006, Shaan, Kailash Kher) | `chaand` | a moon song; the veil lifts off the moon |
-| 10 | Chaand Baaliyan (single, Aditya A) | `chaand` | moon imagery, soft night mood |
+| # | Song | Folder `songs/...` | Template | Hero words to mark | First 4 |
+|---|---|---|---|---|---|
+| 1 | Barsaat Ki Dhun (Jubin Nautiyal | Single (2021)) | `barsaat_ki_dhun` | `rain` | barsaat, dhun | yes |
+| 2 | Baarish (Mohammed Irfan | Yaariyan (2014)) | `baarish` | `rain` | baarish |  |
+| 3 | Tum Se Hi (Mohit Chauhan | Jab We Met (2007)) | `tum_se_hi` | `rain` | din, shaam |  |
+| 4 | Tum Hi Ho (Arijit Singh | Aashiqui 2 (2013)) | `tum_hi_ho` | `fog` | wajood, tum |  |
+| 5 | Agar Tum Saath Ho (Alka Yagnik, Arijit Singh | Tamasha (2015)) | `agar_tum_saath_ho` | `fog` | saath |  |
+| 6 | Raabta (Arijit Singh | Agent Vinod (2012)) | `raabta` | `milan` | raabta |  |
+| 7 | Kesariya (Arijit Singh | Brahmastra (2022)) | `kesariya` | `milan` | kesariya, ishq |  |
+| 8 | Tum Mile (Neeraj Shridhar | Tum Mile (2009)) | `tum_mile` | `milan` | mile |  |
+| 9 | Chand Sifarish (Shaan, Kailash Kher | Fanaa (2006)) | `chand_sifarish` | `chaand` | chand, sifarish | yes |
+| 10 | Chaand Baaliyan (Aditya A | Single) | `chaand_baaliyan` | `chaand` | chaand, baaliyan |  |
 
 ## Classics (style `classic-line`)
 
-| # | Song (film, year, singer) | Template | Why this template |
-|---|---|---|---|
-| 1 | Gaadi Bula Rahi Hai (Dost, 1974, Kishore Kumar) | `rail` | a train song; the train leaves on the last line |
-| 2 | Mere Sapno Ki Rani (Aradhana, 1969, Kishore Kumar) | `rail` | the most famous train song of the era |
-| 3 | Hai Apna Dil To Awara (Solva Saal, 1958, Hemant Kumar) | `rail` | sung on a train at night |
-| 4 | Lag Jaa Gale (Woh Kaun Thi?, 1964, Lata Mangeshkar) | `talkies` | the golden-era film song itself; the show ends as the song ends |
-| 5 | Chaudhvin Ka Chand Ho (Chaudhvin Ka Chand, 1960, Mohammed Rafi) | `talkies` | a black-and-white classic; `chaand` also fits (a moon song) |
-| 6 | Pal Pal Dil Ke Paas (Blackmail, 1973, Kishore Kumar) | `talkies` | a hall favourite; warm and intimate |
-| 7 | Tere Bina Zindagi Se Koi (Aandhi, 1975, Kishore Kumar, Lata Mangeshkar) | `talkies` | quiet, cinematic longing |
-| 8 | Rimjhim Gire Sawan (Manzil, 1979, Kishore Kumar / Lata Mangeshkar) | `ghata` | the monsoon song; the rain arrives on the last line |
-| 9 | Pyar Hua Ikrar Hua (Shree 420, 1955, Lata Mangeshkar, Manna Dey) | `ghata` | the famous rain-and-umbrella duet |
-| 10 | Megha Chhaye Aadhi Raat (Sharmilee, 1971, Lata Mangeshkar) | `ghata` | "megha chhaye": dark clouds at midnight |
+| # | Song | Folder `songs/...` | Template | Hero words to mark | First 4 |
+|---|---|---|---|---|---|
+| 1 | Gaadi Bula Rahi Hai (Kishore Kumar | Dost (1974)) | `gaadi_bula_rahi_hai` | `rail` | gaadi, seeti |  |
+| 2 | Mere Sapno Ki Rani (Kishore Kumar | Aradhana (1969)) | `mere_sapno_ki_rani` | `rail` | rani |  |
+| 3 | Hai Apna Dil To Awara (Hemant Kumar | Solva Saal (1958)) | `hai_apna_dil_to_awara` | `rail` | awara, dil |  |
+| 4 | Lag Jaa Gale (Lata Mangeshkar | Woh Kaun Thi? (1964)) | `lag_jaa_gale` | `talkies` | gale, raat | yes |
+| 5 | Chaudhvin Ka Chand Ho (Mohammed Rafi | Chaudhvin Ka Chand (1960)) | `chaudhvin_ka_chand` | `talkies` | chand, aaftaab |  |
+| 6 | Pal Pal Dil Ke Paas (Kishore Kumar | Blackmail (1973)) | `pal_pal_dil_ke_paas` | `talkies` | dil, paas |  |
+| 7 | Tere Bina Zindagi Se Koi (Kishore Kumar, Lata Mangeshkar | Aandhi (1975)) | `tere_bina_zindagi_se` | `talkies` | zindagi, shikwa |  |
+| 8 | Rimjhim Gire Sawan (Kishore Kumar | Manzil (1979)) | `rimjhim_gire_sawan` | `ghata` | rimjhim, sawan | yes |
+| 9 | Pyar Hua Ikrar Hua (Lata Mangeshkar, Manna Dey | Shree 420 (1955)) | `pyar_hua_ikrar_hua` | `ghata` | pyar, ikrar |  |
+| 10 | Megha Chhaye Aadhi Raat (Lata Mangeshkar | Sharmilee (1971)) | `megha_chhaye_aadhi_raat` | `ghata` | megha, raat |  |
+
+Each folder already has `title.txt`; add `audio.mp3` (the 30-60 s clip) and `lyrics.txt`
+(only those lines). Mark one occurrence of each hero word, `*word*`, ideally in different lines;
+if a word is not in the clip, mark another strong word from it (a noun or the emotional word).
+Template reasons: rain songs on `rain`, aching love on `fog`, meeting on `milan`, moon songs on
+`chaand`; train songs on `rail`, the golden-era film song on `talkies`, monsoon songs on `ghata`.
 
 Spread: romantic 3 rain, 2 fog, 3 milan, 2 chaand; classics 3 rail, 4 talkies, 3 ghata, so no
 template repeats too often in a row. Post them mixed (romantic, classic, romantic ...).
