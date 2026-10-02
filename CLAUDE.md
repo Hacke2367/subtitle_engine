@@ -32,6 +32,7 @@ python -m lyric_engine.cli render songs/<song> [--theme NAME] [--codec prores|pn
 python -m lyric_engine.cli validate songs/<song>/words.json --song songs/<song>
 python -m lyric_engine.cli bakeoff songs/<song> [--fresh]   # compare aligner variants
 python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]   # beats.json + click preview
+python -m lyric_engine.cli hook songs/<song> [--seconds 30] [--cut] [--pick N]   # find the mukhda
 ```
 
 - `--theme`: `soft-romantic-v2` (default, spec 08), `soft-romantic` (v1), `pop-karaoke`,
@@ -99,6 +100,9 @@ one or two lines, drawn as written; `clip` copies it) and, for a clip, `clip.jso
 - `workflow.py`: `clip` (cut an aligned song at whole-line boundaries into a new song folder,
   lyrics copied verbatim) and `make` (keeps a valid `words.json`, since it may hold hand
   corrections; refuses a stale one).
+- `hook.py`: full song -> its main part (the earliest sung stretch that repeats, from the vocals
+  stem; cuts on pauses so lines stay whole) -> `hook_preview.mp3`, and with `--cut` `audio.wav`
+  (the full song kept as `full.<ext>`). Picks a range only, never a word's time.
 - `cli.py`: the commands above.
 
 Split a module into a subpackage only when it passes ~300 lines.

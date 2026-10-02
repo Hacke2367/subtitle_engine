@@ -11,6 +11,7 @@
     python -m lyric_engine.cli backdrop songs/<song> --bg WORLD[:MOOD] [--theme NAME]
     python -m lyric_engine.cli backdrop --seconds 60 --bg WORLD[:MOOD] [--out FILE] [--name NAME]
     python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]
+    python -m lyric_engine.cli hook songs/<song> [--seconds 30] [--cut] [--pick 1|2|3]
 """
 from __future__ import annotations
 
@@ -119,6 +120,19 @@ def _bg(text: str) -> tuple[str, str]:
         raise argparse.ArgumentTypeError(str(exc)) from None
 
 
+def _hook(song: Path, seconds: float, cut: bool, pick: int) -> int:
+    from . import hook
+    from .beats import BeatsError
+    try:
+        return hook.suggest(song, seconds, cut=cut, pick=pick)
+    except (BeatsError, RuntimeError, FileExistsError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    except ModuleNotFoundError as exc:
+        print(f"error: {exc.name} is not installed: pip install -r requirements.txt", file=sys.stderr)
+        return 2
+
+
 def _bpm(text: str) -> float:
     from .beats import MAX_BPM, MIN_BPM   # plain constants; librosa loads only inside beats' functions
     try:
@@ -214,6 +228,12 @@ def main(argv: list[str] | None = None) -> int:
     bt.add_argument("song_dir", type=Path)
     bt.add_argument("--fresh", action="store_true", help="detect again, replacing beats.json")
     bt.add_argument("--bpm", type=_bpm, help="tempo hint when detection lands on half or double")
+    hk = sub.add_parser("hook", help="find the song's main part (the mukhda) and cut it as the clip")
+    hk.add_argument("song_dir", type=Path, help="a folder with the full song as audio.<ext>")
+    hk.add_argument("--seconds", type=float, default=30.0, help="clip length to look for (default 30)")
+    hk.add_argument("--cut", action="store_true",
+                    help="write the clip as audio.wav (the full song is kept as full.<ext>)")
+    hk.add_argument("--pick", type=int, choices=[1, 2, 3], default=1, help="which choice to use")
     args = parser.parse_args(argv)
 
     try:
@@ -232,6 +252,8 @@ def main(argv: list[str] | None = None) -> int:
             return _backdrop(args)
         if args.cmd == "beats":
             return _beats(args.song_dir, args.fresh, args.bpm)
+        if args.cmd == "hook":
+            return _hook(args.song_dir, args.seconds, args.cut, args.pick)
         return _validate(args.words_json, args.song)
     except (timing.LyricsError, FileNotFoundError) as exc:
         print(f"error: {exc}", file=sys.stderr)

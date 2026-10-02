@@ -5,8 +5,10 @@ whose idea it matches; the lyric style comes with the template (D-041: romantic 
 `romantic-line`, classics `classic-line`), so no `--theme` is needed.
 
 Fastest way per song (2026-10-02):
-1. `songs/<name>/`: `audio.mp3` cut to the best-known 30-60 s (usually the mukhda) and
-   `lyrics.txt` with only those lines, one sung line per line. Aligning a short clip is quick.
+1. Put the full song in `songs/<name>/audio.mp3`, run `hook songs/<name>`: it prints where the
+   main part is (the mukhda) and writes `hook_preview.mp3` to listen to; `hook songs/<name> --cut`
+   (or `--pick 2`) cuts it to `audio.wav` and keeps the song as `full.mp3`. Then `lyrics.txt` with
+   only the lines in the clip, one sung line per line. Aligning a short clip is quick.
 2. Mark 2-3 hero words with `*word*` (the looks' best moments happen on them).
 3. `title.txt`: song name on line 1, `Singer | Film (Year)` on line 2.
 4. `make songs/<name> --bg <template>`; the finished short is
