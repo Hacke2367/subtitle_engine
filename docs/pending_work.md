@@ -4,7 +4,10 @@ Last updated: 2026-10-03 (branch shipped as PR #18; repository map of the two sy
 
 ## WIP
 
-Step 17 on `feature/bg-romantic-room` ([PR #16](https://github.com/Hacke2367/subtitle_engine/pull/16), not merged).
+All V1 work not in `dev` is on `feature/lyric-romantic-classics`, [PR #18](https://github.com/Hacke2367/subtitle_engine/pull/18)
+into `dev`, not merged. Step 17 was on `feature/bg-romantic-room` (PR #16); that branch was
+built over by this one, so on 2026-10-03 PR #16 was closed and the branch deleted (owner:
+"sirf 2 branch chaiye — v1 and v2").
 The pipeline is built and kept: `--bg`, a finished short with audio, stacked encode, checks;
 D-028 to D-030. The room itself was rejected by the owner after it was built.
 
@@ -39,9 +42,9 @@ finished look.
 
 0. **Lyric themes for romantic + classics: done (H-042, D-038).** `romantic-soft` and
    `classic-sher` on branch `feature/lyric-romantic-classics` (off
-   `feature/bg-romantic-room`), [PR #18](https://github.com/Hacke2367/subtitle_engine/pull/18)
-   (stacked on #16; retarget to `dev` after #16 merges); samples in `songs/_review/lyric_fix/`.
-   Use them for the romantic and classics videos. The branch merges after PR #16.
+   `feature/bg-romantic-room`, now folded in), [PR #18](https://github.com/Hacke2367/subtitle_engine/pull/18)
+   into `dev`; samples in `songs/_review/lyric_fix/`. Use them for the romantic and classics
+   videos.
    Same branch: classics templates `talkies` and `ghata` built (D-039), waiting for the owner's
    look (samples in `songs/_review/classics_templates/`). 20-video plan: `docs/video_plan.md`.
    Khidki reel on all seven templates made and judged (D-040; `songs/_review/khidki_reel/`,
@@ -59,7 +62,7 @@ finished look.
    Seeti", D-037, `docs/backgrounds/classics_rail.md`); 30 s renders pass (lowest contrast jaali
    6.2:1, rail 5.6:1). They wait for the owner to watch the samples
    (`songs/_review/backgrounds/templates/sufi/jaali_sample.mp4`, `.../classics/rail_sample.mp4`)
-   and the finished shorts in `songs/khidki_30s/render/soft-romantic-v2/`. PR #16 merge waits for
+   and the finished shorts in `songs/khidki_30s/render/soft-romantic-v2/`. PR #18 merge waits for
    the owner's explicit "merge". **Next:** Parchhaiyan (family) on the Khidki songs (shadows as
    shade, not black paint; maa with pallu). Taaron ka jaal (hip-hop) and Shamiyane ki parchhaiyan
    (party) need a beat test song from the owner and beat times in `SongFacts`. Built this session
