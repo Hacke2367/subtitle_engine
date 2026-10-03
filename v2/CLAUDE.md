@@ -1,15 +1,17 @@
 # CLAUDE.md (V2)
 
-V2 of the Kinetic Lyric Engine repository: a voice recording (up to 60 min, Hinglish or English)
-→ a Roman-script `.srt` subtitle file. Open source (H-101). This folder is its own project
-(H-102): own package, docs and devsystem config.
+V2 of the Kinetic Lyric Engine repository, "Voice Subs": a short Hinglish or English video (now
+30-40 s; up to 60 min at milestone 1) → a Roman-script `.srt` and the owner's signature
+subtitles, a transparent overlay strip with each word lit as it is said. Open source (H-101).
+This folder is its own project (H-102): own package, docs and devsystem config.
 
 ## Scope of this folder
 
 - **Launch V2 sessions from `v2/`.** devsystem reads `.claude/devsystem.json` from the launch
   folder only; launched from the repo root, it would track V1 instead.
-- The root `../CLAUDE.md` also loads here. It is V1's: its commands, architecture, invariants and
-  red lines (`lyrics.txt`, `words.json`, themes) do not apply to V2.
+- The root `../CLAUDE.md` also loads here. Its first section maps both systems; the rest is V1's:
+  its commands, architecture, invariants and red lines (`lyrics.txt`, `words.json`, themes) do
+  not apply to V2.
 - A V1 track runs in parallel on the same repository. Never edit a file outside `v2/` from a V2
   session.
 - `voice_subs` never imports `lyric_engine` (D-101), so `v2/` can become its own repository.

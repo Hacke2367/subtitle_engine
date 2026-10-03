@@ -28,7 +28,7 @@ Then, after seeing three looks side by side:
   wide (two lines and a hero word with room for the glow), the text centred in it. ProRes 4444
   with alpha, the video's frame rate, from 0:00 to the end. The owner drops it on the track above
   the video in CapCut and places it where they want (D-113); an `.srt` cannot carry a font or a
-  highlight, and CapCut does not read `.ass`.
+  highlight, and CapCut does not play an `.ass` file's per-word timed effects or layers.
 - `preview.mp4` with `--preview` — the video with that same strip laid on it, two thirds of the
   way down: review only.
 

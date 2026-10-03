@@ -8,8 +8,8 @@ relative to `v2/`. The owner can reorder any step before it starts.
 
 | #  | Step                                              | Branch                          | Status      |
 |----|---------------------------------------------------|---------------------------------|-------------|
-| 00 | Light version: a 30–40 s video → a Roman `.srt`   | `feature/v2-video-subs`         | Built, owner review |
-| 00b | Signature subtitles: words lit as said, overlay strip | `feature/v2-video-subs`   | Built; owner to try in CapCut |
+| 00 | Light version: a 30–40 s video → a Roman `.srt`   | `feature/v2-video-subs`         | Review (PR #17) |
+| 00b | Signature subtitles: words lit as said, overlay strip | `feature/v2-video-subs`   | Review (PR #17); owner to try in CapCut |
 | 01 | Voice → transcript: Roman Hinglish, word times    | `feature/v2-transcribe`         | Done in 00 for one short file |
 | 02 | Hour-long audio in parts, exact seams             | `feature/v2-long-audio`         | Not started |
 | 03 | Cues at pauses → `.srt` (rules only)              | `feature/v2-srt-export`         | Done in 00 |

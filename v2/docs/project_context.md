@@ -2,7 +2,9 @@
 
 Kickoff interview: 2026-09-29 (H-101). Lives in `v2/` of the Kinetic Lyric Engine repository
 (H-102); V1 (`../docs/project_context.md`: song + known lyrics → animated overlay) continues on
-its own track and is not changed by this file. Items marked *(assumed)* were stated by Claude and not objected to;
+its own track and is not changed by this file. Scope changed twice since the kickoff, both by the
+owner on 2026-10-03: a light version first, a short video in (H-105), and the owner's own
+signature subtitles with each word lit as it is said (H-107). Items marked *(assumed)* were stated by Claude and not objected to;
 the owner can overturn any of them.
 
 ## Problem
@@ -21,7 +23,13 @@ talking-head explainers, up to an hour. They need subtitles, and today every rou
 
 ## Objective
 
-**Milestone 1 (first working version):** a command on the owner's laptop turns a voice
+**Light version (built 2026-10-03, H-105, H-107):** a 30-40 s video (or voice clip) in; out come
+a Roman-script `.srt` and the signature subtitles: an `.ass` and a transparent overlay strip
+`.mov`, the video's width, with each word lit as it is said, which the owner drops onto the video
+in CapCut and places themselves. One look: Instrument Sans Bold that brightens as it is said,
+with a gold serif-italic hero word on about every other cue (specs 00, 00b).
+
+**Milestone 1 (planned):** a command on the owner's laptop turns a voice
 recording of up to 60 minutes, spoken in Hinglish or English, into an `.srt` subtitle file:
 
 - Text in Roman script throughout.
@@ -44,24 +52,27 @@ The project is open source (H-101), and users bring their own API keys.
 ## Scope
 
 **In scope:**
-- Input: a voice recording (audio only, no video), up to 60 minutes.
+- Input: a video or a voice recording; 30-40 s now, up to 60 minutes at milestone 1. A video's
+  audio is extracted on the laptop; only that audio is sent to the transcription service.
 - Speech in Hinglish or English; output always in Roman script. Hindi that the transcription
   returns in Devanagari is converted to Roman.
 - Long audio processed in parts, so the machine is never overloaded; the parts join with no word
   lost or repeated at a seam.
 - Cues at sentence or phrase level, split at the speaker's pauses.
 - LLM for sentence boundaries, line breaks and punctuation only.
-- Output: `.srt`, importable into CapCut (desktop), Premiere Pro and DaVinci Resolve.
+- Output: `.srt`, importable into CapCut (desktop), Premiere Pro and DaVinci Resolve; and the
+  signature subtitles (H-107): one look, each word lit at its own time from the audio, as an
+  `.ass` and a transparent overlay strip `.mov` for CapCut.
 - Correction path: edit the transcript, re-export for free (no new transcription call).
 - Milestone 2: local web UI (upload, review/edit, download).
 
 **Out of scope:**
-- Rendered or animated output: overlays, fonts, animation, theme choice, and the
-  render-and-critique loop discussed before the kickoff. The owner chose a plain subtitle file;
-  styling is applied in the video editor. V1's themes stay V1-only.
-- Styled subtitle formats (`.ass`) and per-word or karaoke timing in the output.
-- Emphasis (CAPS, emoji), LLM correction or rewriting of words, translation.
-- Video upload or video processing.
+- More than one look, theme choice, or where the subtitles sit: the owner picked one signature
+  look and places the strip in CapCut (H-107). V1's themes stay V1-only.
+- Finished videos with the subtitles burned in (a preview is made for review only), and a
+  render-and-critique loop inside the product.
+- Emphasis by CAPS or emoji, LLM correction or rewriting of words, translation.
+- Uploading a video anywhere: only its extracted audio leaves the machine.
 - Devanagari output; languages other than Hinglish and English.
 - A hosted public website, accounts, payments; anything SaaS.
 - Speaker labels (who is speaking) *(assumed)*.
@@ -81,9 +92,10 @@ The project is open source (H-101), and users bring their own API keys.
   CC-BY-NC MMS_FA weights, V1's D-010), so anyone can use it *(assumed)*. Code licence: open item.
 - **Roman script:** transcription engines often return Hindi words in Devanagari. Getting clean
   Roman Hinglish is the core risk and the first thing the spec must test.
-- **Editors:** CapCut desktop imports SRT (and LRC, ASS) and styling is applied inside CapCut;
-  DaVinci Resolve discards subtitle styling on import; Premiere has no native per-word highlight.
-  Hence a plain `.srt`.
+- **Editors:** CapCut desktop imports SRT (and LRC, ASS) but does not play an `.ass` file's
+  per-word timed effects; DaVinci Resolve discards subtitle styling on import; Premiere has no
+  native per-word highlight. Hence a plain `.srt` for any editor, and the signature look as a
+  transparent overlay video, which every editor plays as it is.
 - **Secrets:** API keys live in `.env` (gitignored), never in code, fixtures or logs.
 
 ## What already exists that's close
@@ -108,6 +120,11 @@ The project is open source (H-101), and users bring their own API keys.
 ## Success signal
 
 *(assumed thresholds; the spec confirms the numbers)*
+
+Light version: the owner drops the overlay strip of a 30-40 s video into CapCut and posts it
+without retyping a word or fixing a timing.
+
+Milestone 1:
 
 1. A 60-minute Hinglish voice recording becomes an `.srt` on the owner's laptop without a crash,
    and every spoken word appears exactly once, including at the seams between parts.

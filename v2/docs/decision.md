@@ -113,7 +113,8 @@ from the same source, so the check is stable across runs.
 **Date:** 2026-10-03
 **Context:** The owner asked for premium subtitles with a font of their own and the spoken word
 highlighted (H-107), to add in their own editor. An `.srt` carries text and times only, so no
-editor can show a font or a per-word highlight from it, and CapCut does not import `.ass`.
+editor can show a font or a per-word highlight from it; an `.ass` can carry both, but CapCut
+does not play its per-word timed transforms or layers.
 **Decision:** `--style NAME` writes the cues as an `.ass` file (fonts, colours, and per-word
 `	` transforms timed from each word's own start) and renders it with libass onto a transparent
 canvas as a ProRes 4444 `.mov` the size and frame rate of the source video, to drop on the track
