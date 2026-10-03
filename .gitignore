@@ -13,3 +13,6 @@ songs/example/*
 # Rendered test clips and renders (spec 01 hard rule)
 out/
 *.egg-info/
+
+# Files moved out by a cleanup, kept for a while in case one is wanted back
+.trash/

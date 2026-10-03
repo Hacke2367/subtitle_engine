@@ -2,8 +2,21 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-Kinetic Lyric Engine: a personal tool that turns a song's audio + its Hinglish lyrics into a
-word-synced, transparent 9:16 lyric overlay for CapCut.
+## Two systems in this repository
+
+| | V1 Kinetic Lyric Engine | V2 Voice Subs |
+|---|---|---|
+| Does | song audio + Hinglish lyrics → word-synced lyric overlay, finished shorts | 30-40 s video → Roman `.srt` + signature word-lit overlay strip |
+| Lives in | repo root: `src/lyric_engine/`, `docs/`, `songs/`, `fonts/` | `v2/`: `src/voice_subs/`, `docs/`, `voices/` (PR #17 until merged) |
+| Guide | this file | `v2/CLAUDE.md` (this file also loads there; its V1 parts do not apply) |
+| Ids | H-0xx, D-0xx | H-1xx, D-1xx |
+
+Shared: `venv/`, ffmpeg, `ELEVENLABS_API_KEY` in `.env`. Nothing else: no imports across
+(V2 D-101), separate docs and tracking. A session works on one system; launch V2 sessions from
+`v2/`. `.trash/` (gitignored) holds moved-out files; its README says where each came from.
+
+Everything below is V1. Kinetic Lyric Engine: a personal tool that turns a song's audio + its
+Hinglish lyrics into a word-synced, transparent 9:16 lyric overlay for CapCut.
 
 ## Read first
 

@@ -3,6 +3,22 @@
 Working folder name: `subtitle_engine`. Blueprint codename: "The Lyric Engine".
 Kickoff interview: 2026-09-26.
 
+## This repository holds two systems
+
+This file is the context for **V1**, the Kinetic Lyric Engine, at the repository root. The
+repository also holds **V2**, Voice Subs, in `v2/` (its own context:
+`v2/docs/project_context.md`). They are separate products for the same owner and channel:
+
+- **V1** turns a song's audio and its known Hinglish lyrics into a word-synced, animated lyric
+  overlay, and finished 9:16 shorts on engine-made backgrounds.
+- **V2** turns a short spoken-word video (30-40 s; podcasts, talks) into subtitles: a
+  Roman-script `.srt` and the owner's signature subtitles, a transparent overlay strip with each
+  word lit as it is said, which the owner places in CapCut.
+
+They share the laptop setup (the venv, ffmpeg, the ElevenLabs key) and nothing else: no code
+imports across them, and each keeps its own docs and decision numbers (V1: H-0xx / D-0xx,
+V2: H-1xx / D-1xx).
+
 ## Problem
 
 The owner makes romantic / good-vibe Hinglish lyric shorts (9:16) for their own
