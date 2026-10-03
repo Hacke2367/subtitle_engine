@@ -1,7 +1,8 @@
 # Background: the sunlit room (romantic songs)
 
-**Status:** direction approved by the owner on 2026-09-29 (H-024, H-025). Not built yet; the
-next step is its spec.
+**Status:** rejected by the owner on 2026-09-29 after it was built (step 17, PR #16): "ye aisa
+background tha jis mein 1 sec mein skip kardu" (H-032). Replaced by `romantic_lights.md`. Kept
+for the record of what did not work.
 
 ## Why this direction
 

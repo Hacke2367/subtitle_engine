@@ -45,11 +45,19 @@ def _remove(paths) -> None:
 
 
 def _ffmpeg_cmd(theme: Theme, codec: str, audio: Path, outputs: dict[str, Path]) -> list[str]:
+    """The overlay's three outputs; with outputs["final"] (a background, spec 17) each input frame
+    is the overlay stacked above its finished frame, and the finished short is a fourth output."""
     size, fps = f"{theme.width}x{theme.height}", theme.fps
     pw, ph = theme.preview_size
     vf, args = ALPHA_CODECS[codec]
+    final = outputs.get("final")
+    head = ([f"[0:v]split=2[top][bot]",
+             f"[top]crop={theme.width}:{theme.height}:0:0,split=3[a][g][p]",
+             f"[bot]crop={theme.width}:{theme.height}:0:{theme.height},{TO_BT709},"
+             "format=yuv420p[fin]"]
+            if final else ["[0:v]split=3[a][g][p]"])
     graph = ";".join([
-        "[0:v]split=3[a][g][p]",
+        *head,
         f"[a]{vf}[alpha]",
         f"color=c={theme.key_green_hex}:s={size}:r={fps}[gbg]",
         f"[gbg][g]overlay=shortest=1:format=rgb,{TO_BT709},format=yuv420p[green]",
@@ -57,16 +65,22 @@ def _ffmpeg_cmd(theme: Theme, codec: str, audio: Path, outputs: dict[str, Path])
         f"[pbg][p]overlay=shortest=1:format=rgb,"
         f"scale={pw}:{ph}:out_color_matrix=bt709:out_range=tv,format=yuv420p[prev]",
     ])
-    return ["ffmpeg", "-hide_banner", "-nostats", "-loglevel", "error", "-y",
-            "-f", "rawvideo", "-pix_fmt", "rgba", "-s", size, "-framerate", str(fps), "-i", "-",
-            "-i", str(audio), "-filter_complex", graph,
-            "-map", "[alpha]", *args, "-an", str(outputs["overlay"]),
-            "-map", "[green]", "-c:v", "libx264", "-preset", "medium", "-crf", "16",
-            "-profile:v", "high", "-movflags", "+faststart", *BT709_TAGS, "-an",
-            str(outputs["green"]),
-            "-map", "[prev]", "-map", "1:a:0", "-c:v", "libx264", "-preset", "veryfast",
-            "-crf", "26", *BT709_TAGS, "-c:a", "aac", "-b:a", "128k", "-shortest",
-            str(outputs["preview"])]
+    in_size = f"{theme.width}x{2 * theme.height}" if final else size
+    cmd = ["ffmpeg", "-hide_banner", "-nostats", "-loglevel", "error", "-y",
+           "-f", "rawvideo", "-pix_fmt", "rgba", "-s", in_size, "-framerate", str(fps), "-i", "-",
+           "-i", str(audio), "-filter_complex", graph,
+           "-map", "[alpha]", *args, "-an", str(outputs["overlay"]),
+           "-map", "[green]", "-c:v", "libx264", "-preset", "medium", "-crf", "16",
+           "-profile:v", "high", "-movflags", "+faststart", *BT709_TAGS, "-an",
+           str(outputs["green"]),
+           "-map", "[prev]", "-map", "1:a:0", "-c:v", "libx264", "-preset", "veryfast",
+           "-crf", "26", *BT709_TAGS, "-c:a", "aac", "-b:a", "128k", "-shortest",
+           str(outputs["preview"])]
+    if final:   # upload-ready: every frame kept (no -shortest), audio in full
+        cmd += ["-map", "[fin]", "-map", "1:a:0", "-c:v", "libx264", "-preset", "medium",
+                "-crf", "18", "-profile:v", "high", "-movflags", "+faststart", *BT709_TAGS,
+                "-c:a", "aac", "-b:a", "192k", str(final)]
+    return cmd
 
 
 def _encode(cmd: list[str], frames, outputs: dict[str, Path]) -> None:

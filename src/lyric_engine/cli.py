@@ -4,10 +4,14 @@
     python -m lyric_engine.cli align songs/<song> [--variant NAME] [--fresh] [--overwrite]
     python -m lyric_engine.cli validate songs/<song>/words.json [--song songs/<song>]
     python -m lyric_engine.cli render songs/<song> [--theme NAME] [--codec prores|png|qtrle]
-                                      [--allow-flagged]
+                                      [--allow-flagged] [--bg WORLD[:MOOD]]
     python -m lyric_engine.cli clip songs/<full-song> --from 0:27 --to 0:57 [--out songs/<clip>]
     python -m lyric_engine.cli make songs/<song> [--theme NAME] [--codec ...] [--allow-flagged]
+                                    [--bg WORLD[:MOOD]]
+    python -m lyric_engine.cli backdrop songs/<song> --bg WORLD[:MOOD] [--theme NAME]
+    python -m lyric_engine.cli backdrop --seconds 60 --bg WORLD[:MOOD] [--out FILE] [--name NAME]
     python -m lyric_engine.cli beats songs/<song> [--fresh] [--bpm N]
+    python -m lyric_engine.cli hook songs/<song> [--seconds 30] [--cut] [--pick 1|2|3]
 """
 from __future__ import annotations
 
@@ -17,7 +21,7 @@ import sys
 from pathlib import Path
 
 from . import align, timing
-from .theme import DEFAULT_THEME, THEMES
+from .theme import DEFAULT_THEME, LOOK_THEMES, THEMES
 
 
 def _validate(path: Path, song: Path | None) -> int:
@@ -34,11 +38,13 @@ def _validate(path: Path, song: Path | None) -> int:
     return 0 if not errors else 1
 
 
-def _render(song: Path, codec: str | None, allow_flagged: bool, theme: str) -> int:
+def _render(song: Path, codec: str | None, allow_flagged: bool, theme: str | None,
+            bg: tuple[str, str] | None = None, backdrop: bool = False) -> int:
     from . import layout, render   # lazy: fonts/Pillow only when rendering
+    theme = theme or (LOOK_THEMES.get(bg[0]) if bg else None) or DEFAULT_THEME   # the look's style
     try:
         result = render.render(song, codec=codec, allow_flagged=allow_flagged,
-                               theme=THEMES[theme])
+                               theme=THEMES[theme], bg=bg, backdrop=backdrop)
     except (render.RenderError, layout.LayoutError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
@@ -79,10 +85,52 @@ def _clip(song: Path, start: float, end: float, out: Path | None) -> int:
     return 0
 
 
-def _make(song: Path, codec: str | None, allow_flagged: bool, theme: str) -> int:
+def _make(song: Path, codec: str | None, allow_flagged: bool, theme: str,
+          bg: tuple[str, str] | None = None) -> int:
     from . import workflow
     code = workflow.ensure_aligned(song)
-    return code if code != 0 else _render(song, codec, allow_flagged, theme)
+    return code if code != 0 else _render(song, codec, allow_flagged, theme, bg)
+
+
+def _backdrop(args) -> int:
+    """backdrop: with a song folder, render()'s background-only mode; with --seconds, a
+    song-independent video."""
+    if (args.song_dir is None) == (args.seconds is None):
+        print("error: give a song folder, or --seconds (not both)", file=sys.stderr)
+        return 2
+    if args.song_dir is not None:
+        return _render(args.song_dir, None, False, args.theme, args.bg, backdrop=True)
+    from .background import backdrop
+    from .render.encode import RenderError
+    out = args.out or Path(f"backdrop_{args.bg[0]}_{args.seconds:g}s.mp4")
+    try:
+        backdrop.make_generic(args.bg, args.seconds, out, args.name)
+    except (ValueError, RenderError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    print(f"backdrop: {out}")
+    return 0
+
+
+def _bg(text: str) -> tuple[str, str]:
+    from .background import parse_bg   # names only; numpy loads when a render draws one
+    try:
+        return parse_bg(text)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(str(exc)) from None
+
+
+def _hook(song: Path, seconds: float, cut: bool, pick: int) -> int:
+    from . import hook
+    from .beats import BeatsError
+    try:
+        return hook.suggest(song, seconds, cut=cut, pick=pick)
+    except (BeatsError, RuntimeError, FileExistsError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
+    except ModuleNotFoundError as exc:
+        print(f"error: {exc.name} is not installed: pip install -r requirements.txt", file=sys.stderr)
+        return 2
 
 
 def _bpm(text: str) -> float:
@@ -146,12 +194,15 @@ def main(argv: list[str] | None = None) -> int:
     v.add_argument("--song", type=Path)
     r = sub.add_parser("render", help="words.json → overlay.mov + overlay_green.mp4 + preview.mp4")
     r.add_argument("song_dir", type=Path)
-    r.add_argument("--theme", choices=list(THEMES), default=DEFAULT_THEME,
-                   help=f"look of the overlay; outputs go to render/<theme>/ (default: {DEFAULT_THEME})")
+    r.add_argument("--theme", choices=list(THEMES), default=None,
+                   help="look of the overlay; outputs go to render/<theme>/ (default: the --bg look's style, else " + DEFAULT_THEME + ")")
     r.add_argument("--codec", choices=["prores", "png", "qtrle"],
                    help="alpha codec for overlay.mov (default: theme's, provisional until CapCut test)")
     r.add_argument("--allow-flagged", action="store_true",
                    help="render despite flagged words; untimed ones are shown static, never animated")
+    r.add_argument("--bg", type=_bg, metavar="WORLD[:MOOD]",
+                   help="also write a finished short on an engine-made background: "
+                        "rain, fog, milan, khaali, aakhri, chaand, jaali, rail, talkies or ghata")
     c = sub.add_parser("clip", help="cut whole lyric lines of an aligned song into a new song folder")
     c.add_argument("song_dir", type=Path, help="an aligned full song (has words.json)")
     c.add_argument("--from", dest="start", type=_seconds, required=True, help="e.g. 27 or 0:27")
@@ -159,13 +210,30 @@ def main(argv: list[str] | None = None) -> int:
     c.add_argument("--out", type=Path, help="new song folder (default: <song>_<from>-<to>)")
     m = sub.add_parser("make", help="align (if not done yet) and render a song folder")
     m.add_argument("song_dir", type=Path)
-    m.add_argument("--theme", choices=list(THEMES), default=DEFAULT_THEME)
+    m.add_argument("--theme", choices=list(THEMES), default=None)
     m.add_argument("--codec", choices=["prores", "png", "qtrle"])
     m.add_argument("--allow-flagged", action="store_true")
+    m.add_argument("--bg", type=_bg, metavar="WORLD[:MOOD]")
+    bd = sub.add_parser("backdrop", help="only the background (no lyrics drawn), to add lyrics to "
+                                         "in CapCut")
+    bd.add_argument("song_dir", type=Path, nargs="?",
+                    help="an aligned song: the look follows its words and the video has its audio")
+    bd.add_argument("--bg", type=_bg, metavar="WORLD[:MOOD]", required=True)
+    bd.add_argument("--theme", choices=list(THEMES), default=None,
+                    help="whose layout places the words on screen (with a song only)")
+    bd.add_argument("--seconds", type=float, help="no song: a background of this length, no reactions")
+    bd.add_argument("--out", type=Path, help="no song: the file (default: backdrop_<look>_<seconds>s.mp4)")
+    bd.add_argument("--name", default="generic", help="no song: seeds what varies (default: generic)")
     bt = sub.add_parser("beats", help="tempo + beat times → beats.json, and a click-track preview")
     bt.add_argument("song_dir", type=Path)
     bt.add_argument("--fresh", action="store_true", help="detect again, replacing beats.json")
     bt.add_argument("--bpm", type=_bpm, help="tempo hint when detection lands on half or double")
+    hk = sub.add_parser("hook", help="find the song's main part (the mukhda) and cut it as the clip")
+    hk.add_argument("song_dir", type=Path, help="a folder with the full song as audio.<ext>")
+    hk.add_argument("--seconds", type=float, default=30.0, help="clip length to look for (default 30)")
+    hk.add_argument("--cut", action="store_true",
+                    help="write the clip as audio.wav (the full song is kept as full.<ext>)")
+    hk.add_argument("--pick", type=int, choices=[1, 2, 3], default=1, help="which choice to use")
     args = parser.parse_args(argv)
 
     try:
@@ -175,13 +243,17 @@ def main(argv: list[str] | None = None) -> int:
             return align.align_song(args.song_dir, variant=args.variant, fresh=args.fresh,
                                     overwrite=args.overwrite)
         if args.cmd == "render":
-            return _render(args.song_dir, args.codec, args.allow_flagged, args.theme)
+            return _render(args.song_dir, args.codec, args.allow_flagged, args.theme, args.bg)
         if args.cmd == "clip":
             return _clip(args.song_dir, args.start, args.end, args.out)
         if args.cmd == "make":
-            return _make(args.song_dir, args.codec, args.allow_flagged, args.theme)
+            return _make(args.song_dir, args.codec, args.allow_flagged, args.theme, args.bg)
+        if args.cmd == "backdrop":
+            return _backdrop(args)
         if args.cmd == "beats":
             return _beats(args.song_dir, args.fresh, args.bpm)
+        if args.cmd == "hook":
+            return _hook(args.song_dir, args.seconds, args.cut, args.pick)
         return _validate(args.words_json, args.song)
     except (timing.LyricsError, FileNotFoundError) as exc:
         print(f"error: {exc}", file=sys.stderr)

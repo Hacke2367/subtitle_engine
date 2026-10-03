@@ -37,6 +37,7 @@ def _probe(path: Path, *, count: bool = False) -> dict:
         return {"error": " | ".join(proc.stderr.strip().splitlines()[-3:]) or "no video stream"}
     return {"size": (video.get("width"), video.get("height")), "rate": video.get("r_frame_rate"),
             "frames": int(video.get("nb_read_frames", -1)), "pix_fmt": video.get("pix_fmt", ""),
+            "codec": video.get("codec_name", ""),
             "audio": any(s.get("codec_type") == "audio" for s in streams)}
 
 
@@ -321,8 +322,9 @@ def _zone_failure(outside: list[tuple[int, tuple]], zone: tuple[int, int, int, i
 
 # --- Report ----------------------------------------------------------------------------------
 def write_report(result: RenderResult, doc: dict, *, codec: str, theme: Theme,
-                 encode_s: float, check_s: float) -> Path:
-    """render/report.md: outputs and sizes, frames, wall time, lines not shown, check results."""
+                 encode_s: float, check_s: float, extra: list[str] = ()) -> Path:
+    """render/report.md: outputs and sizes, frames, wall time, lines not shown, check results,
+    then `extra` sections (a background's)."""
     lyric_lines = doc["lyrics"]["lines"]
     timed = sum(1 for w in doc["words"] if _timed(w))
     static = [w for w in doc["words"] if not _timed(w) and w["line"] not in result.skipped_lines]
@@ -359,9 +361,13 @@ def write_report(result: RenderResult, doc: dict, *, codec: str, theme: Theme,
                     "overlay's colour and alpha" if theme.motion == "phonk" else
                     f"sync check of {timed} timed word(s) on the overlay's alpha")
     frame_checks += "; safe-zone check of every frame." if theme.safe_zone else "."
-    out += ["", "## Output check", "", f"ffprobe checks of all three outputs; {frame_checks}", ""]
+    outputs = ("three outputs" if len(result.outputs) == 3
+               else "four outputs (the finished short: codec, frames, audio, legibility)")
+    out += ["", "## Output check", "", f"ffprobe checks of all {outputs}; {frame_checks}", ""]
     out += (["**pass**"] if not result.checks
             else ["**FAIL**", "", *(f"- {c}" for c in result.checks)])
+    if extra:
+        out += ["", *extra]
     if result.notes:
         out += ["", "## Notes", "", *(f"- {note}" for note in result.notes)]
     path = result.render_dir / REPORT

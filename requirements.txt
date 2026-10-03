@@ -11,6 +11,10 @@ demucs==4.0.1            # vocal isolation, model htdemucs
 # Beat detection (step 11, H-018): imported lazily by beats.py only.
 librosa==0.11.0
 
+# Backgrounds (step 17, D-029): imported only when a render has --bg.
+numpy==2.2.6
+scipy==1.15.3
+
 # Pinned transitive dependencies of the above
 antlr4-python3-runtime==4.9.3
 audioread==3.1.0
@@ -36,7 +40,6 @@ mpmath==1.3.0
 msgpack==1.2.2
 networkx==3.4.2
 numba==0.67.0
-numpy==2.2.6
 omegaconf==2.3.1
 openunmix==1.3.0
 packaging==26.3
@@ -47,7 +50,6 @@ PyYAML==6.0.3
 requests==2.34.2
 retrying==1.4.2
 scikit-learn==1.7.2
-scipy==1.15.3
 soundfile==0.14.0
 soxr==1.1.0
 submitit==1.5.4

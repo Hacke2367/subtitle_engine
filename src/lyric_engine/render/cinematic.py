@@ -122,9 +122,12 @@ def _make_block(parts: list[tuple[list[dict], LineLayout]], theme: Theme) -> Blo
         wps += plans
         line_of.update((wp.box.index, lay.line) for wp in plans)
         line_first[lay.line] = min(wp.reveal for wp in plans if wp.reveal is not None)
-    last = max(wp.end for wp in wps if wp.reveal is not None)
+    timed = [wp for wp in wps if wp.reveal is not None]
+    last = max(wp.end for wp in timed)
+    # A blur-in stretched by reveal_min_s may finish after the last end; never leave before it.
+    done = max(wp.reveal + blur_in_frames(wp, theme) - 1 for wp in timed)
     return Block(tuple(lay for _, lay in parts), wps, line_of, line_first,
-                 min(line_first.values()), last, last)
+                 min(line_first.values()), last, max(last, done))
 
 
 def plan_cinematic(doc: dict, theme: Theme, n_frames: int, emphasis: frozenset[int] = frozenset(),
@@ -135,7 +138,10 @@ def plan_cinematic(doc: dict, theme: Theme, n_frames: int, emphasis: frozenset[i
     rows, skipped = laid_out_lines(doc, theme, layout_fn, emphasis)
     shown = {lay.line: (words, lay) for words, lay in rows}
     blocks = []
-    for group in couplet_groups(doc["lyrics"]["lines"]):
+    lyric_lines = doc["lyrics"]["lines"]
+    groups = (couplet_groups(lyric_lines) if theme.couplets
+              else [(k,) for k, text in enumerate(lyric_lines) if text.strip()])
+    for group in groups:
         kept = [shown[k] for k in group if k in shown]
         block, note = _couplet(kept, theme, layout_fn, emphasis) if len(kept) == 2 else (None, None)
         if block is not None:
@@ -171,8 +177,10 @@ def _couplet(kept: list[tuple[list[dict], LineLayout]], theme: Theme, layout_fn,
 
 def blur_in_frames(wp: WordPlan, theme: Theme) -> int:
     """Frames of a timed word's blur-in: reveal_s, shrunk to its own span, at least 1 (spec §4.4,
-    plan §2.7): ink on its reveal frame, complete on reveal + fi − 1, never after its end frame."""
-    return max(1, min(_ceil_frame(theme.reveal_s, theme.fps), wp.end - wp.reveal))
+    plan §2.7): ink on its reveal frame, complete on reveal + fi − 1, never after its end frame;
+    except that reveal_min_s (0 in Cinematic) sets a floor, so a short word does not snap in."""
+    floor = _ceil_frame(theme.reveal_min_s, theme.fps)
+    return max(1, min(_ceil_frame(theme.reveal_s, theme.fps), max(wp.end - wp.reveal, floor)))
 
 
 def word_look(b: Block, wp: WordPlan, n: int, theme: Theme) -> tuple[int, int, int] | None:

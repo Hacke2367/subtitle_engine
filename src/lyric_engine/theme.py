@@ -69,6 +69,8 @@ class Theme:
     # Emphasis (*word*, H-009): a marked word is drawn this many times its line's font size, for
     # as long as the line is on screen; the layout makes room for it (H-013, spec 06)
     emphasis_scale: float = 1.5
+    emphasis_font: Path | None = None   # a marked word's font (None: the theme's own font)
+    emphasis_rgb: tuple[int, int, int] | None = None   # its resting colour (lofi; None: text_rgb)
     # Motion family: "reveal" = words fade and rise in as sung, glow (Soft Romantic);
     # "karaoke" = the line is shown ahead and colour fills each word as sung (Pop Karaoke);
     # "focus" = reveal, plus the finished line dims and blurs above the next (Soft Romantic v2);
@@ -79,6 +81,8 @@ class Theme:
     # "phonk" = one line shown ahead unlit; each word flickers on as sung, glow pulses on beats
     motion: str = "reveal"
     center_x: int = 540           # rows are centred on this x
+    align: str = "center"         # "left": every row starts at center_x − max_width // 2, so a
+    #                               line sung word by word grows from one fixed left edge
     safe_zone: tuple[int, int, int, int] | None = None   # x0, y0, x1, y1 every frame stays in
     # Karaoke only (spec 07): fill, legibility layer, line life cycle. Lofi reuses accent_rgb
     # (a word's current colour), preroll_s (before its first word turns current) and enter_s.
@@ -104,6 +108,8 @@ class Theme:
     sung_in_s: float = 0.4        # fade back to text_rgb from its end frame
     exit_rise_px: int = 10        # a leaving line rises this much more while it fades
     typewriter: bool = False      # letters type in inside the word's own span; nothing shown ahead
+    handover: bool = False        # lines sung close together: the leaving one fades out, then the
+    #                               next fades in, with no blank gap and never two lines at once
     type_stagger_s: float = 0.06  # at most this between letters (less if the word is short)
     letter_fade_s: float = 0.1
     # Cinematic only (spec 10): blur-in / blur-out, couplets. Reuses reveal_s (blur-in),
@@ -111,6 +117,8 @@ class Theme:
     blur_px: float = 10.0         # blur-in start radius and blur-out end radius
     couplet_gap: float = 0.5      # extra space between a couplet's two lines, × row pitch
     couplet_max_gap_s: float = 4.0   # a pair sung further apart shows as two singles
+    couplets: bool = True         # False: every line shows alone
+    reveal_min_s: float = 0.0     # a short word's blur-in lasts at least this, even past its end
     # Beat Pop only (spec 12): pill, pop, beat bump, drop shake, exit. Reuses reveal_s (pop),
     # stroke_rgb / stroke_frac, hold_s and fade_out_s (exit).
     pill_rgb: tuple[int, int, int] | None = None        # the pill behind the word being sung
@@ -154,6 +162,8 @@ class Theme:
         if not EMPHASIS_MIN <= self.emphasis_scale <= EMPHASIS_MAX:
             raise ValueError(f"theme {self.name}: emphasis_scale {self.emphasis_scale} is outside "
                              f"{EMPHASIS_MIN}-{EMPHASIS_MAX} (H-013)")
+        if self.align not in ("center", "left"):
+            raise ValueError(f"theme {self.name}: align {self.align!r} is not center or left")
         if self.motion not in MOTIONS:
             raise ValueError(f"theme {self.name}: motion {self.motion!r} is not one of {MOTIONS}")
         if self.motion == "karaoke" and (self.accent_rgb is None or self.stroke_rgb is None):
@@ -181,7 +191,7 @@ class Theme:
                                  "drop_scale at least 1")
         for name in ("tracking", "blur_px", "couplet_gap", "couplet_max_gap_s", "pill_pad",
                      "bump_s", "shake_px", "shake_s", "pulse_s", "split_px", "split_s",
-                     "card_glow"):
+                     "card_glow", "reveal_min_s"):
             if getattr(self, name) < 0:
                 raise ValueError(f"theme {self.name}: {name} {getattr(self, name)} is negative")
         for f in fields(self):   # styling rules: the green-screen output would key these out
@@ -251,6 +261,53 @@ PHONK_NEON = Theme(
     preroll_s=0.5, enter_s=0.2, hold_s=0.8, fade_out_s=0.25,
     bump_scale=1.0, drop_scale=1.06, card_glow=0.55)
 
+# Romantic and classics songs (H-041): Cinematic's motion (one block at a time, words blur in as
+# sung, the block blurs out) at a slower, softer pace, lines left-aligned so a line sung word by
+# word grows from one edge. Light type, no glow; the sung word is tinted, then settles.
+ROMANTIC_SOFT = Theme(
+    "romantic-soft", motion="cinematic", couplets=False, align="left",
+    font=REPO_FONTS / "Poppins-Light.ttf", font_size=76, min_font_size=56,
+    max_width=820, center_x=510, safe_zone=(60, 380, 960, 1540),
+    text_rgb=(246, 239, 230), accent_rgb=(242, 196, 196),   # ivory, blush
+    shadow_rgb=(8, 8, 18), shadow_alpha=0.6, shadow_radius=10, shadow_offset=(0, 3),
+    lead_s=0.15, reveal_s=0.5, reveal_min_s=0.3, sung_in_s=1.0, hold_s=2.0, fade_out_s=0.8,
+    blur_px=6.0, card_scale=0.8)   # a title card that reads on a phone: the first 3 s are the hook
+
+# Cinematic's couplets (sher), smaller so a usual line fits one row and a sher stays two rows
+CLASSIC_SHER = replace(
+    CINEMATIC, name="classic-sher", align="left", font_size=72, min_font_size=60, max_width=820,
+    text_rgb=(241, 230, 208), accent_rgb=(214, 178, 112),   # old paper, antique gold
+    shadow_rgb=(20, 12, 6), shadow_alpha=0.65, shadow_radius=10,
+    lead_s=0.15, reveal_min_s=0.3, sung_in_s=1.0, fade_out_s=0.8, blur_px=8.0, card_scale=0.8)
+
+# Line-level styles (2026-10-02, the owner: words popping in one by one did not feel smooth): the
+# whole line comes in ahead of its first word, dim, and each word lights as it is sung (lofi
+# motion). Big type (96-104 px, research 96-125), an elegant serif, and the *marked* word in a
+# script, bigger and in its own colour.
+ROMANTIC_LINE = Theme(
+    "romantic-line", motion="lofi",
+    font=REPO_FONTS / "PlayfairDisplay.ttf", font_size=96, min_font_size=64,
+    emphasis_font=REPO_FONTS / "GreatVibes-Regular.ttf", emphasis_scale=1.9,
+    max_width=840, center_x=510, safe_zone=(60, 380, 960, 1540),
+    text_rgb=(248, 242, 232), accent_rgb=(255, 214, 186), emphasis_rgb=(247, 201, 169),
+    shadow_rgb=(8, 8, 18), shadow_alpha=0.6, shadow_radius=10, shadow_offset=(0, 4),
+    upcoming_opacity=0.6, lead_s=0.1, preroll_s=0.9, enter_s=0.6, rise_px=24,
+    current_in_s=0.15, sung_in_s=0.6, hold_s=2.4, fade_out_s=0.6, exit_rise_px=12,
+    card_scale=0.62, handover=True)
+
+CLASSIC_LINE = replace(
+    ROMANTIC_LINE, name="classic-line",
+    font=REPO_FONTS / "CormorantGaramond-SemiBold.ttf", font_size=104, min_font_size=72,
+    emphasis_font=REPO_FONTS / "PinyonScript-Regular.ttf", emphasis_scale=1.6,
+    text_rgb=(241, 230, 208), accent_rgb=(236, 206, 148), emphasis_rgb=(222, 186, 118),
+    shadow_rgb=(20, 12, 6), shadow_alpha=0.65, card_scale=0.56)
+
+# The style each template is made with (`--bg LOOK` without `--theme`)
+LOOK_THEMES = {"chaand": "romantic-line", "rain": "romantic-line", "fog": "romantic-line",
+               "milan": "romantic-line", "rail": "classic-line", "talkies": "classic-line",
+               "ghata": "classic-line"}
+
 THEMES = {t.name: t for t in (SOFT_ROMANTIC, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL,
-                              LOFI_TYPEWRITER, CINEMATIC, BEAT_POP, PHONK_NEON)}
+                              LOFI_TYPEWRITER, CINEMATIC, BEAT_POP, PHONK_NEON, ROMANTIC_SOFT,
+                              CLASSIC_SHER, ROMANTIC_LINE, CLASSIC_LINE)}
 DEFAULT_THEME = SOFT_ROMANTIC_V2.name   # the owner preferred v2 over v1 (spec 08 AC10)

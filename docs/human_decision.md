@@ -347,7 +347,7 @@ pade tou karenge: koi python library, koi ai generation tool etc"
 **Decided:** 2026-09-29
 
 ### H-024 — Which background looks to build first
-**Status:** pending
+**Status:** decided
 **Raised:** 2026-09-29
 **Needed-before:** spec for the background step
 **Context:** Two look sheets for H-023, review only, on `khidki_s2_em` with lyrics and audio,
@@ -481,3 +481,242 @@ kite flying from a rooftop ("kai po che") and a painted travel journal.
 `docs/backgrounds/journey_train.md`. The owner also said all the approved backgrounds are to be
 built from the next session on.
 **Decided:** 2026-09-29
+
+### H-032 — Romantic backgrounds: the room is out; three light looks (rain, fog, drive)
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** the step 17 rebuild
+**Context:** The room was built (step 17, PR #16). The owner watched the finished short and
+rejected it: "ye aisa background tha jis mein 1 sec mein skip kardu". Claude's own read:
+- the frame was dim;
+- nothing moved in the first second;
+- the drawn props looked like clip-art;
+- and the process was wrong: the whole pipeline was built before the owner saw a 10-second
+  sample.
+The owner then asked for a rare motion background with great colours. Claude's first answer,
+flowing gradients, was a known pattern, and the owner called that out. The owner refined it:
+small lights that react to the beat or the words, and a look that depends on the song type.
+Mockups of lanterns, raindrops and fireworks as small lights were rejected ("ye diwali wagera
+wala look mat do kids wala"). Three full-frame light worlds followed
+(`songs/_review/backgrounds/lights2/`).
+**Decision:** Rules for every background: "pura frame dekho screen ka ... overall screen use Karo.
+Just remember one rule -- light feel hona chaiye na ki aankho ko chube", and, on the rain
+mockup, "depth nhi hai, jaihse lag raha hai sab surface level pe hi hai". Final pick: "ok, ab ek
+kaam karte hai ye 3 theme ko final karte hai, romantic type vibe ke liye". Saved as
+`docs/backgrounds/romantic_lights.md`; the room's file is marked rejected.
+**Decided:** 2026-09-29
+
+### H-033 — The other five backgrounds under H-032's rules
+**Status:** pending
+**Raised:** 2026-09-29
+**Needed-before:** step 18
+**Context:** The hip-hop truck, party baraat, Sufi lamp, motivational forge and journey train
+(H-026 to H-031) were designed the way the room was: painted scenes with props. The baraat also
+uses rockets and anaar fountains. H-032's rules point away from that: felt light, the whole
+screen, depth, nothing festive or childish.
+**Options:**
+- (a) Redesign each as a light world under H-032's rules before its step.
+- (b) Build them as designed.
+- (c) Decide per world when its step comes.
+**Recommendation:** (a), after the romantic looks are built, since seeing them move will show
+what works.
+
+### H-034 — The rain look is final
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** building the rain look into the engine (step 17)
+**Context:** Rain samples on `khidki_s2_em` (H-032).
+- The first, a rainy window with a defocused city: "isko drop kardo ... lyric clearly dikhna
+  chaiye".
+- The second, rain in a streetlight's cone at night: "rain ko slowly girwa and usme ka colour
+  hata do, jab wo jamin pe niche gire tab usme (jamin) se ek colur nikle ... theme dark mat rakho
+  puri tarha se thoda sa light theme do".
+- The third: slow colourless rain on a soft overcast evening, where colour rises out of the wet
+  ground as each drop lands and each sung word lands a bigger bloom.
+**Decision:** "ok ab ek kaam karo ye video ko final kardo and just aasman mein thode cloud add
+kardo, and kuch bhi mat change karna". A few soft drifting clouds were added and nothing else
+changed. Final sample: `songs/_review/backgrounds/lights2/rain_final.mp4`; described in
+`docs/backgrounds/romantic_lights.md`.
+**Decided:** 2026-09-29
+
+### H-035 — The fog look is final, in moonlight
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** building the fog look into the engine (step 17)
+**Context:** Fog samples on `khidki_s2_em` (H-032):
+- First, gold light through fog. The owner asked for shading, a dark lower part, and more
+  light where the fog comes in, fading lower down: "bas aisa feel ho ki ha ye shadow hai ek fog
+  hai".
+- That version became the base. The owner then asked for a different, peaceful colour
+  combination and a slightly darker theme.
+- Four palettes were shown as stills: moonlight, lavender, mint, dawn. Moonlight and lavender
+  were shown as videos.
+**Decision:** "chaandni wala final kardo, and baki ke delete kardo". The other samples were moved
+to `songs/_review/_trash/fog_drafts/`. Final sample:
+`songs/_review/backgrounds/lights2/fog_final.mp4`; described in
+`docs/backgrounds/romantic_lights.md`.
+**Decided:** 2026-09-29
+
+### H-036 — The third romantic look: drive dropped, milan (the owner's idea) final
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** building the romantic looks into the engine (step 17)
+**Context:** The drive look had two tries:
+- first down the road ahead;
+- then through the side window, which the owner asked to make "ekdum dark", with the top light
+  "bahut chota" and the bottom only a soft blur.
+The owner then dropped it: "ye template ko drop kardo, iski jagha kuch aur socho". The owner
+proposed drifting dots that leave a faint light where they collide, moving "not forcefully". The
+owner asked for Claude's idea if theirs did not work. Claude kept the owner's idea, since meeting
+and light suits romance, and added three things:
+- a smooth random wander;
+- meetings timed to the marked words, near the word;
+- faint memories of each meeting.
+**Decision:** after "thoda dark hi vibe ... ek dum halka sa na dark border" and "dots ko thoda
+bada and clearly visibe banao, lekin usme lighting mat do jab wo takrye tabhi lighting aaye":
+"ok isko final karo". Final sample: `songs/_review/backgrounds/lights2/milan_final.mp4`;
+described in `docs/backgrounds/romantic_lights.md`. The drive tries are in
+`songs/_review/_trash/drive_drafts/`.
+**Decided:** 2026-09-29
+
+### H-037 — Sad songs: which idea, and where the images come from
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** the sad-song background
+**Context:** The owner rejected the dot concepts for sad songs ("ye template hi bekar hai ... ye
+kiya tum kachra idea de rahe ho"). The owner allowed images ("tum image wagera bhi use kar sakte
+ho") and asked for ideas from several perspectives, now a CLAUDE.md rule.
+**Options:**
+- (1) "Khaali jagah": an empty place that once held two people, with a slow 2.5D push-in; cold
+  and grey, turning warm for a moment on each marked word; the streetlight goes out on the last
+  line.
+- (2) "Purani tasveer": an old faded photo that bleaches away over the song.
+- (3) "Aakhri train": an empty station at night; a train's light passes on the beat.
+Image source:
+- (a) AI stills, via a fal key in `.env`, about ₹1–3 each;
+- (b) free stock (Pexels, Pixabay).
+**Recommendation:** (1) with (a).
+**Decision:** The owner has no AI subscription: "ye image tum hi banao". Images are drawn by code
+(night, fog, light, silhouettes). Of three drawn scenes the owner picked (1), "Khaali jagah":
+"first image ko final karo". An empty bench under a streetlight in the rain; for a moment warm on
+each marked word; the light goes out on the last line. Stills:
+`songs/_review/backgrounds/sad/khaali_jagah_final.png` (present) and
+`khaali_jagah_yaad_final.png` (the memory moment), drawn by `sad_scenes.py`. The owner asked for
+two more sad ideas "couple wagera pe".
+**Decided:** 2026-09-29
+
+### H-038 — Which template ideas to draw for each song type
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** stills and moving samples for the next song types
+**Context:** The owner asked for background agents to find 3 templates per song type, each
+questioned hard before it is returned. The types:
+- romantic and sad again;
+- hip-hop, party, Sufi, motivational, journey, family, patriotic and old classics.
+33 ideas came back, reviewed by Claude, in `docs/backgrounds/template_ideas.md`.
+**Options:** the 3 per type in that document.
+**Recommendation (★):**
+- Taaron ka jaal (hip-hop); Naachta fawaara (party); Jaali se subah (Sufi);
+- Seedhi dar seedhi (motivational); Pahadi raasta (journey); Jaagti khidki (family);
+- Dharti ki lehar (patriotic); Purani Talkies (classics);
+- Chaand ka ghoonghat (romantic); Aakhri patta (sad).
+Also one cloth test before any dupatta, saree or veil idea is chosen, and one moving sample
+before any idea with animated human shadows.
+**Decision:** the owner took the picks as proposed ("template final hai") and asked for them to be
+built: Khaali jagah and Aakhri patta (sad), Chaand ka ghoonghat (romantic), Rail ki Seeti
+(classics), Taaron ka jaal (hip-hop), Jaali se subah (sufi), Shamiyane ki parchhaiyan (party),
+Parchhaiyan (family). Journey, motivational and patriotic wait (all rated 5 or lower).
+**Decided:** 2026-10-01
+
+### H-039 — Rain in the engine: a calmer patch behind the lyrics?
+**Status:** decided
+**Raised:** 2026-09-29
+**Needed-before:** merging step 17 (PR #16)
+**Context:** The approved rain video was finalized with "kuch bhi mat change karna". In the
+engine, the legibility check (3:1 around the text, D-030) failed on it: where the second lyric
+row sits near the bright horizon mist, the contrast falls to 2.4:1 (187 of 420 frames on
+`khidki_s2_em`). Thin rain streaks are not the cause; the broad brightness near the horizon is.
+**Options:**
+- A: the calmer patch (engine default now): the dark patch behind the lyrics is half, not a
+  third, and reaches lower; the rest of the frame is unchanged. Lowest contrast about 3.2:1.
+- B: exactly as approved; the check's minimum for rain is lowered to 2.4:1, recorded here.
+**Recommendation:** A. The owner's first note on rain was "lyric clearly dikhna chaiye"; the
+change is only behind the text and the frame stays light. Comparison stills:
+`songs/_review/backgrounds/lights2/rain_calm_compare.png`.
+**Decision:** A, the calmer patch. The owner handed the call to Claude on 2026-10-01 ("tumhe jo best lage usko final karo"); Claude kept A for the owner's first rain note, "lyric clearly dikhna chaiye".
+**Decided:** 2026-10-01
+
+### H-040 — The owner hands the look approval to Claude
+**Status:** decided
+**Raised:** 2026-10-01
+**Needed-before:** merging step 17 (PR #16)
+**Context:** Six looks were built (rain, fog, milan, khaali, aakhri, chaand) and waited for the
+owner's approval (spec 17 AC11). The owner: "tumhe jo best lage usko final karo, and ek baar last
+check karo ki sab acha bana haina".
+**Options:** approve all six; approve the four from owner-seen samples and hold aakhri and chaand.
+**Decision:** Claude approved all six after a last check of every finished short (frames at the
+start, middle, last line and end; every check passes, lowest contrast 3.15:1 or more). Known
+issues stay recorded in each look's doc (aakhri: spiky bare twigs, a smudge-like near leaf; chaand:
+smooth tree domes, subtle peeks with few marks) and are the first fixes if the owner objects on
+seeing them.
+**Decided:** 2026-10-01
+
+
+### H-041 — Keep the system simple; lyric fixes stay generic
+**Status:** decided
+**Raised:** 2026-10-01
+**Needed-before:** any lyric-style fix for romantic and classics songs
+**Context:** A frame-by-frame review of `soft-romantic-v2` and `cinematic` on the khidki_30s
+finals found why the lyrics feel "forceful" (bold font, pink per-word glow, 0.2 s pops, a jerky
+hand-over, a smudged past line, the first word hanging alone at the left, and more). Claude
+proposed new romantic and classics lyric themes.
+**Decision:** "ye system ko complex mat karo, simple rakho". The goal is about 3 templates per
+song type, with any song of that type added on them. Lyric fixes change only the lyric themes,
+never the templates, and must work for any lyrics, not just khidki. Saved as an owner rule in
+`CLAUDE.md`. Claude dropped three proposals as extra complexity (glow colour taken from the
+background, breath-based line breaks, a held-word swell) and assumes: left-aligned lines (H-010
+kept, no ghosted upcoming words) and emphasis kept at 1.5x (H-013 kept). Building waits for the
+owner's go-ahead.
+**Decided:** 2026-10-01
+
+### H-042 — Romantic and classics lyric themes approved
+**Status:** decided
+**Raised:** 2026-10-01
+**Needed-before:** using the new lyric themes for videos
+**Context:** Samples of `romantic-soft` (on chaand) and `classic-sher` (on rail), each beside
+`soft-romantic-v2` on the same clip: `songs/_review/lyric_fix/*_pehle_vs_ab.mp4` (D-038).
+**Decision:** "acha laga, dono themes pakki karo aur commit kardo". Both themes ship as built.
+The old themes stay; `soft-romantic-v2` stays the default.
+**Decided:** 2026-10-01
+
+### H-043 — Lyrics: line-level, styled, bigger; an independent judge
+**Status:** decided
+**Raised:** 2026-10-02
+**Needed-before:** the 20 videos
+**Context:** After seeing the khidki reel on all seven templates, the owner: the lyrics look
+"normal" (font and size not right, no style); word by word "gaane ke sath match nahi ho raha,
+smoothness nahi hai"; the chaand video has no motion; Claude's own judging passed things it should
+not have.
+**Decision:** The owner asked for line-level or smoother lyrics (Claude's call), real style per
+template, a separate judge subagent, and speed ("aaj 20 video banana hai"). Claude chose
+line-level with a soft word highlight (D-041) and made `.claude/agents/video-judge.md`.
+**Decided:** 2026-10-02
+
+### H-044 — Repository structure with two systems; cleanup
+**Status:** decided
+**Raised:** 2026-10-03
+**Needed-before:** —
+**Context:** With V2 (Voice Subs) built beside V1, the owner said the structure had become
+cluttered ("bahut kachra hogya hai, structure mein — sabhi unwanted chije hata do, and sabko
+structure karlo").
+**Options:** Structure: (a) V1 stays at the root, V2 in `v2/`, both mapped at the top of the root
+docs; (b) move V1 into `v1/` too (every path, command and test changes). Cleanup candidates: test
+leftovers (~130 MB); `songs/_review` (983 MB); stale git branches.
+**Recommendation:** (a); remove the test leftovers.
+**Decision:** (a), and remove the test leftovers and `songs/_review`. On checking, `songs/_review`
+turned out to hold the background workbench (`run_scene.py`, templates), approved reference
+samples that docs and code cite, and the first four finished videos (`final4/`), so only its
+unreferenced `clips/` was moved; the owner was told. Moved to `.trash/` (gitignored, with a
+README): `out/01_alpha_proof`, `songs/_hooktest`, `songs/_review/clips`. Git branches kept.
+**Decided:** 2026-10-03
+

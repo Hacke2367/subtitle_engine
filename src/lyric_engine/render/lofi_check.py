@@ -78,6 +78,7 @@ def _state_checks(result: RenderResult, lines: list[lofi.LofiLine], theme: Theme
         return [f"state: accent {accent} is too close to text colour {text} to check the "
                 "colour states"]
     fade_in, samples = _ceil_frame(theme.current_in_s, theme.fps), []
+    own = set()   # marked words in their own colour (emphasis_rgb): only their alpha is checked
     for ll in lines:
         for wp in ll.words:
             if wp.reveal is None:
@@ -94,6 +95,8 @@ def _state_checks(result: RenderResult, lines: list[lofi.LofiLine], theme: Theme
             samples.append(_Sample(name, _box(wp), ink, on, before, False))
             if held is not None:
                 samples.append(_Sample(f"{name} (held)", _box(wp), ink, held, None, False))
+            if wp.box.emphasis and theme.emphasis_rgb is not None:
+                own |= {name, f"{name} (held)"}
 
     means, outside, decoded, error = _colour_alpha(result, theme, c, _wanted(samples))
     if error is not None:
@@ -107,12 +110,12 @@ def _state_checks(result: RenderResult, lines: list[lofi.LofiLine], theme: Theme
         if on[1] < SYNC_ON_MIN:
             fails.append(f"state: {s.label}: mean alpha {on[1]:.0f} at frame {s.on}, expected "
                          f">= {SYNC_ON_MIN} while current")
-        if (f := (text[c] - on[0]) / span) < STATE_CURRENT_MIN:
+        if s.label not in own and (f := (text[c] - on[0]) / span) < STATE_CURRENT_MIN:
             fails.append(f"state: {s.label}: {f:.0%} current colour at frame {s.on}; expected "
                          "100%")
         if before is None:
             continue
-        if (f := (text[c] - before[0]) / span) > STATE_BEFORE_MAX:
+        if s.label not in own and (f := (text[c] - before[0]) / span) > STATE_BEFORE_MAX:
             fails.append(f"state: {s.label}: {f:.0%} current colour at frame {s.before}, the "
                          "frame before it turns current; expected 0%")
         if before[1] > on[1] - SYNC_DROP_MIN:

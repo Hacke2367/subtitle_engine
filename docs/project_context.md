@@ -3,6 +3,22 @@
 Working folder name: `subtitle_engine`. Blueprint codename: "The Lyric Engine".
 Kickoff interview: 2026-09-26.
 
+## This repository holds two systems
+
+This file is the context for **V1**, the Kinetic Lyric Engine, at the repository root. The
+repository also holds **V2**, Voice Subs, in `v2/` (its own context:
+`v2/docs/project_context.md`). They are separate products for the same owner and channel:
+
+- **V1** turns a song's audio and its known Hinglish lyrics into a word-synced, animated lyric
+  overlay, and finished 9:16 shorts on engine-made backgrounds.
+- **V2** turns a short spoken-word video (30-40 s; podcasts, talks) into subtitles: a
+  Roman-script `.srt` and the owner's signature subtitles, a transparent overlay strip with each
+  word lit as it is said, which the owner places in CapCut.
+
+They share the laptop setup (the venv, ffmpeg, the ElevenLabs key) and nothing else: no code
+imports across them, and each keeps its own docs and decision numbers (V1: H-0xx / D-0xx,
+V2: H-1xx / D-1xx).
+
 ## Problem
 
 The owner makes romantic / good-vibe Hinglish lyric shorts (9:16) for their own
@@ -56,13 +72,17 @@ creators is a future vision, not V1.
   mobile (Chroma Key)
 - Auto-wrap / max words per line so text fits 9:16
 - Font fallback for characters the theme font lacks (the blueprint's "Tofu" problem)
+- **Post-V1 (H-023, scope change):** engine-made backgrounds, one world per song type with moods
+  (`docs/backgrounds/`), and a finished short (background + lyrics + audio) written next to the
+  overlay outputs, which stay as they are. First: the romantic room (spec 17).
 
 **Out of scope (V1):**
 - Transcription (audio without lyrics); spoken / voiceover content
 - `.ass` or any subtitle-file output (CapCut cannot read styled subtitles)
 - AI stylist / LLM auto-tagging; the custom tag markup (`<glow>`, `<shake>`, `<glitch>`, ...)
 - Themes beyond the V1.1 list above
-- Finished video export (background + audio + text in one file)
+- Finished video export (background + audio + text in one file): V1 only; added after V1 by
+  H-023 (see In scope)
 - SaaS, multi-user, web UI, YouTube-channel marketing
 - Fast preview mode (nice-to-have only; owner accepts up to ~10 min render per song)
 

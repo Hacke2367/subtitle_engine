@@ -2,6 +2,54 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-10-03 (29): repository map of the two systems; cleanup; branch shipped
+**Did:** (from the V2 session) root `CLAUDE.md` and `docs/project_context.md` open with a map of V1 (root) and V2 (`v2/`, PR #17); test leftovers moved to `.trash/` (H-044); V1 gate green (unit tests, alpha proof); `feature/lyric-romantic-classics` pushed as PR #18, stacked on #16.
+**Decisions:** H-044.
+**Open:** merge order: #16, then #18 retargeted to `dev`; the owner's look at the first four and the `rain` mood (unchanged).
+**Next:** owner merges #16 and #18; then the remaining 16 songs.
+
+## 2026-10-02 (28): khidki reel on all seven templates, judged; fixes from the judging
+**Did:** `songs/khidki_reel` (khidki 27-57 s, words reused from the identical khidki_30s clip, three `*marks*`, `title.txt`) rendered on all seven romantic + classics templates and judged per video (first-second hook, lyrics, background, vibe, payoff); verdicts in `docs/video_plan.md`. Fixes found by the judging (D-040): title card 0.5 -> 0.8 for the two new themes; the legibility check measures each text block apart (`compose.ink_bands`); `paint.title_calm` for fog; chaand's moon hidden under the card until 2.8 s; ghata's cloud forms blended; talkies opens at half light. Finals in `songs/_review/khidki_reel/` (1-7) plus `0_fixes_pehle_vs_ab.mp4`.
+**Decisions:** D-040.
+**Open:** the owner's look at the seven videos and the fixes; the 20 planned songs need their audio + lyrics in `songs/`.
+**Next:** owner adds the planned songs; make them with the lessons in `docs/video_plan.md`.
+
+## 2026-10-02 (27): classics templates talkies and ghata, 20-video plan, cleanup list
+**Did:** `talkies` (Purani Talkies) and `ghata` (Kaali Ghata) built fresh into the engine (D-039), docs `classics_talkies.md` / `classics_ghata.md`; moving samples in `songs/_review/classics_templates/` (legibility 9.45:1 and 6.03:1 lowest); `docs/video_plan.md` (10 romantic + 10 classics songs, each with a template); removed one dead method (`aakhri.prepare_release`). Cleanup of ~7.7 GB old outputs: Claude's delete was blocked by the permission system, so `songs/_review/cleanup.sh` lists it for the owner to run.
+**Decisions:** D-039.
+**Open:** owner's look at talkies and ghata; the branch is committed, not pushed (sits on PR #16). Cleanup done: the owner ran the script (`songs/` 1.3 GB).
+**Next:** owner picks songs from `docs/video_plan.md`, adds them to `songs/`, and makes the videos.
+
+## 2026-10-01 (26): romantic-soft and classic-sher lyric themes (approved)
+**Did:** frame-by-frame review of why the lyrics feel "forceful" on the romantic and classics templates; two new lyric themes on the Cinematic renderer (`romantic-soft`, `classic-sher`) with three theme options (`align`, `couplets`, `reveal_min_s`); old-vs-new samples in `songs/_review/lyric_fix/`; tests 358 OK, alpha proof pass. Two owner rules added to `CLAUDE.md` (keep it simple; every fix must beat the old one).
+**Decisions:** H-041, H-042; D-038.
+**Open:** branch `feature/lyric-romantic-classics` is committed, not pushed; it sits on `feature/bg-romantic-room` (PR #16).
+**Next:** owner makes romantic and classics videos with the new themes; push and PR after PR #16 merges.
+
+## 2026-10-01 (25): jaali (Sufi) and rail (classics) built into the engine (in review)
+**Did:** "continue" → the next H-038 looks, built inline (not by agents). `jaali`: rebuilt in the engine's style (parallel beam traced in perspective, floor pattern traced back, lace lattice, night → rose → dawn), 1.2 s/frame. `rail`: redesigned (engine from the side, a couple instead of a lone woman, the train leaves on the last line), depth map so steam, glow and the moving train never show through nearer things, ~1 s/frame. Both registered, tested, 30 s renders pass (6.2:1, 5.6:1); gate green (354 tests, alpha proof).
+**Decisions:** D-036 (jaali), D-037 (rail).
+**Open:** owner watches both samples + shorts; PR #16 merge (owner's word).
+**Next:** Parchhaiyan (family): a moving sample for the owner first (H-038: animated human shadows); beat looks need a beat song from the owner.
+
+## 2026-10-01 (24): khaali, aakhri, chaand and the backdrop command built (in review)
+**Did:** workflow for template stills finished (hip-hop fix re-run alone after a limit; a resume that re-ran every critic was stopped); ratings in `docs/backgrounds/template_stills.md`. Owner chose to build templates and add lyrics themselves → `backdrop` command (with a song or `--seconds`), `khaali` ported from its sample, `chaand` and `aakhri` built by two agents from the stills + critic fixes and moved into the engine; workers now get the text box; `run_scene.py` review runner. 30 s clip renders pass (khaali 3.2:1, chaand 9.5:1).
+**Decisions:** D-035 (backdrop, looks as named modules, build ahead of approval as the owner asked).
+**Open:** PR #16 merge (owner's word). Owner handed the look approval to Claude: all six final after a last check, H-039 = A (H-040). Idle timing: rain 60 s ≈ 9 min.
+**Next:** next looks with `docs/backgrounds/look_build_brief.md`: Rail ki Seeti, Jaali se subah, then beat looks.
+
+## 2026-09-29 (23): romantic looks final from samples; rain, fog, milan built into the engine
+**Did:** owner rejected the room → sample-first process: rain (H-034), fog (H-035), milan (H-036) finalized from moving samples; sad "Khaali jagah" still final (H-037) and its moving sample made; 33 template ideas by 11 agents (H-038); a workflow draws stills for the ★ picks with an artist/viewer critic and a cloth test. Engine: `background/` rewritten (rain.py, fog.py, milan.py ported from the samples; room removed), overlay laid over as it is, milan's calm behind the text, rain's calmer patch, worker-pool drawing, faster finishing pass; spec 17 v2 + plan; CLAUDE.md rule "think from several perspectives".
+**Decisions:** H-032 to H-039 (H-038, H-039 pending), D-033, D-034.
+**Open:** owner judges the three engine shorts (AC11) and H-039; render time to re-measure on an idle laptop (AC10); the owner picks templates from the workflow's stills.
+**Next:** owner feedback → merge PR #16 → Khaali jagah engine build after its sample is approved.
+
+## 2026-09-29 (22): step 17 built, the romantic room under the lyrics (in review)
+**Did:** "continue" → `/start_work` step 17 → spec + plan + build in one run (H-020 flow): `background/` package (`--bg room` = `room:dusk`; song facts only, seed from the folder name; `paint` shared art tools; `room` arc gold → rose → dusk skylight, gusts on marked words, lamp at the last line; `room_art` chakri jaali patch, money plant vine, sheer curtain, table, lamp, prop, chair + dupatta; `compose` text shadows block the light, bounded tint, alpha untouched, legibility log), stacked ffmpeg input with a fourth output `final_<world>_<mood>.mp4`, `--bg` on render/make, 18 new tests. Gate green (344 tests, alpha proof). Checks pass on four Khidki songs; eight themes hash-identical to `dev` without `--bg`; overlay outputs identical with it.
+**Decisions:** D-028 to D-031; spec's legibility rule moved from the whole lyric area to around the text (lamp glow at the bottom-left). H-024 status corrected to decided.
+**Open:** owner judges the look (AC11). Render time: 30 s clip 149 s, full song 765 s.
+**Next:** owner feedback on the room → tune `DUSK` / art → merge → step 18.
+
 ## 2026-09-29 (21): north star and six background directions approved (docs only)
 **Did:** owner set the channel's north star (H-022). Two look sheets of backgrounds prototyped in `songs/_review/backgrounds/` (review only) and rejected as common (H-024). Then, song type by song type, one world with moods each: romantic room, hip-hop truck, party baraat, Sufi lamp, motivational forge, journey train, saved in `docs/backgrounds/`. Tool research in `docs/research/background_tools.md`. Plan steps 17–23 added. CLAUDE.md: owner rule to say so whenever Claude has a better idea.
 **Decisions:** H-022 to H-031, D-027.

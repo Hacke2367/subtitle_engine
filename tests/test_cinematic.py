@@ -19,7 +19,7 @@ from pathlib import Path
 from PIL import Image
 
 from lyric_engine import cli, render, timing
-from lyric_engine.layout import LineLayout, WordBox, font_set, word_mask
+from lyric_engine.layout import LineLayout, WordBox, font_set, layout_line, word_mask
 from lyric_engine.render import cinematic
 from lyric_engine.render.cinematic import (
     REST, Block, CinematicCache, block_state, couplet_groups, plan_cinematic, word_look,
@@ -361,6 +361,42 @@ class CliThemeTest(unittest.TestCase):  # AC1
                 self.assertEqual(cli.main(["make", str(song), "--theme", "cinematic",
                                            "--codec", "qtrle"]), 0)
             self.assertEqual([p.name for p in (song / "render").iterdir()], ["cinematic"])
+
+
+class RomanticClassicsTest(unittest.TestCase):  # H-041: romantic-soft, classic-sher
+    def test_listed_with_their_fonts(self):
+        for name in ("romantic-soft", "classic-sher"):
+            with self.subTest(name):
+                self.assertEqual(THEMES[name].motion, "cinematic")
+                self.assertTrue(THEMES[name].font.is_file(), THEMES[name].font)
+        self.assertFalse(THEMES["romantic-soft"].couplets)
+
+    def test_couplets_off_shows_every_line_alone(self):
+        doc = doc_of((10, 40), (50, 80))
+        self.assertEqual(len(plan(doc)[0]), 1)
+        blocks, _ = plan_cinematic(doc, replace(THEME, couplets=False), 900, layout_fn=low_layout)
+        self.assertEqual([b.name for b in blocks], ["line 1", "line 2"])
+
+    def test_short_word_blur_in_floor_and_the_block_waits_for_it(self):
+        slow = replace(THEME, reveal_min_s=0.3)   # 9 frames
+        self.assertEqual(cinematic.blur_in_frames(wp(10, 11), THEME), 1)
+        self.assertEqual(cinematic.blur_in_frames(wp(10, 11), slow), 9)
+        self.assertEqual(cinematic.blur_in_frames(wp(10, 40), slow), R)   # reveal_s still caps
+        block = plan_cinematic(doc_of((10, 11)), slow, 900, layout_fn=low_layout)[0][0]
+        self.assertEqual((block.last_end, block.settled), (11, 18))
+
+    def test_left_aligned_rows_share_one_edge(self):
+        theme = THEMES["romantic-soft"]
+        lay = layout_line([(k, w) for k, w in enumerate("Mere saamne waali khidki mein".split())],
+                          0, theme)
+        rows = {}
+        for b in lay.words:
+            rows.setdefault(b.y, []).append(b.x)
+        self.assertGreater(len(rows), 1)
+        self.assertEqual({min(xs) for xs in rows.values()},
+                         {theme.center_x - theme.max_width // 2})
+        with self.assertRaisesRegex(ValueError, "align 'right'"):
+            replace(theme, align="right")
 
 
 if __name__ == "__main__":

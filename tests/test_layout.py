@@ -14,11 +14,12 @@ from pathlib import Path
 from PIL import ImageFont
 
 from lyric_engine.layout import (
-    FontSet, LayoutError, LineLayout, WordBox, font_set, layout_line, word_mask,
+    FontSet, LayoutError, LineLayout, WordBox, font_set, layout_line, word_fonts, word_mask,
 )
 from lyric_engine.theme import (
-    BEAT_POP, CINEMATIC, FONTS, LOFI_MINIMAL, LOFI_TYPEWRITER, PHONK_NEON, POP_KARAOKE,
-    SOFT_ROMANTIC as THEME, SOFT_ROMANTIC_V2,
+    BEAT_POP, CINEMATIC, CLASSIC_SHER, FONTS, LOFI_MINIMAL, LOFI_TYPEWRITER, PHONK_NEON,
+    POP_KARAOKE, ROMANTIC_LINE, ROMANTIC_SOFT, SOFT_ROMANTIC as THEME, SOFT_ROMANTIC_V2,
+    CLASSIC_LINE,
 )
 
 # songs/khidki/lyrics.txt is gitignored; its 8 lines, verbatim
@@ -38,9 +39,10 @@ LONG_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai afsos ye
 MEDIUM_LINE = "Mere saamne waali khidki mein ek chaand ka tukda rehta hai"
 LONG_FOR = {"soft-romantic": LONG_LINE, "soft-romantic-v2": LONG_LINE, "pop-karaoke": MEDIUM_LINE,
             "lofi-minimal": MEDIUM_LINE, "lofi-typewriter": MEDIUM_LINE, "cinematic": MEDIUM_LINE,
-            "beat-pop": MEDIUM_LINE, "phonk-neon": MEDIUM_LINE}
+            "beat-pop": MEDIUM_LINE, "phonk-neon": MEDIUM_LINE, "romantic-soft": MEDIUM_LINE,
+            "classic-sher": MEDIUM_LINE, "romantic-line": MEDIUM_LINE, "classic-line": MEDIUM_LINE}
 ALL_THEMES = (THEME, SOFT_ROMANTIC_V2, POP_KARAOKE, LOFI_MINIMAL, LOFI_TYPEWRITER, CINEMATIC,
-              BEAT_POP, PHONK_NEON)
+              BEAT_POP, PHONK_NEON, ROMANTIC_SOFT, CLASSIC_SHER, ROMANTIC_LINE, CLASSIC_LINE)
 FALLBACK_LINE = "dil😊 kuchh🥰 ❤\ufe0f कुछ दिल Öl saaf"
 NO_FONT = "\ufdd0"  # a noncharacter: never assigned, in none of the theme's five fonts
 MISSING = Path("C:/no/such/font.ttf")
@@ -316,13 +318,19 @@ class EmphasisLayoutTest(unittest.TestCase):
             with self.subTest(scale), self.assertRaisesRegex(ValueError, "H-013"):
                 replace(THEME, emphasis_scale=scale)
 
+    def test_marked_word_takes_the_emphasis_font(self):   # D-041: a script hero word
+        big, plain = word_fonts(ROMANTIC_LINE, 96, True), word_fonts(ROMANTIC_LINE, 96, False)
+        self.assertEqual(Path(big._fonts[0][0].path).name, "GreatVibes-Regular.ttf")
+        self.assertEqual(Path(plain._fonts[0][0].path).name, "PlayfairDisplay.ttf")
+        self.assertEqual(big.size, round(96 * ROMANTIC_LINE.emphasis_scale))
+
     def test_marked_word_is_scale_times_the_line_size_even_when_shrunk(self):
         for scale, base in product((1.5, 2.0), ALL_THEMES):
             theme = replace(base, emphasis_scale=scale)
             for line in ("Jis roz se dekha hai usko", LONG_FOR[base.name]):
                 words = indexed(line)
                 lay = layout_line(words, 0, theme, emphasis=frozenset({3}))
-                big = font_set(theme, round(lay.font_size * scale))
+                big = word_fonts(theme, lay.font_size, True)
                 box = next(b for b in lay.words if b.index == 3)
                 self.assertTrue(box.emphasis)
                 self.assertEqual((box.w, box.h), word_mask(box.text, big).size)
@@ -339,7 +347,7 @@ class EmphasisLayoutTest(unittest.TestCase):
                 marked = frozenset({0, len(words) // 2})
                 lay = layout_line(words, 0, theme, emphasis=marked)
                 small = font_set(theme, lay.font_size)
-                big = font_set(theme, round(lay.font_size * scale))
+                big = word_fonts(theme, lay.font_size, True)
                 base = {b.index: b.y + (big if b.emphasis else small).ascent for b in lay.words}
                 rows: dict[int, list[WordBox]] = {}
                 for b in lay.words:

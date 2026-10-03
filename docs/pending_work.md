@@ -1,11 +1,19 @@
 # Pending Work
 
-Last updated: 2026-09-29 (background directions approved; building starts next session)
+Last updated: 2026-10-03 (branch shipped as PR #18; repository map of the two systems)
 
 ## WIP
 
-None. The channel's north star and the six approved background directions are merged into `dev`
-([PR #15](https://github.com/Hacke2367/subtitle_engine/pull/15), docs only).
+Step 17 on `feature/bg-romantic-room` ([PR #16](https://github.com/Hacke2367/subtitle_engine/pull/16), not merged).
+The pipeline is built and kept: `--bg`, a finished short with audio, stacked encode, checks;
+D-028 to D-030. The room itself was rejected by the owner after it was built.
+
+The owner then finalized three romantic light looks from moving samples (H-032 to H-036,
+`docs/backgrounds/romantic_lights.md`): rain, fog and milan. All three are now built into the
+engine (`--bg rain|fog|milan`; spec 17 v2, D-033, D-034), ported from the samples; the room's
+modules are deleted. Rain needed a calmer patch behind the lyrics to pass the 3:1 check; the
+owner decides keep or revert (H-039). Background frames of rain and fog are drawn in 4 worker
+processes.
 
 **V1 is complete (owner, 2026-09-29):** V1 core plus the V1.1 themes, beat detection and the
 title card are merged into `dev`; step 15 was the last ([PR #13](https://github.com/Hacke2367/subtitle_engine/pull/13)).
@@ -13,7 +21,9 @@ title card are merged into `dev`; step 15 was the last ([PR #13](https://github.
 ## Current focus
 
 Post-V1 (H-022 onward): engine-made backgrounds, one world per song type, each with moods.
-Six directions approved, none built: romantic room, hip-hop truck, party baraat, Sufi lamp,
+Built and usable now: romantic `rain`, `fog`, `milan`, `chaand`; sad `khaali`, `aakhri`; Sufi
+`jaali`; classics `rail` (the owner is starting to make videos with the romantic and classics
+looks, 2026-10-01). Earlier: the room was rejected. Designed before H-032's rules, not built: hip-hop truck, party baraat, Sufi lamp,
 motivational forge, journey train (`docs/backgrounds/`). Plan steps 17–23 build them; the owner
 wants them built from the next session on. Not designed yet (H-029): mother and family,
 patriotic, old classics.
@@ -27,15 +37,33 @@ finished look.
 
 ## Next up
 
-1. **Resume point:** plan step 17, Background layer + romantic room (status Next, branch
-   `feature/bg-romantic-room`): `/start_work` step 17 → spec. No owner answer is pending for it.
-   Read first: `docs/backgrounds/romantic_room.md`,
-   `docs/research/background_tools.md`, H-022 to H-031 in `docs/human_decision.md`, and the
-   plan's Backgrounds section. The spec settles the world and mood names, the finished-video
-   output, and how the lyrics catch the room's light without changing the text. Then steps
-   18–22 in order, each needing its test song.
-   Still open from V1: the owner tries a different song end to end (`align` → `clip` → `make`,
-   spec 05 AC4); a bug found there comes first.
+0. **Lyric themes for romantic + classics: done (H-042, D-038).** `romantic-soft` and
+   `classic-sher` on branch `feature/lyric-romantic-classics` (off
+   `feature/bg-romantic-room`), [PR #18](https://github.com/Hacke2367/subtitle_engine/pull/18)
+   (stacked on #16; retarget to `dev` after #16 merges); samples in `songs/_review/lyric_fix/`.
+   Use them for the romantic and classics videos. The branch merges after PR #16.
+   Same branch: classics templates `talkies` and `ghata` built (D-039), waiting for the owner's
+   look (samples in `songs/_review/classics_templates/`). 20-video plan: `docs/video_plan.md`.
+   Khidki reel on all seven templates made and judged (D-040; `songs/_review/khidki_reel/`,
+   verdicts in `docs/video_plan.md`); waiting for the owner's look.
+   First four real videos (2026-10-03): `songs/<song>_reel` for Barsaat Ki Dhun, Chand
+   Sifarish, Lag Jaa Gale, Rimjhim Gire Sawan, re-rendered after the judge (D-042); finals go to
+   `songs/_review/final4/` (Chand Sifarish, Lag Jaa Gale and Rimjhim judged ready; Barsaat on
+   `ghata`, re-rendered with fade-out-then-in hand-overs after its collision). Open: the `rain` look reads grey (darker
+   mood needs the owner's yes). Next: the remaining 16 (owner adds audio + lyrics).
+   Cleanup done 2026-10-02 (the owner ran `songs/_review/cleanup.sh`; `songs/` is 1.3 GB). Keep
+   `songs/khidki_s2_em` (words + audio): `run_scene.py` needs it to test templates.
+1. **Resume point (2026-10-01, session 25):** step 17's six looks + `backdrop` are approved
+   (H-040). On the same branch two H-038 looks are now built and in the engine: `jaali` (Sufi,
+   "Jaali se subah", D-036, `docs/backgrounds/sufi_jaali.md`) and `rail` (classics, "Rail ki
+   Seeti", D-037, `docs/backgrounds/classics_rail.md`); 30 s renders pass (lowest contrast jaali
+   6.2:1, rail 5.6:1). They wait for the owner to watch the samples
+   (`songs/_review/backgrounds/templates/sufi/jaali_sample.mp4`, `.../classics/rail_sample.mp4`)
+   and the finished shorts in `songs/khidki_30s/render/soft-romantic-v2/`. PR #16 merge waits for
+   the owner's explicit "merge". **Next:** Parchhaiyan (family) on the Khidki songs (shadows as
+   shade, not black paint; maa with pallu). Taaron ka jaal (hip-hop) and Shamiyane ki parchhaiyan
+   (party) need a beat test song from the owner and beat times in `SongFacts`. Built this session
+   inline, not by agents (`look_build_brief.md` step 1 done by Claude directly): ~1.5 h per look.
 2. Step 14 (Devanagari shaping) only when a song needs it. Step 16 (line breaks at sung
    pauses) only if the owner asks; it is outside the original V1 scope.
 3. Optional cleanup: `render/check.py` (≈369 lines) and `render/karaoke.py` (≈313) are past
