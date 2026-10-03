@@ -12,19 +12,21 @@ next one starts, so a short gap between words does not flicker. The words and th
 exactly the cue's (red line 1). Nothing changes size while a line is read, so it never shifts:
 a hero word is set larger from the moment its cue appears.
 
-The signature look picks one hero word per cue (`hero_index`): the longest word that carries
-meaning, set in a gold serif italic among the plain sans words.
+The signature look picks a hero word for some cues (`pick_heroes`): a word that carries the
+line, set in a gold serif italic among the plain sans words.
 
 Each cue is drawn as three layers that share one layout, so they line up exactly:
-  0  halo  - a soft dark shade behind the words, so they read on any background
+  0  halo  - a soft dark shade behind the words, so they read on any background; over a
+             bright picture (PLATE_LIGHT), a soft dark plate instead
   1  glow  - a soft glow around the word being said (styles that have one)
   2  text  - the words themselves
 """
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
-from .cues import LEANS_BACK, LEANS_FORWARD, Cue, core
+from .cues import LEANS_BACK, LEANS_FORWARD, Cue, core, leans_back, leans_forward
 
 WIDTH, HEIGHT = 1080, 1920         # the canvas styles are designed on (9:16)
 FADE_IN_MS, FADE_OUT_MS = 120, 120  # a cue eases in and out, only across a real gap
@@ -32,16 +34,34 @@ WORD_IN_MS = 70                    # how fast a word lights up
 WORD_OUT_MS = 140                  # and settles into "spoken"
 EARLY_MS = 60                      # a word lights this much before it is heard
 CLEAR = 255                        # alpha of something not drawn
-HERO_MIN_LETTERS = 5
-# Words too common to be a cue's hero, beyond the ones that lean on a neighbour (cues.py).
+PLATE_LIGHT = 0.72                 # behind a cue this bright, a soft dark plate replaces the halo
+PLATE_ALPHA = 0x61                 # the plate: black at 62%
+PLATE_DIM_ALPHA = 0x40             # on a plate, a word not said yet is 75% white, not 57%
+HERO_MIN_LETTERS = 4                # shorter only if code-like: MP4, MPV
+HERO_GAP_S = 3.0                   # at most one hero word in this long: a gold word every line
+HERO_REPEAT_S = 10.0               # is no longer special, nor is the same word twice in a row
+HERO_MIN_CUE_S = 1.0               # no hero in a cue too short to read it
+HERO_SPACE = 4                     # extra px each side of a hero word: italic crowds its neighbours
+# Words too common to be a cue's hero, beyond the ones that lean on a neighbour (cues.py):
+# pronouns, conjunctions, common verbs and adverbs, Hinglish and English.
 COMMON = frozenset("""main mujhe mujhko hum hamein humein aap tum tumhe tumko unhe unko inhe
     isko usko yahan wahan kahan jab tab ab abhi phir agar lekin magar kyunki kyonki isliye
     isilie nahin nahi kya kyon kaise kaun karna karne karta karti karte karein karenge kiya
     kiye hona hone hota hoti hote hua hui hue jana jaana jaata jaati jaate jaaen gaya gayi gaye
     aana aata aati aate aaya lagta lagti lagte laga rahna raha rahi rahe sakta sakti sakte
-    bolta bolti bolte dena deta deti dete lena leta leti lete which would could should there
-    their about going really thing things these those where while every being because before
-    after again other""".split())
+    bolta bolti bolte dena deta deti dete lena leta leti lete aksar hamesha kabhi sirf bilkul
+    shayad zaroor jaldi baat wahi yahi sach sachmuch
+    which would could should there their about going really thing things these those where
+    while every being because before after again other always whenever however wherever
+    whatever inside outside already still even never ever just only also much many more some
+    any each another then when what without within onto upon over under using used make made
+    want need know think doing getting click select open close press choose change install
+    show see come get put set use like said says okay yeah guys all have has had able end time
+    part told tell say does done did myself yourself itself himself herself themselves
+    ourselves oneself people someone something anything everything nothing here yours well
+    back down last next little lots right left good great best better same different away
+    around through stuff ways kind sort pretty quite enough during until since though although
+    whether either both such own cannot cant dont wont didnt doesnt isnt arent wasnt""".split())
 
 
 @dataclass(frozen=True)
@@ -101,44 +121,89 @@ DEFAULT_STYLE = "signature"
 
 
 def to_ass(cues: list[Cue], words: list[dict], style: Style,
-           size: tuple[int, int] = (WIDTH, HEIGHT)) -> str:
-    """The cues as an .ass file in this style. words = the timed words the cues were made from."""
+           size: tuple[int, int] = (WIDTH, HEIGHT), light: list[float] | None = None) -> str:
+    """The cues as an .ass file in this style. words = the timed words the cues were made from;
+    light = how bright the video is behind each cue (media.band_light), if known."""
     width, height = size
     scale = width / WIDTH
     lines = [_header(style, width, height)]
-    queue = list(words)
-    for i, cue in enumerate(cues):
+    queue, per_cue = list(words), []
+    for cue in cues:
         cue_words, queue = _take(cue, queue)
+        per_cue.append(cue_words)
+    heroes = pick_heroes(cues, per_cue) if style.hero else [None] * len(cues)
+    # Plate or halo is decided once for the whole clip: switching mid-video reads as a glitch.
+    plate = light is not None and any(level > PLATE_LIGHT for level in light)
+    for i, (cue, cue_words) in enumerate(zip(cues, per_cue)):
         start_cs, end_cs = _cs(cue.start), _cs(cue.end)
         # Fade only across a real gap: two cues back to back swap without a blink.
         fade_in = FADE_IN_MS if i == 0 or cue.start - cues[i - 1].end > 0.01 else 0
         fade_out = FADE_OUT_MS if i + 1 == len(cues) or cues[i + 1].start - cue.end > 0.01 \
             else 0
-        for layer, text in _layers(cue_words, start_cs * 10, style, scale, fade_in, fade_out):
+        for layer, name, text in _layers(cue_words, start_cs * 10, style, scale, heroes[i],
+                                         plate, fade_in, fade_out):
             lines.append(f"Dialogue: {layer},{_stamp(start_cs)},{_stamp(end_cs)},"
-                         f"{LAYER_STYLES[layer]},,0,0,0,,{text}")
+                         f"{name},,0,0,0,,{text}")
     return "\n".join(lines) + "\n"
 
 
-LAYER_STYLES = {0: "Halo", 1: "Glow", 2: "Text"}
+def text_band(style: Style) -> tuple[float, float]:
+    """Where a style's lines sit, as (top, bottom) fractions of the height: two lines up from
+    its bottom margin. What media.band_light measures the picture's light in."""
+    return (round(1 - style.bottom - 0.11, 3), round(1 - style.bottom + 0.01, 3))
 
 
-def hero_index(words: list[dict]) -> int | None:
-    """The cue's hero word: its longest word that carries meaning, or None if none is long enough.
+def pick_heroes(cues: list[Cue], per_cue: list[list[dict]]) -> list[int | None]:
+    """Each cue's hero word (its index in the cue), or None.
 
-    Long, uncommon words are the content ones (experience, jindagi, koshish, tajurba); short and
-    common words are grammar. A tie goes to the word said longer.
+    A hero is a word that carries the line: not grammar, not a common verb or adverb. Among a
+    cue's candidates the best is a code-like word (MP4, MPV), then the longest (long words are
+    the rare ones: experience, organisms, tajurba), then one said only once in the clip, then
+    the one said longest. At most one hero every HERO_GAP_S, never the same word twice within
+    HERO_REPEAT_S, and none in a cue too short to read it: a gold word on every line stops
+    being special. The clip's best words are placed first and the rest fit around them (a weak
+    early word never blocks a strong later one); the last cue's word goes first of all, as the
+    clip's payoff. A cue whose best word does not fit gets no hero rather than a weaker one.
     """
-    best, best_key = None, None
-    for i, word in enumerate(words):
-        letters = core(word["text"])
-        if len(letters) < HERO_MIN_LETTERS or letters in COMMON or letters in LEANS_BACK \
-                or letters in LEANS_FORWARD:
-            continue
-        key = (len(letters), float(word["end"]) - float(word["start"]))
-        if best_key is None or key > best_key:
-            best, best_key = i, key
-    return best
+    counts: dict[str, int] = {}
+    for word in (w for cue_words in per_cue for w in cue_words):
+        counts[core(word["text"])] = counts.get(core(word["text"]), 0) + 1
+    best = []                                   # each cue's best candidate, if it has one
+    for c, (cue, cue_words) in enumerate(zip(cues, per_cue)):
+        candidates = [(_hero_rank(w, counts), i) for i, w in enumerate(cue_words)
+                      if _can_be_hero(w["text"])]
+        if candidates and cue.end - cue.start >= HERO_MIN_CUE_S:
+            rank, i = max(candidates)
+            best.append(((c == len(cues) - 1, *rank), c, i))
+    heroes: list[int | None] = [None] * len(cues)
+    placed: list[tuple[float, str]] = []
+    for _, c, i in sorted(best, reverse=True):
+        at, key = float(per_cue[c][i]["start"]), core(per_cue[c][i]["text"])
+        if all(abs(at - t) >= (HERO_REPEAT_S if k == key else HERO_GAP_S) for t, k in placed):
+            heroes[c] = i
+            placed.append((at, key))
+    return heroes
+
+
+def _can_be_hero(text: str) -> bool:
+    letters = core(text)
+    if letters in COMMON or letters in LEANS_BACK or letters in LEANS_FORWARD:
+        return False
+    if len(letters) < HERO_MIN_LETTERS and not _code_like(text):
+        return False
+    return not (len(letters) > 5 and letters.endswith("ly"))   # adverbs: currently, extremely
+
+
+def _code_like(text: str) -> bool:
+    """MP4, MPV, 2024: a code or a number is the word a viewer is looking for."""
+    text = text.strip(".,!?;:'\"")
+    return any(c.isdigit() for c in text) or (len(text) > 1 and text.isupper())
+
+
+def _hero_rank(word: dict, counts: dict[str, int]) -> tuple:
+    letters = core(word["text"])
+    return (_code_like(word["text"]), len(letters), counts.get(letters, 0) == 1,
+            float(word["end"]) - float(word["start"]))
 
 
 def _take(cue: Cue, queue: list[dict]) -> tuple[list[dict], list[dict]]:
@@ -151,50 +216,66 @@ def _take(cue: Cue, queue: list[dict]) -> tuple[list[dict], list[dict]]:
     return taken, rest
 
 
-def _layers(words: list[dict], start_ms: int, style: Style, scale: float, fade_in: int,
-            fade_out: int) -> list[tuple[int, str]]:
-    """The layers' text for one cue, as (layer, text with override tags)."""
-    hero = hero_index(words) if style.hero else None
+def _layers(words: list[dict], start_ms: int, style: Style, scale: float, hero: int | None,
+            plate: bool, fade_in: int, fade_out: int) -> list[tuple[int, str, str]]:
+    """The layers for one cue, as (layer, style name, text with override tags)."""
     second_line = _line_break(words, style.line_chars, hero, style.hero)
     hidden = style.upcoming_alpha >= CLEAR
-    halo, glow, text = [], [], []
+    track = round(style.tracking * scale, 2)
+    wide = round(HERO_SPACE * scale + style.tracking * scale, 2)
+    back, glow, text = [], [], []
     for i, word in enumerate(words):
         on = _lit_at(word, start_ms)
         off = max(on + WORD_IN_MS, _lit_at(words[i + 1], start_ms)) if i + 1 < len(words) \
             else max(on + WORD_IN_MS, round(float(word["end"]) * 1000) - start_ms)
         lit, done = f"{on},{on + WORD_IN_MS}", f"{off},{off + WORD_OUT_MS}"
-        sep = "" if i == 0 else ("\\N" if i == second_line else " ")
+        # The space on either side of a hero word is widened; every word resets the spacing.
+        if i == 0:
+            sep = ""
+        elif i == second_line:
+            sep = "\\N"
+        elif hero is not None and hero in (i, i - 1):
+            sep = f"{{\\fsp{wide}}} "
+        else:
+            sep = " "
         said = _escape(word["text"].strip())
         # A hero word switches font and size for itself only; every layer does the same, so
-        # the three layers keep one layout.
+        # the layers keep one layout.
         is_hero = i == hero
         font_on = (f"\\fn{style.hero.font}\\i1\\fs{round(style.size * style.hero.scale * scale)}"
-                   if is_hero else "")
+                   if is_hero else "") + f"\\fsp{track}"
         font_off = f"{{\\fn{style.font}\\i0\\fs{round(style.size * scale)}}}" if is_hero else ""
-        upcoming, active, spoken = ((style.hero.colour,) * 3 if is_hero
-                                    else (style.upcoming, style.active, style.spoken))
+        # A hero waits dim like any word (a dim gold reads khaki), then turns gold when said.
+        active, spoken = ((style.hero.colour,) * 2 if is_hero else (style.active, style.spoken))
         glow_colour = style.hero.colour if is_hero else style.glow
 
-        reveal = f"\\3a&HFF&\\t({lit},\\3a{_alpha(style.halo_alpha)})" if hidden else ""
-        halo.append(f"{sep}{{{font_on}{reveal}}}{said}{font_off}" if font_on or reveal
-                    else f"{sep}{said}")
+        reveal = (f"\\3a&HFF&\\t({lit},\\3a{_alpha(PLATE_ALPHA if plate else style.halo_alpha)})"
+                  if hidden else "")
+        back.append(f"{sep}{{{font_on}{reveal}}}{said}{font_off}")
         if glow_colour:
             glow.append(f"{sep}{{{font_on}\\3c{_colour(glow_colour)}\\3a&HFF&"
                         f"\\t({lit},\\3a{_alpha(style.glow_alpha)})\\t({done},\\3a&HFF&)}}"
                         f"{said}{font_off}")
         else:
             glow.append(f"{sep}{{{font_on}\\3a&HFF&}}{said}{font_off}")
-        text.append(f"{sep}{{{font_on}\\1c{_colour(upcoming)}\\1a{_alpha(style.upcoming_alpha)}"
+        dim = min(style.upcoming_alpha, PLATE_DIM_ALPHA) if plate else style.upcoming_alpha
+        text.append(f"{sep}{{{font_on}\\1c{_colour(style.upcoming)}\\1a{_alpha(dim)}"
                     f"\\t({lit},\\1c{_colour(active)}\\1a&H00&)"
                     f"\\t({done},\\1c{_colour(spoken)})}}{said}{font_off}")
 
     fade = f"\\fad({fade_in},{fade_out})" if fade_in or fade_out else ""
     layers = []
-    if style.halo_alpha < CLEAR:
-        layers.append((0, f"{{{fade}\\blur14}}" + "".join(halo)))
+    if plate:
+        # Over a bright picture a halo is not enough: a soft dark plate behind each line. No
+        # vertical padding, so two lines' plates meet without overlapping into a darker band.
+        pad_x = round(26 * scale)
+        layers.append((0, "Plate", f"{{{fade}\\xbord{pad_x}\\ybord0\\blur6}}"
+                                   + "".join(back)))
+    elif style.halo_alpha < CLEAR:
+        layers.append((0, "Halo", f"{{{fade}\\blur14}}" + "".join(back)))
     if style.glow or style.hero:
-        layers.append((1, f"{{{fade}\\blur10}}" + "".join(glow)))
-    layers.append((2, (f"{{{fade}}}" if fade else "") + "".join(text)))
+        layers.append((1, "Glow", f"{{{fade}\\blur10}}" + "".join(glow)))
+    layers.append((2, "Text", (f"{{{fade}}}" if fade else "") + "".join(text)))
     return layers
 
 
@@ -217,9 +298,9 @@ def _line_break(words: list[dict], line_chars: int, hero: int | None = None,
     for i in range(1, len(words)):
         first += widths[i - 1] + 1
         cost = abs(first - (total - first - 1))
-        if core(words[i]["text"]) in LEANS_BACK:
+        if leans_back(words[i]["text"]):
             cost += 100
-        if core(words[i - 1]["text"]) in LEANS_FORWARD:
+        if leans_forward(words[i - 1]["text"]):
             cost += 100
         if best_cost is None or cost < best_cost:
             best, best_cost = i, cost
@@ -238,9 +319,9 @@ def _header(style: Style, width: int, height: int) -> str:
     # Format: Name, Font, Size, Primary, Secondary, Outline, Back, Bold, Italic, Underline,
     # StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment,
     # MarginL, MarginR, MarginV, Encoding
-    def row(name: str, primary: str, outline: str, border: int) -> str:
+    def row(name: str, primary: str, outline: str, border: int, border_style: int = 1) -> str:
         return (f"Style: {name},{style.font},{size},{primary},{clear},{outline},{clear},"
-                f"0,0,0,0,100,100,{tracking},0,1,{round(border * scale)},0,"
+                f"0,0,0,0,100,100,{tracking},0,{border_style},{round(border * scale)},0,"
                 f"{alignment},{margin_side},{margin_side},{margin_v},1")
 
     return "\n".join([
@@ -258,6 +339,8 @@ def _header(style: Style, width: int, height: int) -> str:
         "BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, "
         "BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
         row("Halo", clear, _ass_colour("000000", style.halo_alpha), 9),
+        # libass's opaque box (border style 3): drawn per glyph, so it hugs each line.
+        row("Plate", clear, _ass_colour("000000", PLATE_ALPHA), 0, border_style=3),
         row("Glow", clear, _ass_colour(style.glow or GOLD, CLEAR), style.glow_size),
         row("Text", _ass_colour(style.spoken, 0), clear, 0),
         "",

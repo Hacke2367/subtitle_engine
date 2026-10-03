@@ -6,9 +6,10 @@ Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
 - Did: `style.py` (.ass, 3 layers per cue) + transparent ProRes overlay (`media.render_overlay`),
   `--style`; fonts Instrument Sans/Serif (OFL); cue display timing; line breaks that keep
-  phrases; judged twice by `video-judge`; spec 00b.
+  phrases; plate on bright clips; hero words; judged in rounds by `video-judge`; spec 00b.
 - Decisions: D-107 (.ass + overlay .mov), D-108 (alpha by black/white matting: ffmpeg's alpha
-  mode squared opacity), D-109 (lead/hold, no blink), D-110 (signature + hero word).
+  mode squared opacity), D-109 (lead/hold, no blink), D-110 (signature + hero word),
+  D-111 (plate), D-112 (even cue splits, scraps joined).
 - Open: H-107 (owner picks the style); overlay not yet tried in CapCut.
 - Next: owner watches `voices/clip_01-9b5726/compare_styles.mp4`.
 

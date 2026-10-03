@@ -99,8 +99,14 @@ def _subs(args: argparse.Namespace) -> int:
         preview = media.burn_subtitles(source, out, work / "preview.mp4")
         print(f"      preview (review only) -> {preview}")
     (size, fps) = video or CANVAS
+    light: dict[tuple[float, float], list[float]] = {}     # per text band, measured once
     for name, (ass, mov) in styled.items():
-        ass.write_text(style.to_ass(cues, timed, style.STYLES[name], size=size), encoding="utf-8")
+        look = style.STYLES[name]
+        band = style.text_band(look)
+        if video is not None and band not in light:
+            light[band] = media.band_light(source, [(c.start, c.end) for c in cues], band)
+        ass.write_text(style.to_ass(cues, timed, look, size=size, light=light.get(band)),
+                       encoding="utf-8")
         overlay = media.render_overlay(ass, mov, size, fps, seconds)
         print(f"      style {name}: {ass.name} + overlay {overlay.name} "
               f"({overlay.stat().st_size / 1e6:.0f} MB, transparent, {size[0]}x{size[1]})")

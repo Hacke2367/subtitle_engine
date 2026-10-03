@@ -14,12 +14,15 @@ been merged into `dev`.
 **Owner picks the signature subtitle style (H-107).** On top of the light version (spec 00:
 video → Roman `.srt`), `--style` now draws premium subtitles with each word lit as it is said,
 as a transparent overlay `.mov` to drop above the video in CapCut (spec 00b). Three looks:
-`signature` (recommended: sans line + one gold serif-italic hero word per cue), `ink`, `cinema`.
-Judged twice by the `video-judge` agent; fixes from both rounds are in.
+`signature` (recommended: sans line + a gold serif-italic hero word on about every other cue),
+`ink`, `cinema`. Judged in rounds by the `video-judge` agent; every round's fixes are in. Its
+verdict: signature ready on dark talking-head clips (7/10, "ruk ke dekhega: haan"); on bright
+backgrounds (whiteboard, white UI) readable now, with a per-line plate it calls
+closed-caption-like (5/10): work in progress.
 
 Watch first: `v2/voices/clip_01-9b5726/compare_styles.mp4` (old plain `.srt` vs the three looks,
-same clip). Signature on English: `v2/voices/03_dYSQ1NF1hvw_00.04.33-2542ea/preview_signature.mp4`,
-`v2/voices/clip_01-91c782/preview_signature.mp4` (bright background).
+same clip). Signature on English: `v2/voices/03_dYSQ1NF1hvw_00.04.33-2542ea/preview_signature.mp4`
+(whiteboard), `v2/voices/clip_01-91c782/preview_signature.mp4` (screen recording).
 
 Try it:
 

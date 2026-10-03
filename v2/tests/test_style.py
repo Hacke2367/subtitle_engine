@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 
 from voice_subs import media
 from voice_subs.cues import Cue, to_cues
-from voice_subs.style import STYLES, Style, _line_break, hero_index, to_ass
+from voice_subs.style import STYLES, Style, _line_break, pick_heroes, to_ass
 
 
 def words(*triples):
@@ -68,7 +68,8 @@ class AssTest(unittest.TestCase):
                 self.assertNotIn("\\t(0,", to_ass(to_cues(said), said, style))
 
     def test_back_to_back_cues_swap_without_a_fade(self):
-        said = words(("hai.", 0.0, 0.5), ("aur", 0.6, 1.0))
+        said = spaced("ye sach hai.") + words(*[(w, 3.2 + i * 0.5, 3.6 + i * 0.5)
+                                                for i, w in enumerate("aur phir kya".split())])
         texts = events(to_ass(to_cues(said), said, STYLES["ink"]), 2)
         self.assertIn("\\fad(120,0)", texts[0])     # fades in from nothing, swaps out
         self.assertIn("\\fad(0,120)", texts[1])     # swaps in, fades out at the end
@@ -87,20 +88,70 @@ class AssTest(unittest.TestCase):
         self.assertIn("Style: Text,Instrument Sans SemiBold,45,", ass)   # 68 x 720/1080
 
 
+def heroes_of(*sentences: str, step_s: float = 4.0) -> list[str | None]:
+    """The hero word picked for each sentence, each sentence its own cue, step_s apart."""
+    cues, per = [], []
+    for n, sentence in enumerate(sentences):
+        line = words(*[(w, n * step_s + i * 0.3, n * step_s + i * 0.3 + 0.25)
+                       for i, w in enumerate(sentence.split())])
+        cues.append(Cue(line[0]["start"], line[-1]["end"] + 0.5, sentence))
+        per.append(line)
+    picks = pick_heroes(cues, per)
+    return [None if p is None else ws[p]["text"] for ws, p in zip(per, picks)]
+
+
 class HeroTest(unittest.TestCase):
     def test_the_hero_is_the_longest_word_that_carries_meaning(self):
-        said = spaced("ki jindagi ko jina bahut aasaan kaam hai.")
-        self.assertEqual(said[hero_index(said)]["text"], "jindagi")
+        self.assertEqual(heroes_of("ki jindagi ko jina bahut aasaan kaam hai."), ["jindagi"])
 
-    def test_grammar_and_short_words_are_never_the_hero(self):
-        self.assertIsNone(hero_index(spaced("aur mujhe sach mein lagta hai")))
+    def test_grammar_common_verbs_and_adverbs_are_never_the_hero(self):
+        self.assertEqual(heroes_of("aur mujhe sach mein lagta hai",
+                                   "this because I'm currently"), [None, None])
+
+    def test_a_code_like_word_beats_a_longer_one(self):
+        self.assertEqual(heroes_of("So I always change it to MP4"), ["MP4"])
+
+    def test_the_same_hero_never_comes_back_within_ten_seconds(self):
+        picks = heroes_of("prayog karein koshish karein", "dusri koshish karein", "bas itna",
+                          step_s=4.0)
+        self.assertEqual(picks[:2].count("koshish"), 1)
+
+    def test_a_strong_later_word_is_never_blocked_by_a_weak_earlier_one(self):
+        picks = heroes_of("har field mein", "Maturity aapke andar", step_s=1.5)
+        self.assertEqual(picks, [None, "Maturity"])     # 1.5 s apart: room for one only
+
+    def test_the_last_line_keeps_its_hero(self):
+        picks = heroes_of("kyon dare jindagi mein kya hoga?", "kuchh na hoga to tajurba hoga.",
+                          step_s=1.5)
+        self.assertEqual(picks, [None, "tajurba"])
 
     def test_the_signature_sets_only_its_hero_in_the_serif_and_back(self):
         said = words(("koshish", 0.0, 0.6), ("karein", 0.65, 1.0))
-        text = events(to_ass(to_cues(said), said, STYLES["signature"]), 2)[0]
+        text = events(to_ass([Cue(0.0, 1.5, "koshish karein")], said,
+                             STYLES["signature"]), 2)[0]
         self.assertIn("\\fnInstrument Serif\\i1\\fs86", text)          # 66 x 1.3
         self.assertIn("koshish{\\fnInstrument Sans SemiBold\\i0\\fs66}", text)
+        self.assertIn("{\\fsp4.0} ", text)                             # room beside the italic
         self.assertEqual(plain(text), "koshish karein")
+
+
+class PlateTest(unittest.TestCase):
+    def test_one_bright_moment_puts_the_whole_clip_on_plates_and_never_switches(self):
+        said = spaced("ek do teen") + words(*[(w, 5 + i * 0.5, 5.4 + i * 0.5)
+                                              for i, w in enumerate("char paanch chhe".split())])
+        cues = to_cues(said)
+        backs = events(to_ass(cues, said, STYLES["signature"], light=[0.2, 0.95]), 0)
+        self.assertTrue(all(",Plate," in b for b in backs), backs)
+        backs = events(to_ass(cues, said, STYLES["signature"], light=[0.2, 0.3]), 0)
+        self.assertTrue(all(",Halo," in b for b in backs), backs)
+
+    def test_on_a_plate_unsaid_words_are_brighter(self):
+        ass = to_ass(to_cues(SAID), SAID, STYLES["signature"], light=[0.95])
+        self.assertIn("\\1a&H40&", events(ass, 2)[0])
+
+    def test_with_no_light_measured_every_cue_gets_the_halo(self):
+        ass = to_ass(to_cues(SAID), SAID, STYLES["ink"])
+        self.assertNotIn(",Plate,,", ass)
 
 
 class LineBreakTest(unittest.TestCase):

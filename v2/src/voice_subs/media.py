@@ -82,6 +82,34 @@ def render_overlay(ass: Path, dest: Path, size: tuple[int, int], fps: float,
     return dest
 
 
+PROBE_FPS, PROBE_W, PROBE_H = 5, 54, 96   # a tiny grey copy of the video is enough to judge light
+
+
+def band_light(video: Path, spans: list[tuple[float, float]],
+               band: tuple[float, float]) -> list[float]:
+    """How bright the video is behind the subtitles, per span of time: the 90th-percentile grey
+    level (0-1) of a horizontal band (top, bottom as fractions of the height), middle 80% wide.
+
+    The 90th percentile, not the mean: one bright button or a white board behind half the
+    words is enough to wash white text out.
+    """
+    raw = subprocess.run(
+        ["ffmpeg", "-nostdin", "-v", "error", "-i", str(Path(video)), "-vf",
+         f"fps={PROBE_FPS},scale={PROBE_W}:{PROBE_H}:flags=area,format=gray",
+         "-f", "rawvideo", "-"], capture_output=True, check=False).stdout
+    size = PROBE_W * PROBE_H
+    frames = [raw[i:i + size] for i in range(0, len(raw) - size + 1, size)]
+    top, bottom = round(band[0] * PROBE_H), round(band[1] * PROBE_H)
+    left, right = round(0.1 * PROBE_W), round(0.9 * PROBE_W)
+    light = []
+    for start, end in spans:
+        picked = frames[int(start * PROBE_FPS):int(end * PROBE_FPS) + 1] or frames[-1:]
+        pixels = sorted(frame[row * PROBE_W + col] for frame in picked
+                        for row in range(top, bottom) for col in range(left, right))
+        light.append(pixels[int(len(pixels) * 0.9)] / 255 if pixels else 0.0)
+    return light
+
+
 def video_format(path: Path) -> tuple[tuple[int, int], float] | None:
     """((width, height), frames per second) of the file's video, or None for audio only."""
     out = _run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",

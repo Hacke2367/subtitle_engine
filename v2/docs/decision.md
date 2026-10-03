@@ -25,7 +25,9 @@ never collides with V1's `../docs/decision.md`.
 | D-107 | Styled subtitles ship as an .ass file and a transparent overlay .mov | Active |
 | D-108 | The overlay's alpha comes from drawing twice, on black and on white | Active |
 | D-109 | Cue display times: lead 0.1 s, hold to the next cue, no blink | Active |
-| D-110 | Three looks; the signature sets one hero word per cue in gold serif | Active |
+| D-110 | Three looks; the signature sets a hero word in gold serif | Active |
+| D-111 | Over a bright picture, a soft dark plate replaces the halo | Active |
+| D-112 | Cues: runs cut evenly at the best seams; scraps join a neighbour | Active |
 
 ### D-101 — V2 ids, package name, shared venv, no V1 imports
 **Date:** 2026-09-29
@@ -149,18 +151,67 @@ reads cut. These are display times around the words' audio times, which stay unt
 line 2): the highlight still follows each word exactly.
 **Supersedes:** part of D-105
 
-### D-110 — Three looks; the signature sets one hero word per cue in gold serif
+### D-110 — Three looks; the signature sets a hero word in gold serif
 **Date:** 2026-10-03
 **Context:** H-107. Round one (Poppins ink, cinema, a "pill" box) was judged competent but not
 a signature; pill was the most common look on Reels and was dropped.
 **Decision:** `signature` (default): Instrument Sans SemiBold body, brightening as said, and one
-hero word per cue in Instrument Serif Italic at 1.3x, gold #FFD37A. The hero is the cue's
-longest word of five letters or more that is not grammar or a common verb (`style.COMMON`, plus
-the words that lean on a neighbour); a tie goes to the word said longer. `ink` and `cinema`
+hero word in Instrument Serif Italic at 1.3x, gold #FFD37A, with 4 px more space on each side
+(an italic crowds its neighbours; 10 px read as a double space). The hero waits dim white like any word (a dim gold read
+khaki) and turns gold when said. Round 2 of the judge found a hero in 43 of 53 cues, so it
+stopped being special, and picks like adverbs and repeats; now: candidates are words of 4+
+letters (or code-like: MP4, MPV) that are not grammar, common verbs or adverbs (`style.COMMON`,
+-ly words); best = code-like, then longest (long words are the rare ones), then said once in
+the clip; at most one hero every 3 s, never the same word within 10 s, none in a cue under 1 s,
+and if a cue's best word is held back the cue gets none rather than a weaker one. Heroes are
+placed best-first across the whole clip, the last cue's first of all (round 3: placing them in
+time order let "prayaas" block "experience" and "jindagi" block the closing "tajurba"). Result
+on the three test clips: 7 of 15 (experience, Maturity, priy, mushkil, koshish, line, tajurba),
+6 of 11 and 8 of 23 cues. `ink` and `cinema`
 stay as alternatives. Fonts: Instrument Sans (static SemiBold instanced from the OFL variable
 font with fontTools) and Instrument Serif, both OFL, shipped in `voice_subs/fonts/`.
 **Why:** A hero chosen by duration alone picked verbs (aata, lagta, karein); by length it picks
-the content words (experience, jindagi, mushkil, koshish, tajurba). The sans + serif-italic mix
+content words (prayaas, sher, mushkil, koshish, tajurba; confuse, organisms, conception, crude;
+recording, folder, dropdown, MPV). A frequency list would rank rarity better but is a large
+dependency for one ranking; length is the stand-in. The sans + serif-italic mix
 is not a caption-app preset, and the one gold word gives a scrolling eye an anchor per line.
 Instrument Sans and Serif are one design family, so the mix looks intended.
 **Supersedes:** —
+
+### D-111 — Over a bright picture, a soft dark plate replaces the halo
+**Date:** 2026-10-03
+**Context:** Judge round 2: on a whiteboard (the Watts clip) white and gold text washed out and
+dim words vanished; a halo is not enough there.
+**Decision:** `media.band_light` reads a 54x96 grey copy of the video at 5 fps and takes the
+90th-percentile level of the band the text sits in (middle 80% wide) for each cue's time. If any
+cue is above 0.72, the whole clip's layer 0 is a plate instead of a halo (round 3: switching
+mid-clip read as a glitch): libass's opaque box (border style 3, drawn per glyph so it hugs
+each line), black at 62%, padded 26 px sideways and not at all vertically (two lines' plates
+then meet without a darker overlap band), blurred 6; on a plate a word not said yet is 75%
+white instead of 57%. Measured:
+the Watts clip is 1.00 throughout, the tutorial 0.27 until its last four cues (0.89-0.98), the
+Hindi clip at most 0.63, so only the bright cues get one.
+**Why:** The plate appears only on clips that need it, so the dark-clip look stays as it was.
+The judge rates per-line plates as closed-caption-like; one rounded plate per cue would need the
+text measured, and is the next step if bright clips matter to the owner. The
+90th percentile, not the mean, because one bright button behind half the words is enough to
+wash them out.
+**Supersedes:** —
+
+### D-112 — Cues: runs cut evenly at the best seams; scraps join a neighbour
+**Date:** 2026-10-03
+**Context:** Judge round 2: greedy filling left scraps ("aata hai." alone for 0.6 s, "this."),
+split phrases ("kisi na kisi |", "your | screen"), and a 40-280 ms blink where a pause of
+0.4-0.85 s left a blank between a fade-out and a fade-in.
+**Decision:** Words are first cut into runs at sentence ends and pauses. A run too long for one
+cue is cut into the fewest cues that fit, by a small dynamic programme: pieces as even as
+possible, a cut beside a word that leans on its neighbour costs 400 (Hinglish postpositions,
+light verbs and object pronouns lean back; determiners, subject pronouns, conjunctions,
+prepositions, -ly intensifiers and English function words lean forward; `cues.leans_back` /
+`leans_forward`, also used for the line break inside a cue),
+a comma or a breath helps. A scrap (under 3 words or 0.9 s) joins the neighbour on its own
+sentence's side if within 1 s and the result still fits (48 characters, 6 s). A blank under
+0.35 s between cues is closed.
+**Why:** Even pieces read at an even pace, and the viewer never meets a two-word flash or a
+line that ends on "the". Every word still appears once, in order (tested).
+**Supersedes:** the greedy fill in D-105
