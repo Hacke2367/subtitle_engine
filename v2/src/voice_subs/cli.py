@@ -1,11 +1,10 @@
-"""`python -m voice_subs.cli subs <video-or-audio>` -> a Roman-script `.srt` beside it.
+"""`python -m voice_subs.cli subs <video-or-audio>` -> its subtitles, in the work folder.
 
-One command, four stages: ffmpeg pulls the audio out, Scribe transcribes it, `roman.py` writes
-the Hindi words in Roman, `cues.py` groups them into cues and writes the file. The transcript is
-kept, so fixing a word by hand and running again costs no API call (red line 3).
-
-With `--style`, the same cues are also drawn in a styled look, each word lit as it is said
-(`style.py`): an `.ass` file and a transparent overlay `.mov` to drop above the video.
+One command: ffmpeg pulls the audio out, Scribe transcribes it, `roman.py` writes the Hindi
+words in Roman, `cues.py` groups them into cues. Out come a plain `.srt`, and the signature
+subtitles (`style.py`): an `.ass` file and a transparent overlay strip `.mov` with each word lit
+as it is said, for the owner to drop onto the video in CapCut wherever they want. The
+transcript is kept, so fixing a word by hand and running again costs no API call (red line 3).
 """
 from __future__ import annotations
 
@@ -20,12 +19,12 @@ from . import media, scribe, style, transcript
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]      # v2/
 WORK_ROOT = PACKAGE_ROOT / "voices"                     # gitignored (red line 4)
 AUDIO_NAME = "audio.mp3"
-CANVAS = ((style.WIDTH, style.HEIGHT), 30.0)            # for an audio-only source
+AUDIO_ONLY = (style.WIDTH, 30.0)                        # strip width and fps without a video
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
-        prog="voice-subs", description="A voice recording or video -> a Roman-script .srt")
+        prog="voice-subs", description="A voice recording or video -> its subtitles")
     sub = parser.add_subparsers(dest="command", required=True)
 
     subs = sub.add_parser("subs", help="make subtitles for one video or audio file")
@@ -40,15 +39,10 @@ def main(argv: list[str] | None = None) -> int:
                       help="transcribe again, replacing the transcript and any hand edits")
     subs.add_argument("--devanagari", action="store_true",
                       help="keep the engine's own script instead of writing Hindi in Roman")
-    subs.add_argument("--style", choices=[*style.STYLES, "all"], default=None,
-                      help="also draw the subtitles in a styled look, each word lit as it is "
-                           "said: an .ass file and a transparent overlay .mov ("
-                           + "; ".join(f"{s.name}: {s.about}" for s in style.STYLES.values())
-                           + ")")
     subs.add_argument("--overwrite", action="store_true",
                       help="replace subtitle files that already exist")
     subs.add_argument("--preview", action="store_true",
-                      help="also write the video with the subtitles drawn on it, to check by eye")
+                      help="also write preview.mp4: the video with the overlay on it, to check")
 
     args = parser.parse_args(argv)
     try:
@@ -67,12 +61,11 @@ def _subs(args: argparse.Namespace) -> int:
 
     work = (args.work or WORK_ROOT / _work_name(source)).expanduser()
     audio = work / AUDIO_NAME
-    out = (args.out or work / f"{_slug(source.stem)}.srt").expanduser()
-    looks = list(style.STYLES) if args.style == "all" else [args.style] if args.style else []
+    name = _slug(source.stem)
+    out = (args.out or work / f"{name}.srt").expanduser()
     # (Not with_suffix: a name like 03_x_00.04.33 already has dots in it.)
-    styled = {name: (work / f"{_slug(source.stem)}.{name}.ass",
-                     work / f"{_slug(source.stem)}.{name}.mov") for name in looks}
-    existing = [p for p in [out, *(ass for ass, _ in styled.values())] if p.exists()]
+    ass, mov = work / f"{name}.ass", work / f"{name}.mov"
+    existing = [p for p in (out, ass) if p.exists()]
     if existing and not args.overwrite:
         raise media.MediaError(f"{existing[0]} already exists; pass --overwrite to replace it")
 
@@ -89,30 +82,21 @@ def _subs(args: argparse.Namespace) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(cues_mod.to_srt(cues), encoding="utf-8")
 
-    print(f"[4/4] subtitles -> {out}")
+    video = media.video_format(source)
+    width, fps = (video[0][0], video[1]) if video else AUDIO_ONLY
+    ass.write_text(style.to_ass(cues, timed, width=width), encoding="utf-8")
+    size = (width, style.strip_height(width))
+    media.render_overlay(ass, mov, size, fps, seconds)
+    print(f"[4/4] subtitles -> {work}")
+    print(f"      {out.name} (plain), {ass.name} + {mov.name} (signature overlay strip, "
+          f"{size[0]}x{size[1]}, transparent, {mov.stat().st_size / 1e6:.0f} MB)")
     _report(data, timed, cues)
-
-    video = media.video_format(source) if (args.preview or styled) else None
-    if args.preview and video is None:
-        print("      no preview: the source has no video to draw on")
-    if args.preview and video is not None and not styled:
-        preview = media.burn_subtitles(source, out, work / "preview.mp4")
-        print(f"      preview (review only) -> {preview}")
-    (size, fps) = video or CANVAS
-    light: dict[tuple[float, float], list[float]] = {}     # per text band, measured once
-    for name, (ass, mov) in styled.items():
-        look = style.STYLES[name]
-        band = style.text_band(look)
-        if video is not None and band not in light:
-            light[band] = media.band_light(source, [(c.start, c.end) for c in cues], band)
-        ass.write_text(style.to_ass(cues, timed, look, size=size, light=light.get(band)),
-                       encoding="utf-8")
-        overlay = media.render_overlay(ass, mov, size, fps, seconds)
-        print(f"      style {name}: {ass.name} + overlay {overlay.name} "
-              f"({overlay.stat().st_size / 1e6:.0f} MB, transparent, {size[0]}x{size[1]})")
-        if args.preview and video is not None:
-            preview = media.burn_subtitles(source, ass, work / f"preview_{name}.mp4")
-            print(f"      preview (review only) -> {preview}")
+    if args.preview:
+        if video is None:
+            print("      no preview: the source has no video to lay the overlay on")
+        else:
+            print(f"      preview (review only) -> "
+                  f"{media.preview(source, mov, work / 'preview.mp4')}")
     return 0
 
 

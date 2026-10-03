@@ -13,17 +13,28 @@ from voice_subs import cli, media, transcript
 from tests.test_transcript import RESPONSE
 
 
+OVERLAYS = []        # (dest, size) of every overlay the stub "rendered"
+
+
 def run(source: Path, work: Path, argv_extra=()):
     argv = ["subs", str(source), "--work", str(work), *argv_extra]
     with mock.patch.object(media, "extract_audio", lambda src, dest: _stub_audio(dest)), \
          mock.patch.object(media, "duration", lambda path: 2.5), \
          mock.patch.object(media, "fingerprint", lambda path: "abc123"), \
+         mock.patch.object(media, "video_format", lambda path: ((720, 1280), 25.0)), \
+         mock.patch.object(media, "render_overlay", _stub_overlay), \
          mock.patch("voice_subs.scribe.transcribe") as transcribe, \
          contextlib.redirect_stdout(io.StringIO()), \
          contextlib.redirect_stderr(io.StringIO()):
         transcribe.return_value = RESPONSE
         code = cli.main(argv)
     return code, transcribe.call_count
+
+
+def _stub_overlay(ass: Path, dest: Path, size, fps, seconds) -> Path:
+    OVERLAYS.append((dest, size))
+    dest.write_bytes(b"mov")
+    return dest
 
 
 def _stub_audio(dest: Path) -> Path:
@@ -76,20 +87,16 @@ class CliTest(unittest.TestCase):
         code, calls = run(self.source, self.work, ["--overwrite", "--fresh"])
         self.assertEqual((code, calls), (0, 1))
 
-    def test_style_writes_an_ass_and_an_overlay_per_look(self):
-        made = []
+    def test_every_run_writes_the_srt_the_ass_and_an_overlay_strip(self):
+        OVERLAYS.clear()
         source = self.tmp / "03_x_00.04.33.mp4"          # dots in the name, as the clips have
         source.write_bytes(b"x")
-        with mock.patch.object(media, "video_format", lambda path: ((1080, 1920), 25.0)), \
-             mock.patch.object(media, "render_overlay",
-                               lambda ass, dest, size, fps, s:
-                               (made.append(dest), dest.write_bytes(b"mov"), dest)[-1]):
-            code, _ = run(source, self.work, ["--style", "all"])
+        code, _ = run(source, self.work)
         self.assertEqual(code, 0)
-        self.assertEqual(sorted(p.name for p in self.work.glob("*.ass")),
-                         ["03_x_00.04.33.cinema.ass", "03_x_00.04.33.ink.ass",
-                          "03_x_00.04.33.signature.ass"])
-        self.assertEqual(len(made), 3)
+        self.assertEqual(sorted(p.name for p in self.work.glob("03_x*")),
+                         ["03_x_00.04.33.ass", "03_x_00.04.33.mov", "03_x_00.04.33.srt"])
+        # The strip is the video's width and only as tall as two lines need (420 at 1080).
+        self.assertEqual(OVERLAYS, [(self.work / "03_x_00.04.33.mov", (720, 280))])
 
     def test_a_file_that_is_not_video_or_audio_is_refused(self):
         other = self.tmp / "notes.txt"

@@ -113,7 +113,7 @@ capitalization once a key exists.
 **Decided:**
 
 ### H-107 — The signature subtitle style
-**Status:** pending
+**Status:** decided
 **Raised:** 2026-10-03
 **Needed-before:** making videos with the styled subtitles
 **Context:** The owner asked for premium subtitles, a signature style and font, the spoken word
@@ -125,6 +125,9 @@ per cue; (b) `ink`: each word turns gold as said; (c) `cinema`: words appear one
 left-aligned.
 **Recommendation:** (a) — the judge's own proposal after round one, and the only one that is not
 a caption-app preset.
-**Decision:**
-**Decided:**
+**Decision:** "signature style final karo — just font ko thoda aur bold karo. and tum jagha kyu
+select kar rahe ho?? kyuki tum mujhe just subtitle dogo mein manually usko capcut mein edit
+karunga jidher chaiye udar rakhunga." So: signature only, the body in bold, and the overlay is a
+strip the owner places; no position chosen by the engine (D-113).
+**Decided:** 2026-10-03
 

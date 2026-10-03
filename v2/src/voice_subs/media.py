@@ -1,5 +1,5 @@
-"""ffmpeg: a video or audio file -> the mono audio the transcription engine is sent; and the
-subtitles drawn back onto the video (preview) or onto a transparent canvas (overlay .mov).
+"""ffmpeg: a video or audio file -> the mono audio the transcription engine is sent; the
+styled subtitles drawn onto a transparent strip (overlay .mov); and a preview of the two.
 
 ffmpeg does the extraction, so a video never leaves the machine: only this small audio file is
 uploaded (red line 4). 16 kHz mono is what speech models want, and it keeps a 40-second clip
@@ -13,7 +13,7 @@ import os
 import subprocess
 from pathlib import Path
 
-FONTS_DIR = Path(__file__).resolve().parent / "fonts"   # the styles' fonts (OFL), shipped here
+FONTS_DIR = Path(__file__).resolve().parent / "fonts"   # the subtitles' fonts (OFL), shipped here
 SAMPLE_RATE = 16_000
 BITRATE = "64k"
 MEDIA_SUFFIXES = {".mp4", ".mov", ".mkv", ".webm", ".avi", ".m4v", ".wav", ".mp3", ".m4a",
@@ -37,16 +37,17 @@ def extract_audio(source: Path, dest: Path) -> Path:
     return dest
 
 
-def burn_subtitles(source: Path, srt: Path, dest: Path) -> Path:
-    """A preview copy of the video with the subtitles drawn on it, to check the timing by eye.
+def preview(source: Path, overlay: Path, dest: Path, at: float = 0.66) -> Path:
+    """The video with the overlay laid on it, its middle `at` of the way down: review only.
 
-    An `.ass` file is drawn in its own style (fonts from `fonts/`); an `.srt` in plain Arial.
+    It shows the overlay file itself, exactly as the owner will drop it in CapCut; where it
+    sits there is the owner's call, so `at` is only a stand-in.
     """
-    source, srt, dest = Path(source).resolve(), Path(srt).resolve(), Path(dest).resolve()
+    source, overlay, dest = Path(source), Path(overlay), Path(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
-    _run(["ffmpeg", "-nostdin", "-v", "error", "-y", "-i", str(source),
-          "-vf", _subtitle_filter(srt), "-c:a", "copy", "-preset", "veryfast", str(dest)],
-         cwd=srt.parent)
+    _run(["ffmpeg", "-nostdin", "-v", "error", "-y", "-i", str(source), "-i", str(overlay),
+          "-filter_complex", f"[0:v][1:v]overlay=x=(W-w)/2:y=H*{at}-h/2:format=auto",
+          "-c:a", "copy", "-preset", "veryfast", str(dest)])
     if not dest.is_file() or dest.stat().st_size == 0:
         raise MediaError(f"ffmpeg wrote no preview for {source.name}")
     return dest
@@ -54,9 +55,9 @@ def burn_subtitles(source: Path, srt: Path, dest: Path) -> Path:
 
 def render_overlay(ass: Path, dest: Path, size: tuple[int, int], fps: float,
                    seconds: float) -> Path:
-    """The styled subtitles alone on a transparent canvas: a ProRes 4444 .mov with alpha.
+    """The styled subtitles alone on a transparent strip: a ProRes 4444 .mov with alpha.
 
-    The user drops it on the track above the video in CapCut. Same codec settings as the
+    The owner drops it on the track above the video in CapCut, where they want. Same codec as the
     lyric engine's overlay, which CapCut was proven to read with its transparency (V1 D-005).
     """
     ass, dest = Path(ass).resolve(), Path(dest).resolve()
@@ -82,34 +83,6 @@ def render_overlay(ass: Path, dest: Path, size: tuple[int, int], fps: float,
     return dest
 
 
-PROBE_FPS, PROBE_W, PROBE_H = 5, 54, 96   # a tiny grey copy of the video is enough to judge light
-
-
-def band_light(video: Path, spans: list[tuple[float, float]],
-               band: tuple[float, float]) -> list[float]:
-    """How bright the video is behind the subtitles, per span of time: the 90th-percentile grey
-    level (0-1) of a horizontal band (top, bottom as fractions of the height), middle 80% wide.
-
-    The 90th percentile, not the mean: one bright button or a white board behind half the
-    words is enough to wash white text out.
-    """
-    raw = subprocess.run(
-        ["ffmpeg", "-nostdin", "-v", "error", "-i", str(Path(video)), "-vf",
-         f"fps={PROBE_FPS},scale={PROBE_W}:{PROBE_H}:flags=area,format=gray",
-         "-f", "rawvideo", "-"], capture_output=True, check=False).stdout
-    size = PROBE_W * PROBE_H
-    frames = [raw[i:i + size] for i in range(0, len(raw) - size + 1, size)]
-    top, bottom = round(band[0] * PROBE_H), round(band[1] * PROBE_H)
-    left, right = round(0.1 * PROBE_W), round(0.9 * PROBE_W)
-    light = []
-    for start, end in spans:
-        picked = frames[int(start * PROBE_FPS):int(end * PROBE_FPS) + 1] or frames[-1:]
-        pixels = sorted(frame[row * PROBE_W + col] for frame in picked
-                        for row in range(top, bottom) for col in range(left, right))
-        light.append(pixels[int(len(pixels) * 0.9)] / 255 if pixels else 0.0)
-    return light
-
-
 def video_format(path: Path) -> tuple[tuple[int, int], float] | None:
     """((width, height), frames per second) of the file's video, or None for audio only."""
     out = _run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
@@ -132,15 +105,11 @@ def _subtitle_filter(subs: Path) -> str:
     ffmpeg's filter syntax treats ':' and '\\' as its own punctuation, so the files are named
     relative to that folder rather than by a Windows path with a drive letter.
     """
-    if subs.suffix.lower() == ".ass":
-        try:
-            fonts = os.path.relpath(FONTS_DIR, subs.parent).replace("\\", "/")
-        except ValueError:                  # another drive: no relative path exists
-            fonts = str(FONTS_DIR).replace("\\", "/").replace(":", "\\:")
-        return f"ass={subs.name}:fontsdir={fonts}"
-    # force_style's own commas must stay inside quotes, or ffmpeg reads them as filters.
-    return (f"subtitles={subs.name}:force_style='FontName=Arial,Fontsize=16,"
-            f"Outline=1,MarginV=60'")
+    try:
+        fonts = os.path.relpath(FONTS_DIR, subs.parent).replace("\\", "/")
+    except ValueError:                      # another drive: no relative path exists
+        fonts = str(FONTS_DIR).replace("\\", "/").replace(":", "\\:")
+    return f"ass={subs.name}:fontsdir={fonts}"
 
 
 def duration(path: Path) -> float:

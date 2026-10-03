@@ -2,6 +2,15 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-10-03 (3) - signature picked: bold, on a strip the owner places
+
+- Did: owner picked `signature` and asked for bold; body now Instrument Sans Bold; overlay is a
+  transparent strip (no position); ink, cinema, `--style` and the auto plate removed; preview
+  lays the strip on the video. Line breaks never leave one word alone.
+- Decisions: H-107 decided; D-113 (supersedes D-111).
+- Open: overlay in CapCut (owner); qtrle would be 20 MB vs ProRes 138 MB if CapCut reads it.
+- Next: owner tries `voices/clip_01-9b5726/clip_01.mov` in CapCut.
+
 ## 2026-10-03 (2) - styled subtitles: a signature look, words lit as said
 
 - Did: `style.py` (.ass, 3 layers per cue) + transparent ProRes overlay (`media.render_overlay`),

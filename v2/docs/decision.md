@@ -26,8 +26,9 @@ never collides with V1's `../docs/decision.md`.
 | D-108 | The overlay's alpha comes from drawing twice, on black and on white | Active |
 | D-109 | Cue display times: lead 0.1 s, hold to the next cue, no blink | Active |
 | D-110 | Three looks; the signature sets a hero word in gold serif | Active |
-| D-111 | Over a bright picture, a soft dark plate replaces the halo | Active |
+| D-111 | Over a bright picture, a soft dark plate replaces the halo | Superseded by D-113 |
 | D-112 | Cues: runs cut evenly at the best seams; scraps join a neighbour | Active |
+| D-113 | Signature only, bold, on a transparent strip the owner places | Active |
 
 ### D-101 — V2 ids, package name, shared venv, no V1 imports
 **Date:** 2026-09-29
@@ -215,3 +216,19 @@ sentence's side if within 1 s and the result still fits (48 characters, 6 s). A 
 **Why:** Even pieces read at an even pace, and the viewer never meets a two-word flash or a
 line that ends on "the". Every word still appears once, in order (tested).
 **Supersedes:** the greedy fill in D-105
+
+### D-113 — Signature only, bold, on a transparent strip the owner places
+**Date:** 2026-10-03
+**Context:** H-107: the owner picked `signature`, asked for a bolder font, and said placement is
+theirs ("jidher chaiye udar rakhunga").
+**Decision:** One look. The body is Instrument Sans Bold (a static 700 instance of the OFL
+variable font, as the SemiBold was); the hero word stays Instrument Serif Italic, which has no
+bold, so none is faked (`\b0` on it). The overlay is no longer the full frame with the text 30%
+up: it is a strip the video's width and 420 px tall at 1080 wide, the text centred in it, so it
+carries no position. It is made on every run (no `--style`); the preview lays that same strip on
+the video. Removed: `ink`, `cinema`, `--style`, and the automatic plate (D-111), which measured
+the picture's light where the engine had put the text and so no longer knows where the text
+will be.
+**Why:** The owner's own words; and one look, one command, fewer moving parts. The strip renders
+in ~30 s for a 33 s clip (three full-frame looks took ~4 min).
+**Supersedes:** D-111; the three-look part of D-110
