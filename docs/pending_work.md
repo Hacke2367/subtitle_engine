@@ -1,6 +1,6 @@
 # Pending Work
 
-Last updated: 2026-10-01 (jaali and rail built on step 17's branch, D-036, D-037)
+Last updated: 2026-10-03 (branch shipped as PR #18; repository map of the two systems)
 
 ## WIP
 
@@ -39,7 +39,8 @@ finished look.
 
 0. **Lyric themes for romantic + classics: done (H-042, D-038).** `romantic-soft` and
    `classic-sher` on branch `feature/lyric-romantic-classics` (off
-   `feature/bg-romantic-room`), committed, not pushed; samples in `songs/_review/lyric_fix/`.
+   `feature/bg-romantic-room`), [PR #18](https://github.com/Hacke2367/subtitle_engine/pull/18)
+   (stacked on #16; retarget to `dev` after #16 merges); samples in `songs/_review/lyric_fix/`.
    Use them for the romantic and classics videos. The branch merges after PR #16.
    Same branch: classics templates `talkies` and `ghata` built (D-039), waiting for the owner's
    look (samples in `songs/_review/classics_templates/`). 20-video plan: `docs/video_plan.md`.
