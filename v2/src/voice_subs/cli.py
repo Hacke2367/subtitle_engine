@@ -7,6 +7,7 @@ kept, so fixing a word by hand and running again costs no API call (red line 3).
 from __future__ import annotations
 
 import argparse
+import hashlib
 import sys
 from pathlib import Path
 
@@ -54,7 +55,7 @@ def _subs(args: argparse.Namespace) -> int:
     if source.suffix.lower() not in media.MEDIA_SUFFIXES:
         raise media.MediaError(f"{source.suffix or 'that file'} is not a video or audio file")
 
-    work = (args.work or WORK_ROOT / _slug(source.stem)).expanduser()
+    work = (args.work or WORK_ROOT / _work_name(source)).expanduser()
     audio = work / AUDIO_NAME
     out = (args.out or work / f"{_slug(source.stem)}.srt").expanduser()
     if out.exists() and not args.overwrite:
@@ -121,6 +122,16 @@ def _report(data: dict, timed: list[dict], cues: list[cues_mod.Cue]) -> None:
         print(f"      ! {flag}")
     if cues:
         print(f"      first cue: {cues[0].text[:60]!r}")
+
+
+def _work_name(source: Path) -> str:
+    """The work folder for one source file: its name, plus where it came from.
+
+    Clips are often all called `clip_01.mp4` in different folders; the tail of the path keeps
+    two of them apart, and keeps the same file pointing at the same folder run after run.
+    """
+    where = hashlib.sha1(str(source.resolve()).encode("utf-8")).hexdigest()[:6]
+    return f"{_slug(source.stem)}-{where}"
 
 
 def _slug(stem: str) -> str:

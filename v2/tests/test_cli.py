@@ -85,6 +85,15 @@ class CliTest(unittest.TestCase):
         self.assertEqual(cli._slug("03_dYSQ1NF1hvw_00.04.33"), "03_dYSQ1NF1hvw_00.04.33")
         self.assertEqual(cli._slug("my clip (final)"), "my-clip--final")
 
+    def test_two_clips_with_the_same_name_get_their_own_work_folders(self):
+        first, second = self.tmp / "a" / "clip_01.mp4", self.tmp / "b" / "clip_01.mp4"
+        for path in (first, second):
+            path.parent.mkdir()
+            path.write_bytes(b"x")
+        self.assertNotEqual(cli._work_name(first), cli._work_name(second))
+        self.assertEqual(cli._work_name(first), cli._work_name(first))   # same file, same folder
+        self.assertTrue(cli._work_name(first).startswith("clip_01-"))
+
 
 if __name__ == "__main__":
     unittest.main()

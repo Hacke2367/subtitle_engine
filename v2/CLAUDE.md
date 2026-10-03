@@ -36,8 +36,9 @@ run from; reinstall after the worktree merges).
 ```
 
 A 30-40 s video in, a Roman-script `.srt` out (spec 00). Everything for one file lands in
-`voices/<name>/`: `audio.mp3`, `transcript.json`, the `.srt`, and with `--preview` a
-`preview.mp4` with the subtitles burned in (review only; the product is the `.srt`).
+`voices/<name>-<id>/`, where the id keeps two files both called `clip_01.mp4` apart:
+`audio.mp3`, `transcript.json`, the `.srt`, and with `--preview` a `preview.mp4` with the
+subtitles burned in (review only; the product is the `.srt`).
 `--fresh` transcribes again (a billed call), `--devanagari` keeps the engine's own script.
 
 - All tests (offline, no key, no audio): `<python> -m unittest discover -s tests -t .`

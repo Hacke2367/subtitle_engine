@@ -23,12 +23,13 @@ cd C:\subtitle_engine\.claude\worktrees\voice-subtitles\v2
 C:/subtitle_engine/venv/Scripts/python -m voice_subs.cli subs "<video>.mp4" --preview
 ```
 
-Everything lands in `v2/voices/<name>/`: `audio.mp3`, `transcript.json`, the `.srt`, and with
+Everything lands in `v2/voices/<name>-<id>/`: `audio.mp3`, `transcript.json`, the `.srt`, and with
 `--preview` a `preview.mp4` with the subtitles burned in to check the timing by eye.
 
-Already made, ready to watch:
-`v2/voices/clip_01/preview.mp4` (33 s Hindi, 15 cues) and
-`v2/voices/03_dYSQ1NF1hvw_00.04.33/` (38 s English, 12 cues).
+Already made, ready to watch (`voices/` is gitignored, so these exist only in the worktree):
+`v2/voices/clip_01-9b5726/preview.mp4` (33 s Hindi, 15 cues),
+`v2/voices/03_dYSQ1NF1hvw_00.04.33-2542ea/preview.mp4` (38 s English, 12 cues) and
+`v2/voices/clip_01-91c782/preview.mp4` (40 s English, 24 cues).
 
 ## Next up
 

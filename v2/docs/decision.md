@@ -91,7 +91,9 @@ arguments on `to_cues`, so the owner's review can move any of them without touch
 **Date:** 2026-10-03
 **Context:** Red line 3 (never overwrite the user's edits silently) and the wish not to pay for
 a second call after fixing a word by hand.
-**Decision:** Each source file gets `v2/voices/<name>/` holding `audio.mp3`, `transcript.json`,
+**Decision:** Each source file gets `v2/voices/<name>-<id>/` (the id is a short hash of the
+source's full path, because clips are often all called `clip_01.mp4`) holding `audio.mp3`,
+`transcript.json`,
 the `.srt` and (with `--preview`) `preview.mp4`. A re-run reuses a transcript whose stored
 fingerprint matches the extracted audio; if it does not match, the run refuses and names
 `--fresh` or `--work`. An existing `.srt` is never replaced without `--overwrite`.
