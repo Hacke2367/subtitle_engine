@@ -33,6 +33,7 @@ run from; reinstall after the worktree merges).
 ```
 <python> -m voice_subs.cli subs <video-or-audio> [--out F.srt] [--lang hin|eng] [--work DIR]
                                                  [--fresh] [--devanagari] [--overwrite] [--preview]
+                                                 [--style signature|ink|cinema|all]
 ```
 
 A 30-40 s video in, a Roman-script `.srt` out (spec 00). Everything for one file lands in
@@ -40,6 +41,9 @@ A 30-40 s video in, a Roman-script `.srt` out (spec 00). Everything for one file
 `audio.mp3`, `transcript.json`, the `.srt`, and with `--preview` a `preview.mp4` with the
 subtitles burned in (review only; the product is the `.srt`).
 `--fresh` transcribes again (a billed call), `--devanagari` keeps the engine's own script.
+`--style` (spec 00b) also writes `<name>.<style>.ass` and `<name>.<style>.mov`, a transparent
+ProRes 4444 overlay with each word lit as it is said: the file the owner drops above the video
+in CapCut (an `.srt` cannot carry a font or a highlight). With `--preview`: `preview_<style>.mp4`.
 
 - All tests (offline, no key, no audio): `<python> -m unittest discover -s tests -t .`
 - One test: `<python> -m unittest tests.test_roman` or `... tests.test_cues.SrtTest`.
@@ -54,11 +58,15 @@ subtitles burned in (review only; the product is the `.srt`).
 `transcript.json`, owned by `transcript.py`, which also validates it (format in spec 00):
 
 - `media.py`: ffmpeg. Video or audio → 16 kHz mono mp3; duration; a fingerprint of the audio;
-  and the burned-in preview. The only module that runs a subprocess.
+  the burned-in preview; the transparent overlay (alpha by drawing on black and white, D-108).
+  The only module that runs a subprocess.
 - `scribe.py`: one POST to ElevenLabs Scribe (D-103), stdlib HTTP, no retry, key never logged.
 - `roman.py`: Devanagari → Roman by rules (D-104). Latin is passed through untouched.
 - `transcript.py`: the format, its validator, and the staleness check against the audio.
-- `cues.py`: timed words → cues (D-105) → `.srt` text. No LLM (that is step 05).
+- `cues.py`: timed words → cues (D-105) with display times (D-109) → `.srt` text. No LLM
+  (that is step 05). Owns the word lists for words that lean on a neighbour.
+- `style.py`: cues + word times → an `.ass` per look (D-110), three layers per cue (halo, glow,
+  text) that share one layout. Fonts (OFL) ship in `voice_subs/fonts/`.
 - `cli.py`: the command above, and the red-line refusals (never overwrite a transcript or an
   `.srt` without being asked).
 

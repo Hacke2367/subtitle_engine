@@ -3,6 +3,9 @@
 One command, four stages: ffmpeg pulls the audio out, Scribe transcribes it, `roman.py` writes
 the Hindi words in Roman, `cues.py` groups them into cues and writes the file. The transcript is
 kept, so fixing a word by hand and running again costs no API call (red line 3).
+
+With `--style`, the same cues are also drawn in a styled look, each word lit as it is said
+(`style.py`): an `.ass` file and a transparent overlay `.mov` to drop above the video.
 """
 from __future__ import annotations
 
@@ -12,11 +15,12 @@ import sys
 from pathlib import Path
 
 from . import cues as cues_mod
-from . import media, scribe, transcript
+from . import media, scribe, style, transcript
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[2]      # v2/
 WORK_ROOT = PACKAGE_ROOT / "voices"                     # gitignored (red line 4)
 AUDIO_NAME = "audio.mp3"
+CANVAS = ((style.WIDTH, style.HEIGHT), 30.0)            # for an audio-only source
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -36,9 +40,15 @@ def main(argv: list[str] | None = None) -> int:
                       help="transcribe again, replacing the transcript and any hand edits")
     subs.add_argument("--devanagari", action="store_true",
                       help="keep the engine's own script instead of writing Hindi in Roman")
-    subs.add_argument("--overwrite", action="store_true", help="replace an existing .srt")
+    subs.add_argument("--style", choices=[*style.STYLES, "all"], default=None,
+                      help="also draw the subtitles in a styled look, each word lit as it is "
+                           "said: an .ass file and a transparent overlay .mov ("
+                           + "; ".join(f"{s.name}: {s.about}" for s in style.STYLES.values())
+                           + ")")
+    subs.add_argument("--overwrite", action="store_true",
+                      help="replace subtitle files that already exist")
     subs.add_argument("--preview", action="store_true",
-                      help="also write preview.mp4, the video with the subtitles drawn on it")
+                      help="also write the video with the subtitles drawn on it, to check by eye")
 
     args = parser.parse_args(argv)
     try:
@@ -58,8 +68,13 @@ def _subs(args: argparse.Namespace) -> int:
     work = (args.work or WORK_ROOT / _work_name(source)).expanduser()
     audio = work / AUDIO_NAME
     out = (args.out or work / f"{_slug(source.stem)}.srt").expanduser()
-    if out.exists() and not args.overwrite:
-        raise media.MediaError(f"{out} already exists; pass --overwrite to replace it")
+    looks = list(style.STYLES) if args.style == "all" else [args.style] if args.style else []
+    # (Not with_suffix: a name like 03_x_00.04.33 already has dots in it.)
+    styled = {name: (work / f"{_slug(source.stem)}.{name}.ass",
+                     work / f"{_slug(source.stem)}.{name}.mov") for name in looks}
+    existing = [p for p in [out, *(ass for ass, _ in styled.values())] if p.exists()]
+    if existing and not args.overwrite:
+        raise media.MediaError(f"{existing[0]} already exists; pass --overwrite to replace it")
 
     print(f"[1/4] audio  <- {source.name}")
     media.extract_audio(source, audio)
@@ -76,9 +91,22 @@ def _subs(args: argparse.Namespace) -> int:
 
     print(f"[4/4] subtitles -> {out}")
     _report(data, timed, cues)
-    if args.preview:
+
+    video = media.video_format(source) if (args.preview or styled) else None
+    if args.preview and video is None:
+        print("      no preview: the source has no video to draw on")
+    if args.preview and video is not None and not styled:
         preview = media.burn_subtitles(source, out, work / "preview.mp4")
         print(f"      preview (review only) -> {preview}")
+    (size, fps) = video or CANVAS
+    for name, (ass, mov) in styled.items():
+        ass.write_text(style.to_ass(cues, timed, style.STYLES[name], size=size), encoding="utf-8")
+        overlay = media.render_overlay(ass, mov, size, fps, seconds)
+        print(f"      style {name}: {ass.name} + overlay {overlay.name} "
+              f"({overlay.stat().st_size / 1e6:.0f} MB, transparent, {size[0]}x{size[1]})")
+        if args.preview and video is not None:
+            preview = media.burn_subtitles(source, ass, work / f"preview_{name}.mp4")
+            print(f"      preview (review only) -> {preview}")
     return 0
 
 

@@ -1,4 +1,5 @@
-"""A video or audio file -> the one mono audio file the transcription engine is sent.
+"""ffmpeg: a video or audio file -> the mono audio the transcription engine is sent; and the
+subtitles drawn back onto the video (preview) or onto a transparent canvas (overlay .mov).
 
 ffmpeg does the extraction, so a video never leaves the machine: only this small audio file is
 uploaded (red line 4). 16 kHz mono is what speech models want, and it keeps a 40-second clip
@@ -8,9 +9,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import subprocess
 from pathlib import Path
 
+FONTS_DIR = Path(__file__).resolve().parent / "fonts"   # the styles' fonts (OFL), shipped here
 SAMPLE_RATE = 16_000
 BITRATE = "64k"
 MEDIA_SUFFIXES = {".mp4", ".mov", ".mkv", ".webm", ".avi", ".m4v", ".wav", ".mp3", ".m4a",
@@ -37,20 +40,79 @@ def extract_audio(source: Path, dest: Path) -> Path:
 def burn_subtitles(source: Path, srt: Path, dest: Path) -> Path:
     """A preview copy of the video with the subtitles drawn on it, to check the timing by eye.
 
-    Review only: the product is the `.srt`, which the user imports into their own editor.
+    An `.ass` file is drawn in its own style (fonts from `fonts/`); an `.srt` in plain Arial.
     """
     source, srt, dest = Path(source).resolve(), Path(srt).resolve(), Path(dest).resolve()
     dest.parent.mkdir(parents=True, exist_ok=True)
-    # ffmpeg's filter syntax treats ':' and '\' as its own punctuation, so the subtitle file is
-    # named relative to its folder instead, with ffmpeg run from there.
     _run(["ffmpeg", "-nostdin", "-v", "error", "-y", "-i", str(source),
-          # force_style's own commas must stay inside quotes, or ffmpeg reads them as filters.
-          "-vf", f"subtitles={srt.name}:force_style='FontName=Arial,Fontsize=16,"
-                 f"Outline=1,MarginV=60'",
-          "-c:a", "copy", "-preset", "veryfast", str(dest)], cwd=srt.parent)
+          "-vf", _subtitle_filter(srt), "-c:a", "copy", "-preset", "veryfast", str(dest)],
+         cwd=srt.parent)
     if not dest.is_file() or dest.stat().st_size == 0:
         raise MediaError(f"ffmpeg wrote no preview for {source.name}")
     return dest
+
+
+def render_overlay(ass: Path, dest: Path, size: tuple[int, int], fps: float,
+                   seconds: float) -> Path:
+    """The styled subtitles alone on a transparent canvas: a ProRes 4444 .mov with alpha.
+
+    The user drops it on the track above the video in CapCut. Same codec settings as the
+    lyric engine's overlay, which CapCut was proven to read with its transparency (V1 D-005).
+    """
+    ass, dest = Path(ass).resolve(), Path(dest).resolve()
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    width, height = size
+    # ffmpeg's own transparent mode (ass=...:alpha=1) squares a half-clear pixel's opacity
+    # (measured: a word at 45% came out at 20%). So the subtitles are drawn twice, on black and
+    # on white, and the true opacity is read from the difference: on black a pixel is
+    # colour x alpha, on white it is that plus (1 - alpha) x 255.
+    canvas = f"s={width}x{height}:r={fps:g}:d={seconds:.3f},format=gbrp"
+    draw = _subtitle_filter(ass)
+    graph = (f"color=c=black:{canvas},{draw},split[b1][b2];"
+             f"color=c=white:{canvas},{draw}[w];"
+             "[w][b1]blend=all_expr='255-(A-B)',extractplanes=g[a];"
+             "[b2][a]alphamerge,unpremultiply=inplace=1,"
+             "scale=out_color_matrix=bt709:out_range=tv,format=yuva444p10le[out]")
+    _run(["ffmpeg", "-nostdin", "-v", "error", "-y", "-filter_complex", graph, "-map", "[out]",
+          "-c:v", "prores_ks", "-profile:v", "4444", "-alpha_bits", "16", "-vendor", "apl0",
+          "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
+          "-color_range", "tv", str(dest)], cwd=ass.parent)
+    if not dest.is_file() or dest.stat().st_size == 0:
+        raise MediaError(f"ffmpeg wrote no overlay for {ass.name}")
+    return dest
+
+
+def video_format(path: Path) -> tuple[tuple[int, int], float] | None:
+    """((width, height), frames per second) of the file's video, or None for audio only."""
+    out = _run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
+                "stream=width,height,avg_frame_rate", "-of", "json", str(Path(path))])
+    streams = json.loads(out or "{}").get("streams") or []
+    if not streams or not streams[0].get("width"):
+        return None
+    stream = streams[0]
+    num, _, den = str(stream.get("avg_frame_rate", "30/1")).partition("/")
+    try:
+        fps = float(num) / float(den or 1)
+    except (ValueError, ZeroDivisionError):
+        fps = 30.0
+    return (int(stream["width"]), int(stream["height"])), (fps if fps > 0 else 30.0)
+
+
+def _subtitle_filter(subs: Path) -> str:
+    """The ffmpeg filter that draws this subtitle file, for ffmpeg run from the file's folder.
+
+    ffmpeg's filter syntax treats ':' and '\\' as its own punctuation, so the files are named
+    relative to that folder rather than by a Windows path with a drive letter.
+    """
+    if subs.suffix.lower() == ".ass":
+        try:
+            fonts = os.path.relpath(FONTS_DIR, subs.parent).replace("\\", "/")
+        except ValueError:                  # another drive: no relative path exists
+            fonts = str(FONTS_DIR).replace("\\", "/").replace(":", "\\:")
+        return f"ass={subs.name}:fontsdir={fonts}"
+    # force_style's own commas must stay inside quotes, or ffmpeg reads them as filters.
+    return (f"subtitles={subs.name}:force_style='FontName=Arial,Fontsize=16,"
+            f"Outline=1,MarginV=60'")
 
 
 def duration(path: Path) -> float:

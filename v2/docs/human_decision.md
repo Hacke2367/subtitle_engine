@@ -111,3 +111,20 @@ first few videos, and those go into the table; the LLM decides breaks, punctuati
 capitalization once a key exists.
 **Decision:**
 **Decided:**
+
+### H-107 — The signature subtitle style
+**Status:** pending
+**Raised:** 2026-10-03
+**Needed-before:** making videos with the styled subtitles
+**Context:** The owner asked for premium subtitles, a signature style and font, the spoken word
+highlighted, so viewers do not skip ("tumne jo subtitle diya hai agar mein ye use karunga tou
+log skip kar denge"). Built: three looks, side by side on the same clip
+(`v2/voices/clip_01-9b5726/compare_styles.mp4`), spec `docs/specs/00b_styled_subtitles.md`.
+**Options:** (a) `signature`: sans line brightening as said + one gold serif-italic hero word
+per cue; (b) `ink`: each word turns gold as said; (c) `cinema`: words appear one by one, serif,
+left-aligned.
+**Recommendation:** (a) — the judge's own proposal after round one, and the only one that is not
+a caption-app preset.
+**Decision:**
+**Decided:**
+

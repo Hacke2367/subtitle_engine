@@ -9,6 +9,7 @@ relative to `v2/`. The owner can reorder any step before it starts.
 | #  | Step                                              | Branch                          | Status      |
 |----|---------------------------------------------------|---------------------------------|-------------|
 | 00 | Light version: a 30–40 s video → a Roman `.srt`   | `feature/v2-video-subs`         | Built, owner review |
+| 00b | Styled subtitles: signature look, word highlight | `feature/v2-video-subs`        | Built, owner picks a style |
 | 01 | Voice → transcript: Roman Hinglish, word times    | `feature/v2-transcribe`         | Done in 00 for one short file |
 | 02 | Hour-long audio in parts, exact seams             | `feature/v2-long-audio`         | Not started |
 | 03 | Cues at pauses → `.srt` (rules only)              | `feature/v2-srt-export`         | Done in 00 |
@@ -24,6 +25,11 @@ ffmpeg, one Scribe call, Devanagari rewritten in Roman, cues at pauses, an `.srt
 `docs/specs/00_video_to_srt.md`. It settles the transcript format, the engine choice and the cue
 rules, so steps 01, 03 and 04 are done for a single short file; what is left of them is the long
 recording (step 02) and whatever the owner's review of the output asks for.
+
+**00b Styled subtitles (added 2026-10-03, H-107).** The owner wants premium subtitles with a
+signature font and the spoken word highlighted, added in their own editor. `--style` writes an
+`.ass` and a transparent overlay `.mov` per look (D-107, D-108); three looks, judged by the
+`video-judge` agent and reworked once. Spec: `docs/specs/00b_styled_subtitles.md`.
 
 **01 Voice → transcript.** Pick the transcription engine by testing candidates on the owner's
 clip (H-104): Roman output for Hindi words, word-level times, cost per hour. Output is the

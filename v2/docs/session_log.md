@@ -2,6 +2,16 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-10-03 (2) - styled subtitles: a signature look, words lit as said
+
+- Did: `style.py` (.ass, 3 layers per cue) + transparent ProRes overlay (`media.render_overlay`),
+  `--style`; fonts Instrument Sans/Serif (OFL); cue display timing; line breaks that keep
+  phrases; judged twice by `video-judge`; spec 00b.
+- Decisions: D-107 (.ass + overlay .mov), D-108 (alpha by black/white matting: ffmpeg's alpha
+  mode squared opacity), D-109 (lead/hold, no blink), D-110 (signature + hero word).
+- Open: H-107 (owner picks the style); overlay not yet tried in CapCut.
+- Next: owner watches `voices/clip_01-9b5726/compare_styles.mp4`.
+
 ## 2026-10-03 - light version: a short video -> a Roman .srt
 
 - Did: built `voice_subs` end to end on `feature/v2-video-subs` (media, scribe, roman,

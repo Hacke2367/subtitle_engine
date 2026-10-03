@@ -76,6 +76,21 @@ class CliTest(unittest.TestCase):
         code, calls = run(self.source, self.work, ["--overwrite", "--fresh"])
         self.assertEqual((code, calls), (0, 1))
 
+    def test_style_writes_an_ass_and_an_overlay_per_look(self):
+        made = []
+        source = self.tmp / "03_x_00.04.33.mp4"          # dots in the name, as the clips have
+        source.write_bytes(b"x")
+        with mock.patch.object(media, "video_format", lambda path: ((1080, 1920), 25.0)), \
+             mock.patch.object(media, "render_overlay",
+                               lambda ass, dest, size, fps, s:
+                               (made.append(dest), dest.write_bytes(b"mov"), dest)[-1]):
+            code, _ = run(source, self.work, ["--style", "all"])
+        self.assertEqual(code, 0)
+        self.assertEqual(sorted(p.name for p in self.work.glob("*.ass")),
+                         ["03_x_00.04.33.cinema.ass", "03_x_00.04.33.ink.ass",
+                          "03_x_00.04.33.signature.ass"])
+        self.assertEqual(len(made), 3)
+
     def test_a_file_that_is_not_video_or_audio_is_refused(self):
         other = self.tmp / "notes.txt"
         other.write_text("hello", encoding="utf-8")

@@ -20,8 +20,12 @@ never collides with V1's `../docs/decision.md`.
 | D-102 | Plan order: transcription risk first, LLM after a rules baseline | Active |
 | D-103 | ElevenLabs Scribe as the transcription engine       | Active |
 | D-104 | Romanization by rules in the engine, not by an LLM  | Active |
-| D-105 | Cue rules: pause 0.45 s, 42 characters, 6 seconds   | Active |
+| D-105 | Cue rules: pause 0.45 s, 42 characters, 6 seconds   | Active (display times: D-109) |
 | D-106 | One work folder per file; the transcript is the cache | Active |
+| D-107 | Styled subtitles ship as an .ass file and a transparent overlay .mov | Active |
+| D-108 | The overlay's alpha comes from drawing twice, on black and on white | Active |
+| D-109 | Cue display times: lead 0.1 s, hold to the next cue, no blink | Active |
+| D-110 | Three looks; the signature sets one hero word per cue in gold serif | Active |
 
 ### D-101 — V2 ids, package name, shared venv, no V1 imports
 **Date:** 2026-09-29
@@ -100,4 +104,63 @@ fingerprint matches the extracted audio; if it does not match, the run refuses a
 **Why:** The hand-edited transcript is the valuable file, so it is the thing that is kept and
 guarded. The fingerprint is a hash of the extracted audio, which ffmpeg produces identically
 from the same source, so the check is stable across runs.
+**Supersedes:** —
+
+### D-107 — Styled subtitles ship as an .ass file and a transparent overlay .mov
+**Date:** 2026-10-03
+**Context:** The owner asked for premium subtitles with a font of their own and the spoken word
+highlighted (H-107), to add in their own editor. An `.srt` carries text and times only, so no
+editor can show a font or a per-word highlight from it, and CapCut does not import `.ass`.
+**Decision:** `--style NAME` writes the cues as an `.ass` file (fonts, colours, and per-word
+`	` transforms timed from each word's own start) and renders it with libass onto a transparent
+canvas as a ProRes 4444 `.mov` the size and frame rate of the source video, to drop on the track
+above it. The `.srt` is still written. Fonts are OFL files shipped in `voice_subs/fonts/`.
+**Why:** libass is already inside ffmpeg, so the look costs no renderer of our own; the overlay
+is the one format that carries a styled, word-timed subtitle into CapCut, and its codec is the
+one V1 proved CapCut reads with transparency (V1 D-005). The `.ass` stays useful for players and
+editors that read it.
+**Supersedes:** —
+
+### D-108 — The overlay's alpha comes from drawing twice, on black and on white
+**Date:** 2026-10-03
+**Context:** ffmpeg's own transparent mode (`ass=...:alpha=1`) was measured squaring a half-clear
+pixel's opacity: a dim word at 45% came out at 20%, so over the video the overlay looked much
+darker than the same subtitles burned in.
+**Decision:** `render_overlay` draws the `.ass` on an opaque black and an opaque white canvas and
+reads the true opacity from their difference (on black a pixel is colour x alpha, on white that
+plus (1 - alpha) x 255), then divides the colour back out. All in one ffmpeg filter graph.
+**Why:** It is exact for anything libass draws, whatever the layers and blurs, and was measured:
+over the same frames, pixels that differ from the burned-in preview by more than 24 levels fell
+from 1.2% to 0.03% (H.264 noise). `tests/test_style.py` holds a dim word to its 45%.
+**Supersedes:** —
+
+### D-109 — Cue display times: lead 0.1 s, hold to the next cue, no blink
+**Date:** 2026-10-03
+**Context:** The `video-judge` agent found every style blinking at each back-to-back cue (each
+fading out and the next fading in, 1-2 empty frames), the last word of a cue fading while still
+being said, and the final line (the speaker's sher) gone 3.5 s before the clip ended.
+**Decision:** A cue appears 0.1 s before its first word (never over the previous cue's last
+word); stays until the next cue if the gap is under 0.4 s, else 0.4 s into the silence; at
+least 1.2 s on screen; the last cue stays up to 4 s, to the end of the clip. Styled cues fade
+only across a real gap. A length break moves one word back rather than strand a postposition
+or a determiner. Applies to the `.srt` too. Supersedes D-105's 1.0 s hold and 0.05 s gap.
+**Why:** Text that arrives with the voice reads late; text that leaves with the last syllable
+reads cut. These are display times around the words' audio times, which stay untouched (red
+line 2): the highlight still follows each word exactly.
+**Supersedes:** part of D-105
+
+### D-110 — Three looks; the signature sets one hero word per cue in gold serif
+**Date:** 2026-10-03
+**Context:** H-107. Round one (Poppins ink, cinema, a "pill" box) was judged competent but not
+a signature; pill was the most common look on Reels and was dropped.
+**Decision:** `signature` (default): Instrument Sans SemiBold body, brightening as said, and one
+hero word per cue in Instrument Serif Italic at 1.3x, gold #FFD37A. The hero is the cue's
+longest word of five letters or more that is not grammar or a common verb (`style.COMMON`, plus
+the words that lean on a neighbour); a tie goes to the word said longer. `ink` and `cinema`
+stay as alternatives. Fonts: Instrument Sans (static SemiBold instanced from the OFL variable
+font with fontTools) and Instrument Serif, both OFL, shipped in `voice_subs/fonts/`.
+**Why:** A hero chosen by duration alone picked verbs (aata, lagta, karein); by length it picks
+the content words (experience, jindagi, mushkil, koshish, tajurba). The sans + serif-italic mix
+is not a caption-app preset, and the one gold word gives a scrolling eye an anchor per line.
+Instrument Sans and Serif are one design family, so the mix looks intended.
 **Supersedes:** —
