@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voice-subs"
+version = "0.1.0"
+description = "Hinglish / English voice recording -> Roman-script .srt subtitles"
+requires-python = ">=3.10"
+
+[tool.setuptools.packages.find]
+where = ["src"]

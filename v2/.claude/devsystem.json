@@ -1,0 +1,17 @@
+{
+  "tier": "standard",
+  "redLines": [
+    "Never alter the spoken words: words, spelling and order match the transcript (with the user's edits); the LLM only adds punctuation and breaks; every word appears exactly once, including at part seams.",
+    "Never guess a timing: cue times come from the audio; a stretch that cannot be timed is flagged and reported, never estimated.",
+    "Never overwrite the user's edits silently: a re-run keeps hand corrections, or refuses and says why.",
+    "Keys and voice stay the user's: API keys never reach code, the repo or logs; the voice goes only to services the user configured."
+  ],
+  "gate": {
+    "commands": [
+      {
+        "name": "unit tests",
+        "run": "C:/subtitle_engine/venv/Scripts/python -m unittest discover -s tests -t ."
+      }
+    ]
+  }
+}
