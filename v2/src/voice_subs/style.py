@@ -292,7 +292,8 @@ def _line_break(words: list[dict], line_chars: int, hero: int | None = None,
     widths = [len(w["text"].strip()) * (hero_look.scale if i == hero and hero_look else 1)
               for i, w in enumerate(words)]
     total = sum(widths) + len(widths) - 1
-    if total <= line_chars or len(words) < 2:
+    # A little over is still one line: "mushkil kaam nahin hai." beats "mushkil kaam / nahin hai."
+    if total <= line_chars * 1.12 or len(words) < 2:
         return None
     best, best_cost, first = None, None, -1.0
     for i in range(1, len(words)):
@@ -302,6 +303,8 @@ def _line_break(words: list[dict], line_chars: int, hero: int | None = None,
             cost += 100
         if leans_forward(words[i - 1]["text"]):
             cost += 100
+        if i in (1, len(words) - 1):
+            cost += 100                         # one word alone on a line: "the editing / app"
         if best_cost is None or cost < best_cost:
             best, best_cost = i, cost
     return best

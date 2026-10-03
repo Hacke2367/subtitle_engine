@@ -162,6 +162,13 @@ class LineBreakTest(unittest.TestCase):
         said = spaced("aur vo experience kisi na kisi quantity")
         self.assertEqual(_line_break(said, 22), 3)     # "aur vo experience" / "kisi na kisi..."
 
+    def test_a_cue_a_little_over_the_line_stays_on_one(self):
+        self.assertIsNone(_line_break(spaced("mushkil kaam nahin hai."), 22))
+
+    def test_no_word_is_left_alone_on_a_line(self):
+        said = spaced("because most of the editing app")
+        self.assertNotIn(_line_break(said, 20), (1, len(said) - 1))
+
     def test_a_line_never_splits_a_word_from_the_one_it_leans_on(self):
         self.assertNotEqual(_line_break(spaced("aur mujhe sach mein lagta hai"), 20), 3)
         said = spaced("aur main isilie ek line hamesha bolta hun")

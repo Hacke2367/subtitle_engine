@@ -52,7 +52,8 @@ LEANS_FORWARD = frozenset("""ek is us ye yeh vo woh koi kisi kuch kuchh har bahu
     the a an of and in my your our their this that i we you youre theyre be been most first
     very at for from with by into than so its im hes shes thats theres ive youve weve id if
     because when while where which who whose although though unless until since after before
-    on about over under through without within other another""".split())
+    on about over under through without within other another or but nor aur ya lekin magar
+    do does did can will would should could must not have has had am are was""".split())
 
 
 def leans_back(text: str) -> bool:
