@@ -701,3 +701,22 @@ not have.
 template, a separate judge subagent, and speed ("aaj 20 video banana hai"). Claude chose
 line-level with a soft word highlight (D-041) and made `.claude/agents/video-judge.md`.
 **Decided:** 2026-10-02
+
+### H-044 — Repository structure with two systems; cleanup
+**Status:** decided
+**Raised:** 2026-10-03
+**Needed-before:** —
+**Context:** With V2 (Voice Subs) built beside V1, the owner said the structure had become
+cluttered ("bahut kachra hogya hai, structure mein — sabhi unwanted chije hata do, and sabko
+structure karlo").
+**Options:** Structure: (a) V1 stays at the root, V2 in `v2/`, both mapped at the top of the root
+docs; (b) move V1 into `v1/` too (every path, command and test changes). Cleanup candidates: test
+leftovers (~130 MB); `songs/_review` (983 MB); stale git branches.
+**Recommendation:** (a); remove the test leftovers.
+**Decision:** (a), and remove the test leftovers and `songs/_review`. On checking, `songs/_review`
+turned out to hold the background workbench (`run_scene.py`, templates), approved reference
+samples that docs and code cite, and the first four finished videos (`final4/`), so only its
+unreferenced `clips/` was moved; the owner was told. Moved to `.trash/` (gitignored, with a
+README): `out/01_alpha_proof`, `songs/_hooktest`, `songs/_review/clips`. Git branches kept.
+**Decided:** 2026-10-03
+

@@ -2,6 +2,12 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-10-03 (29): repository map of the two systems; cleanup; branch shipped
+**Did:** (from the V2 session) root `CLAUDE.md` and `docs/project_context.md` open with a map of V1 (root) and V2 (`v2/`, PR #17); test leftovers moved to `.trash/` (H-044); V1 gate green (unit tests, alpha proof); `feature/lyric-romantic-classics` pushed as PR #18, stacked on #16.
+**Decisions:** H-044.
+**Open:** merge order: #16, then #18 retargeted to `dev`; the owner's look at the first four and the `rain` mood (unchanged).
+**Next:** owner merges #16 and #18; then the remaining 16 songs.
+
 ## 2026-10-02 (28): khidki reel on all seven templates, judged; fixes from the judging
 **Did:** `songs/khidki_reel` (khidki 27-57 s, words reused from the identical khidki_30s clip, three `*marks*`, `title.txt`) rendered on all seven romantic + classics templates and judged per video (first-second hook, lyrics, background, vibe, payoff); verdicts in `docs/video_plan.md`. Fixes found by the judging (D-040): title card 0.5 -> 0.8 for the two new themes; the legibility check measures each text block apart (`compose.ink_bands`); `paint.title_calm` for fog; chaand's moon hidden under the card until 2.8 s; ghata's cloud forms blended; talkies opens at half light. Finals in `songs/_review/khidki_reel/` (1-7) plus `0_fixes_pehle_vs_ab.mp4`.
 **Decisions:** D-040.
