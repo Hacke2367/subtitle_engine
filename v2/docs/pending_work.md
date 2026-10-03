@@ -1,6 +1,6 @@
 # Pending Work (V2)
 
-Last updated: 2026-10-03 (light version built)
+Last updated: 2026-10-03 (signature final, shipped as PR #17; session handed off)
 
 ## WIP
 
@@ -30,8 +30,9 @@ C:/subtitle_engine/venv/Scripts/python -m voice_subs.cli subs "<video>.mp4" --pr
 
 ## Next up
 
-1. **Owner:** drop `clip_01.mov` onto a video in CapCut desktop: is it transparent, in sync, and
-   does it move and scale as wanted? If CapCut also reads QuickTime Animation, the overlay can
+1. **Resume point:** steps 00 and 00b are in Review on PR #17 (gate green, 66 tests). Waiting on
+   the owner: merge PR #17 into `dev`, and drop `clip_01.mov` onto a video in CapCut desktop: is
+   it transparent, in sync, and does it move and scale as wanted? If CapCut also reads QuickTime Animation, the overlay can
    shrink from ~138 MB to ~20 MB (spec 00b).
 2. **Owner:** any hero word or spelling that reads wrong (H-106 for spellings).
 3. **Owner:** code licence (H-103); own-voice and long recordings (H-104).

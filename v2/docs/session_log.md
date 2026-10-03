@@ -2,6 +2,15 @@
 
 Newest first. At most six lines per entry: Did, Decisions, Open, Next.
 
+## 2026-10-03 (4) - docs match the build; repository map; shipped; handoff
+
+- Did: V2 project context and CLAUDE.md now describe the light version and the signature overlay
+  (scope changed by H-105, H-107); root docs map V1 and V2 (V1 branch, H-044); cleanup to
+  `.trash/`; both branches gated and shipped (PR #17 V2, PR #18 V1).
+- Decisions: H-044 (V1's numbering: it is about the whole repository).
+- Open: overlay in CapCut; merge of #17 (and #16, #18 for V1).
+- Next: owner merges PR #17 and tries `voices/clip_01-9b5726/clip_01.mov` in CapCut.
+
 ## 2026-10-03 (3) - signature picked: bold, on a strip the owner places
 
 - Did: owner picked `signature` and asked for bold; body now Instrument Sans Bold; overlay is a
