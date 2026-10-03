@@ -1,0 +1,6 @@
+.env
+__pycache__/
+*.egg-info/
+
+# Voice recordings and everything made from them: private, never committed (H-101, red line 4)
+voices/
